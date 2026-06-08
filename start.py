@@ -16,8 +16,8 @@ from pathlib import Path
 IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
 
 if IS_BUNDLED:
-    # When bundled, use the directory containing the exe
-    PROJECT_DIR = Path(sys.executable).parent.resolve()
+    # PyInstaller extracts data files to _MEIPASS temp dir
+    PROJECT_DIR = Path(sys._MEIPASS)
 else:
     PROJECT_DIR = Path(__file__).parent.resolve()
 
@@ -31,7 +31,6 @@ URL = f"http://{HOST}:{PORT}"
 def get_python():
     """Get the Python interpreter."""
     if IS_BUNDLED:
-        # When bundled, use system Python
         return sys.executable
     
     venv_python = VENV_DIR / "bin" / "python"
@@ -45,7 +44,7 @@ def get_python():
 def create_venv():
     """Create virtual environment if needed (only for non-bundled)."""
     if IS_BUNDLED:
-        return  # Skip venv creation for bundled app
+        return
     
     if VENV_DIR.exists():
         return
@@ -57,7 +56,7 @@ def create_venv():
 def install_deps():
     """Install dependencies (only for non-bundled)."""
     if IS_BUNDLED:
-        return  # Dependencies are bundled
+        return
     
     python = get_python()
     marker = PROJECT_DIR / ".deps_installed"
@@ -93,13 +92,13 @@ def find_main_module():
 def main():
     os.chdir(PROJECT_DIR)
     print("=" * 50)
-    print("  🚀 Fortune SCM App")
+    print("  🔧 Fortune SCM App")
     print("=" * 50)
 
     if IS_BUNDLED:
-        print("📦 Running as bundled application")
-        # For bundled app, find and run the server directly
-        python = sys.executable
+        print(f"📦 Running as bundled application")
+        print(f"   Data dir: {PROJECT_DIR}")
+        
         main_module = find_main_module()
         
         if main_module:
@@ -113,19 +112,23 @@ def main():
             # Open browser
             import threading
             def open_browser():
-                time.sleep(2)
+                time.sleep(3)
                 webbrowser.open(URL)
             threading.Thread(target=open_browser, daemon=True).start()
             
-            # Run server
+            # Run uvicorn directly (no subprocess, since we're in the bundle)
             try:
-                cmd = [python, "-m", "uvicorn", "main:app", "--host", HOST, "--port", str(PORT)]
-                subprocess.run(cmd, cwd=str(backend_dir), env=env)
+                import uvicorn
+                # Import the app
+                sys.path.insert(0, str(backend_dir))
+                uvicorn.run("main:app", host=HOST, port=PORT, log_level="info")
             except KeyboardInterrupt:
                 print("\n👋 Shutting down...")
                 sys.exit(0)
         else:
             print("❌ No main module found!")
+            print(f"   Looked in: {PROJECT_DIR}")
+            print(f"   Contents: {list(PROJECT_DIR.iterdir())[:20]}")
             input("Press Enter to exit...")
             sys.exit(1)
     else:
