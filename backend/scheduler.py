@@ -367,6 +367,32 @@ def toggle_task(task_id: int) -> Optional[Dict[str, Any]]:
     return get_task(task_id)
 
 
+def update_task_schedule(task_id: int, hour: int, minute: int, enabled: Optional[bool] = None) -> Optional[Dict[str, Any]]:
+    """Update a task's schedule time and optionally toggle enabled state."""
+    task = get_task(task_id)
+    if not task:
+        return None
+    
+    cron_expr = f"{minute} {hour} * * *"
+    now = datetime.now().isoformat()
+    
+    with get_db_ctx() as conn:
+        if enabled is not None:
+            conn.execute(
+                "UPDATE scheduler_tasks SET schedule_cron = ?, enabled = ?, updated_at = ? WHERE id = ?",
+                (cron_expr, 1 if enabled else 0, now, task_id),
+            )
+        else:
+            conn.execute(
+                "UPDATE scheduler_tasks SET schedule_cron = ?, updated_at = ? WHERE id = ?",
+                (cron_expr, now, task_id),
+            )
+    
+    # Re-sync APScheduler jobs
+    _sync_jobs()
+    return get_task(task_id)
+
+
 def manual_run(task_id: int) -> Dict[str, Any]:
     """Trigger a task immediately (in a background thread)."""
     task = get_task(task_id)

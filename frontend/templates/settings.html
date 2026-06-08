@@ -130,26 +130,67 @@
         <div class="bg-white rounded-lg shadow mb-6">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-800">⏰ 定时任务</h2>
-                <p class="text-sm text-gray-500 mt-1">自动执行客户开发任务</p>
+                <p class="text-sm text-gray-500 mt-1">自动执行客户开发任务 — 点击时间可修改</p>
             </div>
             <div class="p-6">
                 <div class="space-y-3">
                     <template x-for="task in scheduler.tasks" :key="task.id">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                            <div>
-                                <span class="font-medium text-gray-800" x-text="task.display_name"></span>
-                                <span class="text-sm text-gray-500 ml-2" x-text="task.schedule_cron"></span>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <span class="font-medium text-gray-800" x-text="task.display_name"></span>
+                                    <span class="text-xs px-2 py-0.5 rounded" 
+                                        :class="task.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'"
+                                        x-text="task.enabled ? '已启用' : '已禁用'"></span>
+                                </div>
+                                <div class="text-sm text-gray-500 mt-1">
+                                    <span x-show="task.last_run">上次执行: <span x-text="new Date(task.last_run).toLocaleString()"></span></span>
+                                    <span x-show="!task.last_run">未执行过</span>
+                                </div>
                             </div>
                             <div class="flex items-center space-x-3">
-                                <span class="text-xs text-gray-400" x-text="task.last_run ? '上次: ' + task.last_run : '未执行'"></span>
+                                <!-- 时间选择器 -->
+                                <div class="flex items-center space-x-1">
+                                    <select x-model="task._hour" @change="updateSchedule(task)"
+                                        class="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <template x-for="h in 24" :key="h">
+                                            <option :value="h-1" x-text="String(h-1).padStart(2, '0')"></option>
+                                        </template>
+                                    </select>
+                                    <span class="text-gray-500">:</span>
+                                    <select x-model="task._minute" @change="updateSchedule(task)"
+                                        class="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                                        <template x-for="m in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" :key="m">
+                                            <option :value="m" x-text="String(m).padStart(2, '0')"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                
+                                <!-- 启用/禁用按钮 -->
                                 <button @click="toggleTask(task)"
-                                    class="px-3 py-1 rounded text-sm"
-                                    :class="task.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'">
-                                    <span x-text="task.enabled ? '已启用' : '已禁用'"></span>
+                                    class="px-3 py-1 rounded text-sm transition-colors"
+                                    :class="task.enabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'">
+                                    <span x-text="task.enabled ? '启用' : '禁用'"></span>
+                                </button>
+                                
+                                <!-- 手动运行按钮 -->
+                                <button @click="runTask(task)"
+                                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors"
+                                    :disabled="task._running">
+                                    <span x-show="!task._running">运行</span>
+                                    <span x-show="task._running">运行中...</span>
                                 </button>
                             </div>
                         </div>
                     </template>
+                </div>
+                
+                <!-- 说明 -->
+                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-blue-800">
+                        <strong>自动化流程：</strong>
+                        08:00 自动导入客户 → 09:00 AI发帖 → 10:00 加好友 → 15:00 发消息 → 16:00 发邮件
+                    </p>
                 </div>
             </div>
         </div>
@@ -194,7 +235,17 @@
                         const r = await fetch('/api/scheduler/tasks', { headers: this.h() });
                         if (r.ok) {
                             const data = await r.json();
-                            this.scheduler.tasks = data.tasks || data || [];
+                            const tasks = data.tasks || data || [];
+                            // Parse cron expression to get hour/minute
+                            this.scheduler.tasks = tasks.map(t => {
+                                const parts = (t.schedule_cron || '0 9 * * *').split(' ');
+                                return {
+                                    ...t,
+                                    _hour: parseInt(parts[1]) || 9,
+                                    _minute: parseInt(parts[0]) || 0,
+                                    _running: false,
+                                };
+                            });
                         }
                     } catch(e) {}
                 },
@@ -224,6 +275,48 @@
                             task.enabled = !task.enabled;
                         }
                     } catch(e) {}
+                },
+
+                async updateSchedule(task) {
+                    try {
+                        const r = await fetch(`/api/scheduler/tasks/${task.id}/schedule`, {
+                            method: 'PUT',
+                            headers: this.h(),
+                            body: JSON.stringify({
+                                hour: parseInt(task._hour),
+                                minute: parseInt(task._minute),
+                            })
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            // Update the cron display
+                            task.schedule_cron = data.task.schedule_cron;
+                        }
+                    } catch(e) {
+                        console.error('Failed to update schedule:', e);
+                    }
+                },
+
+                async runTask(task) {
+                    task._running = true;
+                    try {
+                        const r = await fetch(`/api/scheduler/run/${task.id}`, {
+                            method: 'POST', headers: this.h()
+                        });
+                        if (r.ok) {
+                            const data = await r.json();
+                            alert('任务执行完成: ' + JSON.stringify(data.result || data));
+                            // Reload tasks to update last_run
+                            await this.init();
+                        } else {
+                            const err = await r.json();
+                            alert('任务执行失败: ' + (err.detail || '未知错误'));
+                        }
+                    } catch(e) {
+                        alert('任务执行失败: ' + e.message);
+                    } finally {
+                        task._running = false;
+                    }
                 },
 
                 logout() {
