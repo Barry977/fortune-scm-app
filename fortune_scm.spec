@@ -9,10 +9,11 @@ from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 block_cipher = None
 
-# Collect all frontend templates and static files
+# Collect all frontend templates, static files, AND backend code
 datas = [
     ('frontend', 'frontend'),
     ('data', 'data'),
+    ('backend', 'backend'),
 ]
 
 # Add hidden imports for backend modules
@@ -43,6 +44,32 @@ hiddenimports = [
     'email.mime',
     'email.mime.text',
     'email.mime.multipart',
+    'backend.main',
+    'backend.auth',
+    'backend.database',
+    'backend.linkedin_service',
+    'backend.linkedin_routes',
+    'backend.ai_content',
+    'backend.ai_content_routes',
+    'backend.auto_import',
+    'backend.auto_import_routes',
+    'backend.import_export',
+    'backend.import_export_routes',
+    'backend.linkedin_analytics',
+    'backend.linkedin_analytics_routes',
+    'backend.linkedin_scheduler',
+    'backend.scheduler',
+    'backend.scheduler_routes',
+    'backend.crm',
+    'backend.crm_routes',
+    'backend.email_smtp',
+    'backend.email_routes',
+    'backend.materials',
+    'backend.materials_routes',
+    'backend.ai_config',
+    'backend.ai_config_routes',
+    'backend.analytics',
+    'backend.analytics_routes',
 ]
 
 a = Analysis(
