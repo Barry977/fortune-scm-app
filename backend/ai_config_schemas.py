@@ -2,8 +2,9 @@ from typing import Optional, Dict, List, Any
 from pydantic import BaseModel, Field
 from enum import Enum
 
+
 class AIModelProvider(str, Enum):
-    """AI模型提供商"""
+    """AI模型提供商（建议值，不限制用户输入）"""
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     TONGYI = "tongyi"
@@ -21,7 +22,7 @@ class AIModelProvider(str, Enum):
     MINIMAX = "minimax"
 
 class AIModelType(str, Enum):
-    """AI模型类型"""
+    """AI模型类型（建议值，不限制用户输入）"""
     GPT_4O = "gpt-4o"
     GPT_4O_MINI = "gpt-4o-mini"
     GPT_4 = "gpt-4"
@@ -47,104 +48,105 @@ class AIModelType(str, Enum):
     STEP_2 = "step-2"
     MINIMAX_6_5 = "abab6.5"
 
-# 模型与提供商映射
+# 模型与提供商映射（用于建议值，不用于验证）
 MODEL_PROVIDER_MAP = {
-    AIModelType.GPT_4O: AIModelProvider.OPENAI,
-    AIModelType.GPT_4O_MINI: AIModelProvider.OPENAI,
-    AIModelType.GPT_4: AIModelProvider.OPENAI,
-    AIModelType.CLAUDE_3_5_SONNET: AIModelProvider.ANTHROPIC,
-    AIModelType.CLAUDE_3_5_HAIKU: AIModelProvider.ANTHROPIC,
-    AIModelType.CLAUDE_3_OPUS: AIModelProvider.ANTHROPIC,
-    AIModelType.QWEN_MAX: AIModelProvider.TONGYI,
-    AIModelType.QWEN_PLUS: AIModelProvider.TONGYI,
-    AIModelType.QWEN_TURBO: AIModelProvider.TONGYI,
-    AIModelType.WENXIN_4: AIModelProvider.WENXIN,
-    AIModelType.WENXIN_3_5: AIModelProvider.WENXIN,
-    AIModelType.KIMI_MOONSHOT: AIModelProvider.KIMI,
-    AIModelType.KIMI_128K: AIModelProvider.KIMI,
-    AIModelType.MIMO_V2: AIModelProvider.MIMO,
-    AIModelType.DEEPSEEK_CHAT: AIModelProvider.DEEPSEEK,
-    AIModelType.DEEPSEEK_REASONER: AIModelProvider.DEEPSEEK,
-    AIModelType.GEMINI_PRO: AIModelProvider.GEMINI,
-    AIModelType.GEMINI_FLASH: AIModelProvider.GEMINI,
-    AIModelType.SPARK_MAX: AIModelProvider.SPARK,
-    AIModelType.BAICHUAN_4: AIModelProvider.BAICHUAN,
-    AIModelType.HUNYUAN_PRO: AIModelProvider.HUNYUAN,
-    AIModelType.DOUBAO_PRO: AIModelProvider.DOUBAO,
-    AIModelType.STEP_2: AIModelProvider.STEP_FUN,
-    AIModelType.MINIMAX_6_5: AIModelProvider.MINIMAX,
+    "gpt-4o": "openai",
+    "gpt-4o-mini": "openai",
+    "gpt-4": "openai",
+    "claude-3-5-sonnet-20241022": "anthropic",
+    "claude-3-5-haiku-20241022": "anthropic",
+    "claude-3-opus-20240229": "anthropic",
+    "qwen-max": "tongyi",
+    "qwen-plus": "tongyi",
+    "qwen-turbo": "tongyi",
+    "ernie-4.0": "wenxin",
+    "ernie-3.5": "wenxin",
+    "moonshot-v1-8k": "kimi",
+    "moonshot-v1-128k": "kimi",
+    "mimo-v2": "mimo",
+    "deepseek-chat": "deepseek",
+    "deepseek-reasoner": "deepseek",
+    "gemini-1.5-pro": "gemini",
+    "gemini-1.5-flash": "gemini",
+    "spark-max": "spark",
+    "baichuan-4": "baichuan",
+    "hunyuan-pro": "hunyuan",
+    "doubao-pro": "doubao",
+    "step-2": "stepfun",
+    "abab6.5": "minimax",
 }
 
 # 模型显示名称
 MODEL_DISPLAY_NAMES = {
-    AIModelType.GPT_4O: "GPT-4o",
-    AIModelType.GPT_4O_MINI: "GPT-4o Mini",
-    AIModelType.GPT_4: "GPT-4",
-    AIModelType.CLAUDE_3_5_SONNET: "Claude 3.5 Sonnet",
-    AIModelType.CLAUDE_3_5_HAIKU: "Claude 3.5 Haiku",
-    AIModelType.CLAUDE_3_OPUS: "Claude 3 Opus",
-    AIModelType.QWEN_MAX: "通义千问 Max",
-    AIModelType.QWEN_PLUS: "通义千问 Plus",
-    AIModelType.QWEN_TURBO: "通义千问 Turbo",
-    AIModelType.WENXIN_4: "文心一言 4.0",
-    AIModelType.WENXIN_3_5: "文心一言 3.5",
-    AIModelType.KIMI_MOONSHOT: "Kimi 8K",
-    AIModelType.KIMI_128K: "Kimi 128K",
-    AIModelType.MIMO_V2: "MiMo V2",
-    AIModelType.DEEPSEEK_CHAT: "DeepSeek Chat",
-    AIModelType.DEEPSEEK_REASONER: "DeepSeek Reasoner",
-    AIModelType.GEMINI_PRO: "Gemini 1.5 Pro",
-    AIModelType.GEMINI_FLASH: "Gemini 1.5 Flash",
-    AIModelType.SPARK_MAX: "讯飞星火 Max",
-    AIModelType.BAICHUAN_4: "百川智能 4.0",
-    AIModelType.HUNYUAN_PRO: "腾讯混元 Pro",
-    AIModelType.DOUBAO_PRO: "豆包 Pro",
-    AIModelType.STEP_2: "阶跃星辰 Step-2",
-    AIModelType.MINIMAX_6_5: "MiniMax abab6.5",
+    "gpt-4o": "GPT-4o",
+    "gpt-4o-mini": "GPT-4o Mini",
+    "gpt-4": "GPT-4",
+    "claude-3-5-sonnet-20241022": "Claude 3.5 Sonnet",
+    "claude-3-5-haiku-20241022": "Claude 3.5 Haiku",
+    "claude-3-opus-20240229": "Claude 3 Opus",
+    "qwen-max": "通义千问 Max",
+    "qwen-plus": "通义千问 Plus",
+    "qwen-turbo": "通义千问 Turbo",
+    "ernie-4.0": "文心一言 4.0",
+    "ernie-3.5": "文心一言 3.5",
+    "moonshot-v1-8k": "Kimi 8K",
+    "moonshot-v1-128k": "Kimi 128K",
+    "mimo-v2": "MiMo V2",
+    "deepseek-chat": "DeepSeek Chat",
+    "deepseek-reasoner": "DeepSeek Reasoner",
+    "gemini-1.5-pro": "Gemini 1.5 Pro",
+    "gemini-1.5-flash": "Gemini 1.5 Flash",
+    "spark-max": "讯飞星火 Max",
+    "baichuan-4": "百川智能 4.0",
+    "hunyuan-pro": "腾讯混元 Pro",
+    "doubao-pro": "豆包 Pro",
+    "step-2": "阶跃星辰 Step-2",
+    "abab6.5": "MiniMax abab6.5",
 }
 
 # 提供商显示名称
 PROVIDER_DISPLAY_NAMES = {
-    AIModelProvider.OPENAI: "OpenAI",
-    AIModelProvider.ANTHROPIC: "Anthropic",
-    AIModelProvider.TONGYI: "阿里云 (通义千问)",
-    AIModelProvider.WENXIN: "百度 (文心一言)",
-    AIModelProvider.KIMI: "月之暗面 (Kimi)",
-    AIModelProvider.MIMO: "小米 (MiMo)",
-    AIModelProvider.DEEPSEEK: "DeepSeek",
-    AIModelProvider.GEMINI: "Google (Gemini)",
-    AIModelProvider.SPARK: "科大讯飞 (讯飞星火)",
-    AIModelProvider.BAICHUAN: "百川智能",
-    AIModelProvider.HUNYUAN: "腾讯 (混元)",
-    AIModelProvider.DOUBAO: "字节跳动 (豆包)",
-    AIModelProvider.STEP_FUN: "阶跃星辰",
-    AIModelProvider.MINIMAX: "MiniMax",
+    "openai": "OpenAI",
+    "anthropic": "Anthropic",
+    "tongyi": "阿里云 (通义千问)",
+    "wenxin": "百度 (文心一言)",
+    "kimi": "月之暗面 (Kimi)",
+    "mimo": "小米 (MiMo)",
+    "deepseek": "DeepSeek",
+    "gemini": "Google (Gemini)",
+    "spark": "科大讯飞 (讯飞星火)",
+    "baichuan": "百川智能",
+    "hunyuan": "腾讯 (混元)",
+    "doubao": "字节跳动 (豆包)",
+    "stepfun": "阶跃星辰",
+    "minimax": "MiniMax",
 }
 
 # 默认API基础URL
 DEFAULT_BASE_URLS = {
-    AIModelProvider.OPENAI: "https://api.openai.com/v1",
-    AIModelProvider.ANTHROPIC: "https://api.anthropic.com",
-    AIModelProvider.TONGYI: "https://dashscope.aliyuncs.com/api/v1",
-    AIModelProvider.WENXIN: "https://aip.baidubce.com/rpc/2.0",
-    AIModelProvider.KIMI: "https://api.moonshot.cn/v1",
-    AIModelProvider.MIMO: "https://api.mimo.ai/v1",
-    AIModelProvider.DEEPSEEK: "https://api.deepseek.com/v1",
-    AIModelProvider.GEMINI: "https://generativelanguage.googleapis.com/v1",
-    AIModelProvider.SPARK: "https://spark-api-open.xf-yun.com/v1",
-    AIModelProvider.BAICHUAN: "https://api.baichuan-ai.com/v1",
-    AIModelProvider.HUNYUAN: "https://hunyuan.tencentcloudapi.com",
-    AIModelProvider.DOUBAO: "https://ark.cn-beijing.volces.com/api/v3",
-    AIModelProvider.STEP_FUN: "https://api.stepfun.com/v1",
-    AIModelProvider.MINIMAX: "https://api.minimax.chat/v1",
+    "openai": "https://api.openai.com/v1",
+    "anthropic": "https://api.anthropic.com",
+    "tongyi": "https://dashscope.aliyuncs.com/api/v1",
+    "wenxin": "https://aip.baidubce.com/rpc/2.0",
+    "kimi": "https://api.moonshot.cn/v1",
+    "mimo": "https://api.mimo.ai/v1",
+    "deepseek": "https://api.deepseek.com/v1",
+    "gemini": "https://generativelanguage.googleapis.com/v1",
+    "spark": "https://spark-api-open.xf-yun.com/v1",
+    "baichuan": "https://api.baichuan-ai.com/v1",
+    "hunyuan": "https://hunyuan.tencentcloudapi.com",
+    "doubao": "https://ark.cn-beijing.volces.com/api/v3",
+    "stepfun": "https://api.stepfun.com/v1",
+    "minimax": "https://api.minimax.chat/v1",
 }
+
 
 class AIModelConfig(BaseModel):
     """AI模型配置"""
     id: Optional[str] = None
     name: str = Field(..., min_length=1, max_length=50, description="配置名称")
-    provider: AIModelProvider
-    model: AIModelType
+    provider: str = Field(..., description="模型提供商")
+    model: str = Field(..., description="模型名称")
     api_key: str = Field(..., min_length=1, description="API密钥")
     base_url: Optional[str] = Field(None, description="自定义API基础URL")
     temperature: float = Field(0.7, ge=0.0, le=2.0, description="温度参数")
@@ -158,8 +160,8 @@ class AIModelConfig(BaseModel):
 class AIModelConfigCreate(BaseModel):
     """创建AI模型配置"""
     name: str = Field(..., min_length=1, max_length=50)
-    provider: AIModelProvider
-    model: AIModelType
+    provider: str = Field(..., description="模型提供商")
+    model: str = Field(..., description="模型名称")
     api_key: str = Field(..., min_length=1)
     base_url: Optional[str] = None
     temperature: float = 0.7
@@ -170,8 +172,8 @@ class AIModelConfigCreate(BaseModel):
 class AIModelConfigUpdate(BaseModel):
     """更新AI模型配置"""
     name: Optional[str] = Field(None, min_length=1, max_length=50)
-    provider: Optional[AIModelProvider] = None
-    model: Optional[AIModelType] = None
+    provider: Optional[str] = Field(None, description="模型提供商")
+    model: Optional[str] = Field(None, description="模型名称")
     api_key: Optional[str] = Field(None, min_length=1)
     base_url: Optional[str] = None
     temperature: Optional[float] = Field(None, ge=0.0, le=2.0)
@@ -182,8 +184,8 @@ class AIModelConfigUpdate(BaseModel):
 
 class TestConnectionRequest(BaseModel):
     """测试连接请求"""
-    provider: AIModelProvider
-    model: AIModelType
+    provider: str = Field(..., description="模型提供商")
+    model: str = Field(..., description="模型名称")
     api_key: str
     base_url: Optional[str] = None
 

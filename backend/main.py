@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from datetime import timedelta
 from pathlib import Path
@@ -16,8 +17,9 @@ from backend.auth import (
     init_admin_user, verify_password, create_access_token,
     get_current_user, get_current_admin, get_user_by_username,
     create_user, update_user, delete_user, list_users,
-    ACCESS_TOKEN_EXPIRE_MINUTES, _users_db
+    ACCESS_TOKEN_EXPIRE_MINUTES
 )
+from backend.database import init_db
 
 # 导入各模块路由
 from backend.linkedin_routes import router as linkedin_router
@@ -25,6 +27,8 @@ from backend.ai_config_routes import router as ai_config_router
 from backend.crm_routes import router as crm_router
 from backend.analytics_routes import router as analytics_router
 from backend.email_routes import router as email_router
+from backend.scheduler_routes import router as scheduler_router
+from backend.materials_routes import router as materials_router
 
 app = FastAPI(title="FORTUNE SCM", version="1.0.0")
 
@@ -34,6 +38,8 @@ app.include_router(ai_config_router)
 app.include_router(crm_router)
 app.include_router(analytics_router)
 app.include_router(email_router)
+app.include_router(scheduler_router)
+app.include_router(materials_router)
 
 # CORS
 app.add_middleware(
@@ -44,15 +50,37 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 模板目录
+# 路径配置
 PROJECT_DIR = Path(__file__).parent.parent
 TEMPLATES_DIR = os.path.join(PROJECT_DIR, "frontend", "templates")
+STATIC_DIR = os.path.join(PROJECT_DIR, "frontend", "static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
-# 启动时初始化管理员
+# 静态文件
+if os.path.isdir(STATIC_DIR):
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+# 启动时初始化数据库 + 管理员
 @app.on_event("startup")
 async def startup():
+    init_db()
     init_admin_user()
+    # Seed default email templates
+    from backend.email_smtp import seed_default_templates
+    seed_default_templates()
+    from backend.materials import seed_default_materials
+    seed_default_materials()
+    # Start the task scheduler
+    from backend.scheduler import init_scheduler
+    init_scheduler()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    from backend.scheduler import shutdown_scheduler
+    shutdown_scheduler()
+
 
 # ========== 认证接口 ==========
 
@@ -66,19 +94,19 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             detail="用户名或密码错误",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     if user["status"] != UserStatus.ACTIVE.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="账号已被禁用"
         )
-    
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token, expire = create_access_token(
         data={"sub": str(user["id"]), "role": user["role"]},
         expires_delta=access_token_expires
     )
-    
+
     return Token(
         access_token=access_token,
         token_type="bearer",
@@ -99,7 +127,6 @@ async def create_subaccount(
     current_admin = Depends(get_current_admin)
 ):
     """创建子账号"""
-    # 强制子账号角色
     user_data.role = UserRole.SUBACCOUNT
     user = create_user(user_data, current_admin.id)
     return UserResponse(**user)
@@ -147,47 +174,72 @@ async def delete_subaccount(
         raise HTTPException(status_code=404, detail="用户不存在")
     return {"message": "删除成功"}
 
+
 # ========== 健康检查 ==========
 
 @app.get("/api/health")
 async def health():
-    return {"status": "ok", "users_count": len(_users_db)}
+    from backend.database import get_db_ctx
+    with get_db_ctx() as conn:
+        count = conn.execute("SELECT COUNT(*) as c FROM users").fetchone()["c"]
+    return {"status": "ok", "users_count": count}
 
-# ========== 页面路由 ==========
+
+# ========== 页面路由（同时支持 /page 和 /page.html） ==========
+
+def _render(template_name: str, request: Request):
+    return templates.TemplateResponse(name=template_name, request=request)
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return _render("login.html", request)
 
 @app.get("/login", response_class=HTMLResponse)
+@app.get("/login.html", response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return _render("login.html", request)
 
 @app.get("/dashboard", response_class=HTMLResponse)
+@app.get("/dashboard.html", response_class=HTMLResponse)
 async def dashboard_page(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return _render("dashboard.html", request)
 
 @app.get("/linkedin", response_class=HTMLResponse)
+@app.get("/linkedin.html", response_class=HTMLResponse)
 async def linkedin_page(request: Request):
-    return templates.TemplateResponse("linkedin.html", {"request": request})
+    return _render("linkedin.html", request)
 
 @app.get("/ai_config", response_class=HTMLResponse)
+@app.get("/ai_config.html", response_class=HTMLResponse)
 async def ai_config_page(request: Request):
-    return templates.TemplateResponse("ai_config.html", {"request": request})
+    return _render("ai_config.html", request)
 
 @app.get("/crm", response_class=HTMLResponse)
+@app.get("/crm.html", response_class=HTMLResponse)
 async def crm_page(request: Request):
-    return templates.TemplateResponse("crm.html", {"request": request})
+    return _render("crm.html", request)
 
 @app.get("/analytics", response_class=HTMLResponse)
+@app.get("/analytics.html", response_class=HTMLResponse)
 async def analytics_page(request: Request):
-    return templates.TemplateResponse("analytics.html", {"request": request})
+    return _render("analytics.html", request)
 
 @app.get("/email", response_class=HTMLResponse)
+@app.get("/email.html", response_class=HTMLResponse)
 async def email_page(request: Request):
-    return templates.TemplateResponse("email.html", {"request": request})
+    return _render("email.html", request)
+
+@app.get("/settings", response_class=HTMLResponse)
+@app.get("/settings.html", response_class=HTMLResponse)
+async def settings_page(request: Request):
+    return _render("settings.html", request)
+
+@app.get("/materials", response_class=HTMLResponse)
+@app.get("/materials.html", response_class=HTMLResponse)
+async def materials_page(request: Request):
+    return _render("materials.html", request)
+
 
 if __name__ == "__main__":
     import uvicorn
-    from pathlib import Path
     uvicorn.run(app, host="0.0.0.0", port=8000)

@@ -7,7 +7,8 @@ from backend.crm import (
     create_customer, get_customer, update_customer, delete_customer,
     list_customers, create_followup, get_customer_followups,
     get_pending_followups, create_quote, get_customer_quotes,
-    get_customer_stats, get_pipeline_summary, get_recent_activities
+    get_customer_stats, get_pipeline_summary, get_recent_activities,
+    complete_followup
 )
 from backend.crm_schemas import (
     CustomerCreate, CustomerUpdate, CustomerResponse,
@@ -130,13 +131,15 @@ async def get_pending_followups_list(
 
 
 @router.post("/contacts/{customer_id}/followups/{followup_id}/complete")
-async def complete_followup(
+async def complete_followup_record(
     customer_id: int,
     followup_id: int,
     current_user=Depends(get_current_user)
 ):
     """完成跟进"""
-    # 这里简化处理，实际应该更新followup状态
+    result = complete_followup(followup_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="跟进记录不存在")
     return {"message": "跟进已完成"}
 
 

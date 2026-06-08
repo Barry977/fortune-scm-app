@@ -5,22 +5,69 @@ import os
 from typing import Optional, Dict, List, Any
 from datetime import datetime
 
+from backend.database import get_db_ctx
 from backend.ai_config_schemas import (
     AIModelConfig, AIModelConfigCreate, AIModelConfigUpdate,
     TestConnectionRequest, TestConnectionResponse,
     AIGenerateRequest, AIGenerateResponse,
     MarketingContentRequest, CustomerAnalysisRequest,
-    AIUsageStats, AIModelProvider, AIModelType,
+    AIUsageStats,
     MODEL_PROVIDER_MAP, MODEL_DISPLAY_NAMES, PROVIDER_DISPLAY_NAMES,
     DEFAULT_BASE_URLS
 )
 
-# 内存存储
-_configs_db: Dict[str, AIModelConfig] = {}
-_config_counter = 0
+
+# ---------------------------------------------------------------------------
+# Schema migration – add columns that the original init_db may not have
+# ---------------------------------------------------------------------------
+
+def _ensure_columns():
+    """Add any missing columns to ai_model_configs."""
+    desired = {
+        "name": "TEXT",
+        "model": "TEXT",
+        "temperature": "REAL DEFAULT 0.7",
+        "max_tokens": "INTEGER",
+        "timeout": "INTEGER DEFAULT 30",
+        "is_default": "INTEGER DEFAULT 0",
+        "updated_at": "TIMESTAMP",
+    }
+    with get_db_ctx() as conn:
+        existing = {row[1] for row in conn.execute("PRAGMA table_info(ai_model_configs)").fetchall()}
+        for col, typedef in desired.items():
+            if col not in existing:
+                conn.execute(f"ALTER TABLE ai_model_configs ADD COLUMN {col} {typedef}")
+
+
+def _init_table():
+    """Create table if it doesn't exist, then ensure columns."""
+    with get_db_ctx() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS ai_model_configs (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                provider TEXT NOT NULL,
+                model_name TEXT NOT NULL,
+                api_key TEXT NOT NULL,
+                base_url TEXT,
+                is_active INTEGER DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+    _ensure_columns()
+
+
+# Run on import so the table is always ready
+_init_table()
+
+# In-memory usage stats (kept simple; could be persisted later)
 _usage_stats = AIUsageStats()
 
-# 预设的营销内容模板
+
+# ---------------------------------------------------------------------------
+# Template definitions (unchanged from original)
+# ---------------------------------------------------------------------------
+
 MARKETING_TEMPLATES = {
     "email": {
         "system_prompt": "你是一位专业的国际物流营销专家，擅长撰写开发信。请根据提供的信息撰写一封专业、简洁、有吸引力的开发信。",
@@ -93,7 +140,6 @@ MARKETING_TEMPLATES = {
     }
 }
 
-# 预设的客户分析模板
 ANALYSIS_TEMPLATES = {
     "profile": {
         "system_prompt": "你是一位客户分析专家，擅长分析客户画像。",
@@ -173,390 +219,370 @@ ANALYSIS_TEMPLATES = {
 }
 
 
-def _get_next_id() -> str:
-    """生成下一个配置ID"""
-    global _config_counter
-    _config_counter += 1
-    return f"ai_config_{_config_counter}"
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
+
+def _row_to_config(row) -> AIModelConfig:
+    """Convert a sqlite3.Row to an AIModelConfig."""
+    return AIModelConfig(
+        id=str(row["id"]),
+        name=row["name"] or f"配置-{row['id']}",
+        provider=row["provider"],
+        model=row["model"] or row.get("model_name", ""),
+        api_key=row["api_key"],
+        base_url=row["base_url"],
+        temperature=row["temperature"] if row["temperature"] is not None else 0.7,
+        max_tokens=row["max_tokens"],
+        timeout=row["timeout"] if row["timeout"] is not None else 30,
+        is_default=bool(row["is_default"]) if row["is_default"] is not None else False,
+        is_active=bool(row["is_active"]) if row["is_active"] is not None else True,
+        created_at=row["created_at"],
+        updated_at=row["updated_at"],
+    )
 
 
-def _get_default_base_url(provider: AIModelProvider) -> str:
+def _get_default_base_url(provider: str) -> str:
     """获取默认API基础URL"""
     return DEFAULT_BASE_URLS.get(provider, "")
 
 
-def _get_provider_from_model(model: AIModelType) -> AIModelProvider:
-    """根据模型获取提供商"""
-    return MODEL_PROVIDER_MAP.get(model, AIModelProvider.OPENAI)
-
+# ---------------------------------------------------------------------------
+# CRUD – SQLite backed
+# ---------------------------------------------------------------------------
 
 def create_config(config_data: AIModelConfigCreate) -> AIModelConfig:
     """创建AI配置"""
-    global _configs_db
-    
-    config_id = _get_next_id()
     now = datetime.now().isoformat()
-    
-    # 如果设为默认，取消其他默认配置
+
+    # 如果设为默认，先取消其他默认配置
     if config_data.is_default:
-        for config in _configs_db.values():
-            if config.is_default:
-                config.is_default = False
-    
-    config = AIModelConfig(
-        id=config_id,
-        name=config_data.name,
-        provider=config_data.provider,
-        model=config_data.model,
-        api_key=config_data.api_key,
-        base_url=config_data.base_url or _get_default_base_url(config_data.provider),
-        temperature=config_data.temperature,
-        max_tokens=config_data.max_tokens,
-        timeout=config_data.timeout,
-        is_default=config_data.is_default,
-        is_active=True,
-        created_at=now,
-        updated_at=now
-    )
-    
-    _configs_db[config_id] = config
-    return config
+        with get_db_ctx() as conn:
+            conn.execute("UPDATE ai_model_configs SET is_default = 0 WHERE is_default = 1")
+
+    base_url = config_data.base_url or _get_default_base_url(config_data.provider)
+
+    with get_db_ctx() as conn:
+        cur = conn.execute(
+            """INSERT INTO ai_model_configs
+                   (name, provider, model_name, model, api_key, base_url,
+                    temperature, max_tokens, timeout,
+                    is_default, is_active, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)""",
+            (
+                config_data.name,
+                config_data.provider,
+                config_data.model,  # model_name (NOT NULL in original schema)
+                config_data.model,  # model (new column)
+                config_data.api_key,
+                base_url,
+                config_data.temperature,
+                config_data.max_tokens,
+                config_data.timeout,
+                1 if config_data.is_default else 0,
+                now,
+                now,
+            ),
+        )
+        config_id = cur.lastrowid
+
+    result = get_config(str(config_id))
+    assert result is not None, "Config just created but not found"
+    return result
 
 
 def get_config(config_id: str) -> Optional[AIModelConfig]:
     """获取AI配置"""
-    return _configs_db.get(config_id)
+    with get_db_ctx() as conn:
+        row = conn.execute(
+            "SELECT * FROM ai_model_configs WHERE id = ?", (config_id,)
+        ).fetchone()
+    if not row:
+        return None
+    return _row_to_config(row)
 
 
 def get_default_config() -> Optional[AIModelConfig]:
     """获取默认配置"""
-    for config in _configs_db.values():
-        if config.is_default and config.is_active:
-            return config
-    # 如果没有默认配置，返回第一个活跃配置
-    for config in _configs_db.values():
-        if config.is_active:
-            return config
-    return None
+    with get_db_ctx() as conn:
+        row = conn.execute(
+            "SELECT * FROM ai_model_configs WHERE is_default = 1 AND is_active = 1 LIMIT 1"
+        ).fetchone()
+        if row:
+            return _row_to_config(row)
+        # 没有默认配置则返回第一个活跃配置
+        row = conn.execute(
+            "SELECT * FROM ai_model_configs WHERE is_active = 1 LIMIT 1"
+        ).fetchone()
+    return _row_to_config(row) if row else None
 
 
 def list_configs() -> List[AIModelConfig]:
     """列出所有AI配置"""
-    return list(_configs_db.values())
+    with get_db_ctx() as conn:
+        rows = conn.execute(
+            "SELECT * FROM ai_model_configs ORDER BY is_default DESC, id ASC"
+        ).fetchall()
+    return [_row_to_config(r) for r in rows]
 
 
 def update_config(config_id: str, config_data: AIModelConfigUpdate) -> Optional[AIModelConfig]:
     """更新AI配置"""
-    config = _configs_db.get(config_id)
-    if not config:
+    existing = get_config(config_id)
+    if not existing:
         return None
-    
-    # 如果设为默认，取消其他默认配置
-    if config_data.is_default:
-        for c in _configs_db.values():
-            if c.id != config_id and c.is_default:
-                c.is_default = False
-    
-    update_data = config_data.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        if hasattr(config, key):
-            setattr(config, key, value)
-    
-    config.updated_at = datetime.now().isoformat()
-    return config
+
+    updates = config_data.model_dump(exclude_unset=True)
+    if not updates:
+        return existing
+
+    # 如果设为默认，先取消其他默认配置
+    if updates.get("is_default"):
+        with get_db_ctx() as conn:
+            conn.execute(
+                "UPDATE ai_model_configs SET is_default = 0 WHERE id != ? AND is_default = 1",
+                (config_id,),
+            )
+
+    # 布尔转整数
+    if "is_default" in updates:
+        updates["is_default"] = 1 if updates["is_default"] else 0
+    if "is_active" in updates:
+        updates["is_active"] = 1 if updates["is_active"] else 0
+
+    updates["updated_at"] = datetime.now().isoformat()
+
+    set_clause = ", ".join(f"{k} = ?" for k in updates)
+    values = list(updates.values()) + [config_id]
+
+    with get_db_ctx() as conn:
+        conn.execute(
+            f"UPDATE ai_model_configs SET {set_clause} WHERE id = ?", values
+        )
+
+    return get_config(config_id)
 
 
 def delete_config(config_id: str) -> bool:
     """删除AI配置"""
-    if config_id in _configs_db:
-        del _configs_db[config_id]
-        return True
-    return False
+    with get_db_ctx() as conn:
+        cur = conn.execute("DELETE FROM ai_model_configs WHERE id = ?", (config_id,))
+        return cur.rowcount > 0
 
 
 def get_available_models() -> Dict[str, Any]:
-    """获取可用模型列表"""
+    """获取可用模型列表（建议值）"""
     providers = {}
-    
-    for provider in AIModelProvider:
+    for provider_id, label in PROVIDER_DISPLAY_NAMES.items():
         models = []
-        for model in AIModelType:
-            if MODEL_PROVIDER_MAP.get(model) == provider:
+        for model_id, m_provider in MODEL_PROVIDER_MAP.items():
+            if m_provider == provider_id:
                 models.append({
-                    "value": model.value,
-                    "label": MODEL_DISPLAY_NAMES.get(model, model.value),
-                    "provider": provider.value
+                    "value": model_id,
+                    "label": MODEL_DISPLAY_NAMES.get(model_id, model_id),
+                    "provider": provider_id,
                 })
-        
-        providers[provider.value] = {
-            "label": PROVIDER_DISPLAY_NAMES.get(provider, provider.value),
+        providers[provider_id] = {
+            "label": label,
             "models": models,
-            "default_base_url": DEFAULT_BASE_URLS.get(provider, "")
+            "default_base_url": DEFAULT_BASE_URLS.get(provider_id, ""),
         }
-    
     return providers
 
+
+# ---------------------------------------------------------------------------
+# AI connection testing
+# ---------------------------------------------------------------------------
 
 async def test_connection(request: TestConnectionRequest) -> TestConnectionResponse:
     """测试AI连接"""
     start_time = time.time()
-    
     try:
-        # 根据提供商选择测试方式
-        if request.provider == AIModelProvider.OPENAI:
+        if request.provider == "openai":
             success = await _test_openai(request)
-        elif request.provider == AIModelProvider.ANTHROPIC:
+        elif request.provider == "anthropic":
             success = await _test_anthropic(request)
-        elif request.provider in [AIModelProvider.TONGYI, AIModelProvider.KIMI, 
-                                   AIModelProvider.DEEPSEEK, AIModelProvider.QWEN]:
+        elif request.provider in ("tongyi", "kimi", "deepseek", "qwen"):
             success = await _test_openai_compatible(request)
         else:
-            # 其他提供商使用通用测试
             success = await _test_generic(request)
-        
+
         latency_ms = int((time.time() - start_time) * 1000)
-        
         if success:
             return TestConnectionResponse(
                 success=True,
                 message="连接成功",
                 latency_ms=latency_ms,
-                model_info={"model": request.model.value, "provider": request.provider.value}
+                model_info={"model": request.model, "provider": request.provider},
             )
-        else:
-            return TestConnectionResponse(
-                success=False,
-                message="连接失败，请检查API密钥和配置",
-                latency_ms=latency_ms
-            )
-            
+        return TestConnectionResponse(
+            success=False,
+            message="连接失败，请检查API密钥和配置",
+            latency_ms=latency_ms,
+        )
     except Exception as e:
         latency_ms = int((time.time() - start_time) * 1000)
         return TestConnectionResponse(
             success=False,
             message=f"连接异常: {str(e)}",
-            latency_ms=latency_ms
+            latency_ms=latency_ms,
         )
 
 
 async def _test_openai(request: TestConnectionRequest) -> bool:
-    """测试OpenAI连接"""
     import aiohttp
-    
-    base_url = request.base_url or DEFAULT_BASE_URLS[AIModelProvider.OPENAI]
-    headers = {
-        "Authorization": f"Bearer {request.api_key}",
-        "Content-Type": "application/json"
-    }
-    
+    base_url = request.base_url or DEFAULT_BASE_URLS.get("openai", "")
+    headers = {"Authorization": f"Bearer {request.api_key}", "Content-Type": "application/json"}
     async with aiohttp.ClientSession() as session:
         async with session.get(
-            f"{base_url}/models",
-            headers=headers,
-            timeout=aiohttp.ClientTimeout(total=10)
-        ) as response:
-            return response.status == 200
+            f"{base_url}/models", headers=headers,
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            return resp.status == 200
 
 
 async def _test_anthropic(request: TestConnectionRequest) -> bool:
-    """测试Anthropic连接"""
     import aiohttp
-    
-    base_url = request.base_url or DEFAULT_BASE_URLS[AIModelProvider.ANTHROPIC]
+    base_url = request.base_url or DEFAULT_BASE_URLS.get("anthropic", "")
     headers = {
         "x-api-key": request.api_key,
         "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01"
+        "anthropic-version": "2023-06-01",
     }
-    
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{base_url}/v1/messages",
-            headers=headers,
-            json={
-                "model": request.model.value,
-                "max_tokens": 10,
-                "messages": [{"role": "user", "content": "Hello"}]
-            },
-            timeout=aiohttp.ClientTimeout(total=10)
-        ) as response:
-            return response.status in [200, 429]  # 429表示API有效但限流
+            f"{base_url}/v1/messages", headers=headers,
+            json={"model": request.model, "max_tokens": 10, "messages": [{"role": "user", "content": "Hello"}]},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            return resp.status in (200, 429)
 
 
 async def _test_openai_compatible(request: TestConnectionRequest) -> bool:
-    """测试OpenAI兼容API"""
     import aiohttp
-    
     base_url = request.base_url or DEFAULT_BASE_URLS.get(request.provider, "")
-    headers = {
-        "Authorization": f"Bearer {request.api_key}",
-        "Content-Type": "application/json"
-    }
-    
+    headers = {"Authorization": f"Bearer {request.api_key}", "Content-Type": "application/json"}
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{base_url}/chat/completions",
-            headers=headers,
-            json={
-                "model": request.model.value,
-                "messages": [{"role": "user", "content": "Hello"}],
-                "max_tokens": 5
-            },
-            timeout=aiohttp.ClientTimeout(total=10)
-        ) as response:
-            return response.status in [200, 429]
+            f"{base_url}/chat/completions", headers=headers,
+            json={"model": request.model, "messages": [{"role": "user", "content": "Hello"}], "max_tokens": 5},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            return resp.status in (200, 429)
 
 
 async def _test_generic(request: TestConnectionRequest) -> bool:
-    """通用连接测试"""
-    # 对于不支持的提供商，返回True（假设配置正确）
     return True
 
+
+# ---------------------------------------------------------------------------
+# Content generation
+# ---------------------------------------------------------------------------
 
 async def generate_content(request: AIGenerateRequest) -> AIGenerateResponse:
     """使用AI生成内容"""
     start_time = time.time()
-    
-    # 获取配置
+
     config = get_config(request.config_id)
     if not config:
         return AIGenerateResponse(success=False, error="配置不存在")
-    
     if not config.is_active:
         return AIGenerateResponse(success=False, error="配置已禁用")
-    
+
     try:
-        # 根据提供商调用相应的API
-        if config.provider in [AIModelProvider.OPENAI, AIModelProvider.TONGYI, 
-                               AIModelProvider.KIMI, AIModelProvider.DEEPSEEK,
-                               AIModelProvider.QWEN]:
+        if config.provider in ("openai", "tongyi", "kimi", "deepseek", "qwen"):
             content = await _generate_openai_compatible(config, request)
-        elif config.provider == AIModelProvider.ANTHROPIC:
+        elif config.provider == "anthropic":
             content = await _generate_anthropic(config, request)
         else:
             content = await _generate_generic(config, request)
-        
+
         latency_ms = int((time.time() - start_time) * 1000)
-        
-        # 更新使用统计
         _update_usage_stats(True, latency_ms)
-        
-        return AIGenerateResponse(
-            success=True,
-            content=content,
-            latency_ms=latency_ms
-        )
-        
+        return AIGenerateResponse(success=True, content=content, latency_ms=latency_ms)
     except Exception as e:
         latency_ms = int((time.time() - start_time) * 1000)
         _update_usage_stats(False, latency_ms)
-        
-        return AIGenerateResponse(
-            success=False,
-            error=f"生成失败: {str(e)}",
-            latency_ms=latency_ms
-        )
+        return AIGenerateResponse(success=False, error=f"生成失败: {str(e)}", latency_ms=latency_ms)
 
 
 async def _generate_openai_compatible(config: AIModelConfig, request: AIGenerateRequest) -> str:
-    """使用OpenAI兼容API生成内容"""
     import aiohttp
-    
-    headers = {
-        "Authorization": f"Bearer {config.api_key}",
-        "Content-Type": "application/json"
-    }
-    
+    headers = {"Authorization": f"Bearer {config.api_key}", "Content-Type": "application/json"}
+
     messages = []
     if request.system_prompt:
         messages.append({"role": "system", "content": request.system_prompt})
     messages.append({"role": "user", "content": request.prompt})
-    
-    payload = {
-        "model": config.model.value,
+
+    payload: Dict[str, Any] = {
+        "model": config.model,
         "messages": messages,
         "temperature": request.temperature or config.temperature,
-        "stream": False
+        "stream": False,
     }
-    
     if request.max_tokens or config.max_tokens:
         payload["max_tokens"] = request.max_tokens or config.max_tokens
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{config.base_url}/chat/completions",
-            headers=headers,
-            json=payload,
-            timeout=aiohttp.ClientTimeout(total=config.timeout)
-        ) as response:
-            if response.status != 200:
-                error_text = await response.text()
-                raise Exception(f"API错误: {response.status} - {error_text}")
-            
-            data = await response.json()
+            f"{config.base_url}/chat/completions", headers=headers,
+            json=payload, timeout=aiohttp.ClientTimeout(total=config.timeout),
+        ) as resp:
+            if resp.status != 200:
+                error_text = await resp.text()
+                raise Exception(f"API错误: {resp.status} - {error_text}")
+            data = await resp.json()
             return data["choices"][0]["message"]["content"]
 
 
 async def _generate_anthropic(config: AIModelConfig, request: AIGenerateRequest) -> str:
-    """使用Anthropic API生成内容"""
     import aiohttp
-    
     headers = {
         "x-api-key": config.api_key,
         "Content-Type": "application/json",
-        "anthropic-version": "2023-06-01"
+        "anthropic-version": "2023-06-01",
     }
-    
-    payload = {
-        "model": config.model.value,
+    payload: Dict[str, Any] = {
+        "model": config.model,
         "max_tokens": request.max_tokens or config.max_tokens or 2000,
         "temperature": request.temperature or config.temperature,
-        "messages": [{"role": "user", "content": request.prompt}]
+        "messages": [{"role": "user", "content": request.prompt}],
     }
-    
     if request.system_prompt:
         payload["system"] = request.system_prompt
-    
+
     async with aiohttp.ClientSession() as session:
         async with session.post(
-            f"{config.base_url}/v1/messages",
-            headers=headers,
-            json=payload,
-            timeout=aiohttp.ClientTimeout(total=config.timeout)
-        ) as response:
-            if response.status != 200:
-                error_text = await response.text()
-                raise Exception(f"API错误: {response.status} - {error_text}")
-            
-            data = await response.json()
+            f"{config.base_url}/v1/messages", headers=headers,
+            json=payload, timeout=aiohttp.ClientTimeout(total=config.timeout),
+        ) as resp:
+            if resp.status != 200:
+                error_text = await resp.text()
+                raise Exception(f"API错误: {resp.status} - {error_text}")
+            data = await resp.json()
             return data["content"][0]["text"]
 
 
 async def _generate_generic(config: AIModelConfig, request: AIGenerateRequest) -> str:
-    """通用生成方法"""
-    # 对于不支持的提供商，返回模拟内容
-    return f"[模拟生成] 使用 {config.provider.value} 的 {config.model.value} 模型生成内容\n\n提示词: {request.prompt[:100]}..."
+    return f"[模拟生成] 使用 {config.provider} 的 {config.model} 模型生成内容\n\n提示词: {request.prompt[:100]}..."
 
 
 def _update_usage_stats(success: bool, latency_ms: int):
-    """更新使用统计"""
     global _usage_stats
-    
     _usage_stats.total_requests += 1
     _usage_stats.today_requests += 1
-    
     if success:
         _usage_stats.success_rate = (
-            (_usage_stats.success_rate * (_usage_stats.total_requests - 1) + 100) 
+            (_usage_stats.success_rate * (_usage_stats.total_requests - 1) + 100)
             / _usage_stats.total_requests
         )
     else:
         _usage_stats.success_rate = (
-            (_usage_stats.success_rate * (_usage_stats.total_requests - 1)) 
+            (_usage_stats.success_rate * (_usage_stats.total_requests - 1))
             / _usage_stats.total_requests
         )
-    
-    _usage_stats.average_latency_ms = (
+    _usage_stats.average_latency_ms = int(
         (_usage_stats.average_latency_ms * (_usage_stats.total_requests - 1) + latency_ms)
         / _usage_stats.total_requests
     )
@@ -567,26 +593,23 @@ async def generate_marketing_content(request: MarketingContentRequest) -> AIGene
     template = MARKETING_TEMPLATES.get(request.content_type)
     if not template:
         return AIGenerateResponse(success=False, error=f"不支持的内容类型: {request.content_type}")
-    
-    # 格式化提示词
+
     key_points_str = "\n".join([f"- {point}" for point in (request.key_points or [])])
-    
     prompt = template["prompt_template"].format(
         target_audience=request.target_audience,
         product_service=request.product_service,
         tone=request.tone,
         language=request.language,
         key_points=key_points_str or "无",
-        max_length=request.max_length
+        max_length=request.max_length,
     )
-    
+
     generate_request = AIGenerateRequest(
         config_id=request.config_id,
         prompt=prompt,
         system_prompt=template["system_prompt"],
-        max_tokens=min(request.max_length * 2, 4000)
+        max_tokens=min(request.max_length * 2, 4000),
     )
-    
     return await generate_content(generate_request)
 
 
@@ -594,21 +617,20 @@ async def analyze_customer(request: CustomerAnalysisRequest) -> AIGenerateRespon
     """分析客户"""
     template = ANALYSIS_TEMPLATES.get(request.analysis_type)
     if not template:
-        return AIGenerateResponse(success=False, error=f"不支持的分析师类型: {request.analysis_type}")
-    
+        return AIGenerateResponse(success=False, error=f"不支持的分析类型: {request.analysis_type}")
+
     prompt = template["prompt_template"].format(
         customer_data=request.customer_data,
         industry=request.industry or "未指定",
-        language=request.language
+        language=request.language,
     )
-    
+
     generate_request = AIGenerateRequest(
         config_id=request.config_id,
         prompt=prompt,
         system_prompt=template["system_prompt"],
-        max_tokens=4000
+        max_tokens=4000,
     )
-    
     return await generate_content(generate_request)
 
 

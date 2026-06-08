@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>控制面板 - FORTUNE SCM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="dashboardApp()" x-init="init()">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
+                    <span class="text-gray-500">控制面板</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/crm" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">客户管理</a>
+                    <a href="/linkedin" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">LinkedIn</a>
+                    <a href="/ai_config" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">AI配置</a>
+                    <a href="/email" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">邮件</a>
+                    <a href="/analytics" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">数据分析</a>
+                    <a href="/settings" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">⚙️ 设置</a>
+                    <a href="/materials" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">📚 素材库</a>
+                    <span class="text-gray-400">|</span>
+                    <span class="text-sm text-gray-500" x-text="user.username"></span>
+                    <button @click="logout()" class="text-sm text-red-500 hover:text-red-700">退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 欢迎 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">欢迎回来，<span x-text="user.username"></span></h2>
+            <p class="text-gray-500 mt-1">以下是您的业务概览</p>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">总客户数</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="stats.total_customers">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">已转化</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="stats.converted">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">待跟进</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="stats.pending_followups">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">本月新增</p>
+                        <p class="text-2xl font-bold text-gray-800" x-text="stats.new_this_month">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 快捷入口 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <a href="/crm" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold text-gray-800">CRM 客户管理</h3>
+                </div>
+                <p class="text-gray-500 text-sm">管理客户信息、跟进记录、报价单</p>
+            </a>
+            <a href="/linkedin" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                        </svg>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold text-gray-800">LinkedIn 自动化</h3>
+                </div>
+                <p class="text-gray-500 text-sm">自动搜索客户、加好友、发消息</p>
+            </a>
+            <a href="/ai_config" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="w-10 h-10 bg-indigo-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold text-gray-800">AI 模型配置</h3>
+                </div>
+                <p class="text-gray-500 text-sm">配置 AI 模型，生成营销内容和客户分析</p>
+            </a>
+            <a href="/email" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold text-gray-800">邮件营销</h3>
+                </div>
+                <p class="text-gray-500 text-sm">SMTP 配置、邮件模板、批量发送</p>
+            </a>
+            <a href="/analytics" class="bg-white rounded-lg shadow p-6 hover:shadow-md transition-shadow">
+                <div class="flex items-center mb-3">
+                    <div class="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="ml-3 text-lg font-semibold text-gray-800">数据分析</h3>
+                </div>
+                <p class="text-gray-500 text-sm">转化漏斗、效果统计、可视化报表</p>
+            </a>
+        </div>
+
+        <!-- 最近活动 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-800">最近活动</h3>
+            </div>
+            <div class="p-6">
+                <template x-if="recentActivities.length === 0">
+                    <p class="text-gray-400 text-center py-8">暂无活动记录</p>
+                </template>
+                <template x-for="activity in recentActivities" :key="activity.id">
+                    <div class="flex items-center py-3 border-b border-gray-100 last:border-0">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center"
+                             :class="activity.type === 'customer' ? 'bg-blue-100' : activity.type === 'followup' ? 'bg-yellow-100' : 'bg-gray-100'">
+                            <svg class="w-4 h-4" :class="activity.type === 'customer' ? 'text-blue-600' : activity.type === 'followup' ? 'text-yellow-600' : 'text-gray-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm text-gray-800" x-text="activity.text"></p>
+                            <p class="text-xs text-gray-400" x-text="activity.time"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dashboardApp() {
+            return {
+                user: { username: '...' },
+                stats: {
+                    total_customers: 0,
+                    converted: 0,
+                    pending_followups: 0,
+                    new_this_month: 0
+                },
+                recentActivities: [],
+                token: '',
+
+                async init() {
+                    this.token = localStorage.getItem('access_token');
+                    if (!this.token) {
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    try {
+                        // 获取用户信息
+                        const meRes = await fetch('/api/auth/me', {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        if (meRes.ok) {
+                            this.user = await meRes.json();
+                        } else {
+                            localStorage.removeItem('access_token');
+                            window.location.href = '/login';
+                            return;
+                        }
+
+                        // 获取统计数据
+                        await this.loadStats();
+                        await this.loadActivities();
+                    } catch (e) {
+                        console.error('初始化失败:', e);
+                    }
+                },
+
+                async loadStats() {
+                    try {
+                        const res = await fetch('/api/crm/stats', {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.stats.total_customers = data.total_customers || 0;
+                            this.stats.converted = data.converted || 0;
+                            this.stats.pending_followups = data.pending_followups || 0;
+                            this.stats.new_this_month = data.new_this_month || 0;
+                        }
+                    } catch (e) {
+                        console.log('CRM stats not available yet');
+                    }
+                },
+
+                async loadActivities() {
+                    try {
+                        const res = await fetch('/api/crm/activities?limit=5', {
+                            headers: { 'Authorization': `Bearer ${this.token}` }
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            this.recentActivities = (data.activities || []).map(a => ({
+                                id: a.id,
+                                text: a.description || a.text || '',
+                                time: a.created_at || a.time || '',
+                                type: a.type || 'other'
+                            }));
+                        }
+                    } catch (e) {
+                        console.log('Activities not available yet');
+                    }
+                },
+
+                logout() {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('user_info');
+                    localStorage.removeItem('token_expires');
+                    window.location.href = '/login';
+                }
+            };
+        }
+    </script>
+</body>
+</html>

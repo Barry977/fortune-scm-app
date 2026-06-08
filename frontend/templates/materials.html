@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>素材库 - FORTUNE SCM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="materialsApp()" x-init="init()">
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
+                    <span class="text-gray-500">素材库</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">首页</a>
+                    <a href="/crm" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">客户管理</a>
+                    <a href="/linkedin" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">LinkedIn</a>
+                    <a href="/email" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">邮件</a>
+                    <a href="/settings" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">设置</a>
+                    <button @click="logout()" class="text-sm text-red-500 hover:text-red-700">退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 统计 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">总素材数</p>
+                <p class="text-2xl font-bold text-gray-800" x-text="stats.total || 0"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">分类数</p>
+                <p class="text-2xl font-bold text-gray-800" x-text="Object.keys(stats.by_category || {}).length"></p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">共享状态</p>
+                <p class="text-2xl font-bold text-green-600">全员共享</p>
+            </div>
+        </div>
+
+        <!-- 筛选 + 添加 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <select x-model="filter.category" @change="loadMaterials()" class="px-3 py-2 border rounded-lg text-sm">
+                        <option value="">全部分类</option>
+                        <template x-for="cat in categories" :key="cat">
+                            <option :value="cat" x-text="cat"></option>
+                        </template>
+                    </select>
+                    <input type="text" x-model="filter.search" @input.debounce.300ms="loadMaterials()"
+                        placeholder="搜索素材..." class="px-4 py-2 border rounded-lg text-sm w-64">
+                </div>
+                <button @click="showAdd = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                    + 添加素材
+                </button>
+            </div>
+        </div>
+
+        <!-- 素材列表 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <template x-for="m in materials" :key="m.id">
+                <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-semibold text-gray-800 text-sm" x-text="m.title"></h3>
+                            <span class="text-xs px-2 py-0.5 rounded-full"
+                                :class="m.category === 'cold_email' ? 'bg-blue-100 text-blue-700' : m.category === 'linkedin' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'"
+                                x-text="m.category"></span>
+                        </div>
+                        <p class="text-xs text-gray-600 mb-3 line-clamp-4 whitespace-pre-wrap" x-text="m.content"></p>
+                        <div class="flex justify-between items-center text-xs text-gray-400">
+                            <span>使用 <span x-text="m.usage_count || 0"></span> 次</span>
+                            <span x-text="m.language === 'zh' ? '中文' : 'English'"></span>
+                        </div>
+                        <div class="mt-3 flex space-x-2">
+                            <button @click="copyToClipboard(m)" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded">复制</button>
+                            <button @click="editMaterial(m)" class="text-xs px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded">编辑</button>
+                            <button @click="deleteMaterial(m.id)" class="text-xs px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div x-show="materials.length === 0" class="text-center py-12 text-gray-400">
+            暂无素材，点击「添加素材」创建
+        </div>
+    </div>
+
+    <!-- 添加/编辑弹窗 -->
+    <div x-show="showAdd || editing" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold" x-text="editing ? '编辑素材' : '添加素材'"></h3>
+                <button @click="showAdd = false; editing = null" class="text-gray-400 hover:text-gray-600">✕</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
+                    <input type="text" x-model="form.title" class="w-full px-4 py-2 border rounded-lg" placeholder="素材名称">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
+                        <select x-model="form.category" class="w-full px-4 py-2 border rounded-lg">
+                            <option value="cold_email">cold_email</option>
+                            <option value="linkedin">linkedin</option>
+                            <option value="follow_up">follow_up</option>
+                            <option value="reply">reply</option>
+                            <option value="general">general</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">语言</label>
+                        <select x-model="form.language" class="w-full px-4 py-2 border rounded-lg">
+                            <option value="en">English</option>
+                            <option value="zh">中文</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">内容</label>
+                    <textarea x-model="form.content" rows="8" class="w-full px-4 py-2 border rounded-lg" placeholder="支持变量: {name} {company} {industry}"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">标签（逗号分隔）</label>
+                    <input type="text" x-model="form.tags" class="w-full px-4 py-2 border rounded-lg" placeholder="introduction,cold,email">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+                <button @click="showAdd = false; editing = null" class="px-4 py-2 bg-gray-200 rounded-lg text-sm">取消</button>
+                <button @click="saveMaterial()" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function materialsApp() {
+            return {
+                token: '', materials: [], categories: [], stats: {},
+                filter: { category: '', search: '' },
+                showAdd: false, editing: null,
+                form: { title: '', content: '', category: 'cold_email', language: 'en', tags: '' },
+
+                async init() {
+                    this.token = localStorage.getItem('access_token');
+                    if (!this.token) { window.location.href = '/login'; return; }
+                    await this.loadMaterials();
+                    await this.loadCategories();
+                    await this.loadStats();
+                },
+
+                h() { return { 'Authorization': 'Bearer ' + this.token, 'Content-Type': 'application/json' }; },
+
+                async loadMaterials() {
+                    let url = '/api/materials/?limit=100';
+                    if (this.filter.category) url += '&category=' + this.filter.category;
+                    if (this.filter.search) url += '&search=' + this.filter.search;
+                    const r = await fetch(url, { headers: this.h() });
+                    if (r.ok) this.materials = await r.json();
+                },
+
+                async loadCategories() {
+                    const r = await fetch('/api/materials/categories', { headers: this.h() });
+                    if (r.ok) { const d = await r.json(); this.categories = d.categories || []; }
+                },
+
+                async loadStats() {
+                    const r = await fetch('/api/materials/stats', { headers: this.h() });
+                    if (r.ok) this.stats = await r.json();
+                },
+
+                editMaterial(m) {
+                    this.editing = m;
+                    this.form = { title: m.title, content: m.content, category: m.category, language: m.language, tags: m.tags };
+                },
+
+                async saveMaterial() {
+                    const url = this.editing ? `/api/materials/${this.editing.id}` : '/api/materials/';
+                    const method = this.editing ? 'PUT' : 'POST';
+                    const r = await fetch(url, { method, headers: this.h(), body: JSON.stringify(this.form) });
+                    if (r.ok) {
+                        this.showAdd = false; this.editing = null;
+                        this.form = { title: '', content: '', category: 'cold_email', language: 'en', tags: '' };
+                        await this.loadMaterials(); await this.loadStats();
+                    }
+                },
+
+                async deleteMaterial(id) {
+                    if (!confirm('确定删除？')) return;
+                    await fetch(`/api/materials/${id}`, { method: 'DELETE', headers: this.h() });
+                    await this.loadMaterials(); await this.loadStats();
+                },
+
+                copyToClipboard(m) {
+                    navigator.clipboard.writeText(m.content);
+                    alert('已复制到剪贴板');
+                },
+
+                logout() {
+                    localStorage.removeItem('access_token');
+                    window.location.href = '/login';
+                }
+            };
+        }
+    </script>
+</body>
+</html>

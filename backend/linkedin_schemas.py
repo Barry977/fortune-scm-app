@@ -1,12 +1,18 @@
+"""
+LinkedIn automation schemas — shared Pydantic models for the API.
+"""
+
 from typing import Optional, Dict, List, Any
 from datetime import datetime, date
 from pydantic import BaseModel, Field
 from enum import Enum
 
+
 class LinkedInAction(str, Enum):
     SEARCH = "search"
     CONNECT = "connect"
     MESSAGE = "message"
+
 
 class LinkedInStatus(str, Enum):
     PENDING = "pending"
@@ -15,34 +21,36 @@ class LinkedInStatus(str, Enum):
     FAILED = "failed"
     CANCELLED = "cancelled"
 
+
 class SearchConfig(BaseModel):
-    """LinkedIn搜索配置"""
-    keywords: str = Field(..., description="搜索关键词，如公司名称或职位")
-    location: Optional[str] = Field(None, description="地理位置筛选")
-    industry: Optional[str] = Field(None, description="行业筛选")
-    company_size: Optional[str] = Field(None, description="公司规模")
-    max_results: int = Field(50, ge=1, le=100, description="最大结果数")
+    """LinkedIn search configuration"""
+    keywords: str = Field(..., description="Search keywords (company name or job title)")
+    market: str = Field("US", description="Target market: US, EU, ME")
+    max_results: int = Field(50, ge=1, le=100, description="Max results to return")
+
 
 class ConnectConfig(BaseModel):
-    """加好友配置"""
-    profile_urls: List[str] = Field(..., description="目标个人主页URL列表")
-    note: Optional[str] = Field(None, max_length=300, description="好友请求附言")
-    max_daily: int = Field(20, ge=1, le=50, description="每日加好友上限")
+    """Connection request configuration"""
+    count: int = Field(5, ge=1, le=20, description="Number of connections to send")
+    note: Optional[str] = Field(None, max_length=300, description="Connection request note")
+    market: str = Field("US", description="Target market")
+
 
 class MessageConfig(BaseModel):
-    """发消息配置"""
-    connection_ids: List[str] = Field(..., description="已连接好友ID列表")
-    message: str = Field(..., max_length=2000, description="消息内容")
-    max_daily: int = Field(50, ge=1, le=100, description="每日发消息上限")
+    """Message sending configuration"""
+    count: int = Field(5, ge=1, le=20, description="Number of messages to send")
+    message: Optional[str] = Field(None, max_length=2000, description="Custom message template ({name} placeholder)")
+
 
 class TaskCreate(BaseModel):
-    """创建任务请求"""
+    """Create task request"""
     action: LinkedInAction
-    config: Dict[str, Any] = Field(..., description="具体配置参数")
+    config: Dict[str, Any] = Field(..., description="Action-specific parameters")
     scheduled_at: Optional[datetime] = None
 
+
 class TaskResponse(BaseModel):
-    """任务响应"""
+    """Task response"""
     id: str
     action: LinkedInAction
     status: LinkedInStatus
@@ -53,8 +61,9 @@ class TaskResponse(BaseModel):
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
+
 class DailyQuota(BaseModel):
-    """每日额度"""
+    """Daily usage quota"""
     date: date
     search_count: int = 0
     search_limit: int = 100
@@ -62,27 +71,55 @@ class DailyQuota(BaseModel):
     connect_limit: int = 20
     message_count: int = 0
     message_limit: int = 50
-    
+
     @property
     def search_remaining(self) -> int:
         return max(0, self.search_limit - self.search_count)
-    
+
     @property
     def connect_remaining(self) -> int:
         return max(0, self.connect_limit - self.connect_count)
-    
+
     @property
     def message_remaining(self) -> int:
         return max(0, self.message_limit - self.message_count)
 
+
 class LinkedInProfile(BaseModel):
-    """LinkedIn个人资料"""
-    linkedin_id: Optional[str] = None
+    """LinkedIn search result profile"""
     name: str
-    headline: Optional[str] = None
+    vanity: Optional[str] = None
+    url: str
+    title: Optional[str] = None
     location: Optional[str] = None
-    company: Optional[str] = None
-    profile_url: str
     is_connected: bool = False
-    connection_degree: Optional[str] = None  # "1st", "2nd", "3rd"
-    notes: Optional[str] = None
+
+
+class CustomerStats(BaseModel):
+    """Customer database stats"""
+    total_customers: int = 0
+    by_status: Dict[str, int] = {}
+    today_new: int = 0
+    today_contacted: int = 0
+
+
+class QuotaItem(BaseModel):
+    """Single quota action usage"""
+    used: int = 0
+    limit: int = 0
+    remaining: int = 0
+
+
+class QuotaResponse(BaseModel):
+    """Full daily quota response"""
+    date: str
+    search: QuotaItem
+    connect: QuotaItem
+    message: QuotaItem
+
+
+class LinkedInStatusResponse(BaseModel):
+    """Status endpoint response"""
+    is_logged_in: bool
+    customer_stats: CustomerStats
+    error: Optional[str] = None

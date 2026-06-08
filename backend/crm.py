@@ -1,322 +1,623 @@
+"""
+CRM module – SQLite-backed persistence via backend.database.get_db_ctx.
+
+Tables used: customers, follow_ups, quotes.
+Extra columns (beyond what database.init_db creates) are added lazily
+by _ensure_crm_columns() on first call.
+"""
+
 from datetime import datetime, date, timedelta
 from typing import Optional, List, Dict, Any
 from collections import defaultdict
 import json
+import sqlite3
 
+from backend.database import get_db_ctx
 from backend.crm_schemas import (
     CustomerCreate, CustomerUpdate, CustomerInDB, CustomerResponse,
     FollowUpCreate, FollowUpInDB, FollowUpResponse,
     QuoteCreate, QuoteInDB, QuoteResponse,
     CustomerFilter, CustomerStats, PipelineStage, PipelineSummary,
-    CustomerStatus, CustomerSource, CustomerPriority
+    CustomerStatus, CustomerSource, CustomerPriority,
 )
 
-# 内存数据库
-_customers_db: Dict[int, dict] = {}
-_followups_db: Dict[int, dict] = {}
-_quotes_db: Dict[int, dict] = {}
+# ---------------------------------------------------------------------------
+# Lazy schema migration – adds columns that the base init_db() doesn't know
+# about so the CRM can store all fields expected by the Pydantic models.
+# ---------------------------------------------------------------------------
 
-_customer_id_counter = 0
-_followup_id_counter = 0
-_quote_id_counter = 0
+_initialized = False
 
-def _get_next_customer_id() -> int:
-    global _customer_id_counter
-    _customer_id_counter += 1
-    return _customer_id_counter
 
-def _get_next_followup_id() -> int:
-    global _followup_id_counter
-    _followup_id_counter += 1
-    return _followup_id_counter
+def _ensure_crm_columns() -> None:
+    """ALTER TABLE to add any missing CRM columns (idempotent)."""
+    column_defs = {
+        "customers": [
+            ("country", "TEXT"),
+            ("city", "TEXT"),
+            ("industry", "TEXT"),
+            ("priority", "TEXT DEFAULT 'medium'"),
+            ("assigned_to", "INTEGER"),
+            ("website", "TEXT"),
+            ("last_contact_at", "TIMESTAMP"),
+            ("total_quotes", "INTEGER DEFAULT 0"),
+            ("total_orders", "INTEGER DEFAULT 0"),
+            ("total_revenue", "REAL DEFAULT 0.0"),
+        ],
+        "follow_ups": [
+            ("type", "TEXT"),
+            ("scheduled_at", "TIMESTAMP"),
+            ("completed_at", "TIMESTAMP"),
+            ("outcome", "TEXT"),
+            ("next_action", "TEXT"),
+            ("next_action_date", "TEXT"),
+        ],
+        "quotes": [
+            ("quote_number", "TEXT"),
+            ("items", "TEXT"),  # JSON-encoded list
+            ("currency", "TEXT DEFAULT 'USD'"),
+            ("subtotal", "REAL DEFAULT 0"),
+            ("tax_rate", "REAL DEFAULT 0"),
+            ("tax_amount", "REAL DEFAULT 0"),
+            ("total", "REAL DEFAULT 0"),
+            ("notes", "TEXT"),
+            ("valid_until", "TEXT"),
+            ("updated_at", "TIMESTAMP"),
+        ],
+    }
+    try:
+        with get_db_ctx() as conn:
+            for table, columns in column_defs.items():
+                for col_name, col_type in columns:
+                    try:
+                        conn.execute(
+                            f"ALTER TABLE {table} ADD COLUMN {col_name} {col_type}"
+                        )
+                    except Exception:
+                        pass  # column already exists
+    except Exception:
+        pass  # tables may not exist yet (init_db not called)
 
-def _get_next_quote_id() -> int:
-    global _quote_id_counter
-    _quote_id_counter += 1
-    return _quote_id_counter
 
-# ========== 客户管理 ==========
+def _lazy_init() -> None:
+    global _initialized
+    if not _initialized:
+        _ensure_crm_columns()
+        _initialized = True
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _parse_dt(value: Optional[str]) -> Optional[datetime]:
+    """Parse a timestamp string returned by SQLite into a datetime."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(value, fmt)
+        except ValueError:
+            continue
+    return None
+
+
+def _parse_date(value: Optional[str]) -> Optional[date]:
+    if value is None:
+        return None
+    if isinstance(value, date) and not isinstance(value, datetime):
+        return value
+    try:
+        return date.fromisoformat(str(value))
+    except Exception:
+        return None
+
+
+def _row_to_customer_dict(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    return {
+        "id": d["id"],
+        "name": d["name"],
+        "company": d.get("company"),
+        "email": d.get("email"),
+        "phone": d.get("phone"),
+        "country": d.get("country"),
+        "city": d.get("city"),
+        "industry": d.get("industry"),
+        "source": d.get("source") or "other",
+        "status": d.get("status") or "lead",
+        "priority": d.get("priority") or "medium",
+        "tags": json.loads(d["tags"]) if d.get("tags") else [],
+        "notes": d.get("notes"),
+        "assigned_to": d.get("assigned_to"),
+        "linkedin_url": d.get("linkedin_url"),
+        "website": d.get("website"),
+        "created_at": _parse_dt(d.get("created_at")),
+        "updated_at": _parse_dt(d.get("updated_at")),
+        "created_by": d.get("user_id"),
+        "last_contact_at": _parse_dt(d.get("last_contact_at")),
+        "total_quotes": d.get("total_quotes") or 0,
+        "total_orders": d.get("total_orders") or 0,
+        "total_revenue": d.get("total_revenue") or 0.0,
+    }
+
+
+def _row_to_followup_dict(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    return {
+        "id": d["id"],
+        "customer_id": d["customer_id"],
+        "type": d.get("type") or "note",
+        "content": d["content"],
+        "scheduled_at": _parse_dt(d.get("scheduled_at")),
+        "completed_at": _parse_dt(d.get("completed_at")),
+        "outcome": d.get("outcome"),
+        "next_action": d.get("next_action"),
+        "next_action_date": _parse_date(d.get("next_action_date")),
+        "created_at": _parse_dt(d.get("created_at")),
+        "created_by": d.get("user_id"),
+    }
+
+
+def _row_to_quote_dict(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    items_raw = d.get("items")
+    if items_raw:
+        try:
+            items = json.loads(items_raw)
+        except Exception:
+            items = []
+    else:
+        items = []
+    return {
+        "id": d["id"],
+        "customer_id": d["customer_id"],
+        "quote_number": d.get("quote_number") or "",
+        "items": items,
+        "currency": d.get("currency") or "USD",
+        "subtotal": d.get("subtotal") or 0.0,
+        "tax_rate": d.get("tax_rate") or 0.0,
+        "tax_amount": d.get("tax_amount") or 0.0,
+        "total": d.get("total") or 0.0,
+        "valid_until": _parse_date(d.get("valid_until")),
+        "notes": d.get("notes"),
+        "status": d.get("status") or "draft",
+        "created_at": _parse_dt(d.get("created_at")),
+        "updated_at": _parse_dt(d.get("updated_at")) or _parse_dt(d.get("created_at")),
+        "created_by": d.get("user_id"),
+    }
+
+
+def _now_iso() -> str:
+    return datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+
+# ========== Customer management ==========
 
 def create_customer(customer_data: CustomerCreate, created_by: int) -> dict:
-    """创建客户"""
-    customer_id = _get_next_customer_id()
-    now = datetime.utcnow()
-    
-    customer = {
-        "id": customer_id,
-        "name": customer_data.name,
-        "company": customer_data.company,
-        "email": customer_data.email,
-        "phone": customer_data.phone,
-        "country": customer_data.country,
-        "city": customer_data.city,
-        "industry": customer_data.industry,
-        "source": customer_data.source.value,
-        "status": customer_data.status.value,
-        "priority": customer_data.priority.value,
-        "tags": customer_data.tags or [],
-        "notes": customer_data.notes,
-        "assigned_to": customer_data.assigned_to,
-        "linkedin_url": customer_data.linkedin_url,
-        "website": customer_data.website,
-        "created_at": now,
-        "updated_at": now,
-        "created_by": created_by,
-        "last_contact_at": None,
-        "total_quotes": 0,
-        "total_orders": 0,
-        "total_revenue": 0.0
-    }
-    
-    _customers_db[customer_id] = customer
-    return customer
+    """Create a customer and return it as a dict compatible with CustomerResponse."""
+    _lazy_init()
+    now = _now_iso()
+    with get_db_ctx() as conn:
+        cur = conn.execute(
+            """INSERT INTO customers
+                   (user_id, name, company, email, phone, country, city, industry,
+                    source, status, priority, tags, notes, assigned_to,
+                    linkedin_url, website, created_at, updated_at,
+                    last_contact_at, total_quotes, total_orders, total_revenue)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                created_by,
+                customer_data.name,
+                customer_data.company,
+                customer_data.email,
+                customer_data.phone,
+                customer_data.country,
+                customer_data.city,
+                customer_data.industry,
+                customer_data.source.value if hasattr(customer_data.source, "value") else customer_data.source,
+                customer_data.status.value if hasattr(customer_data.status, "value") else customer_data.status,
+                customer_data.priority.value if hasattr(customer_data.priority, "value") else customer_data.priority,
+                json.dumps(customer_data.tags) if customer_data.tags else None,
+                customer_data.notes,
+                customer_data.assigned_to,
+                customer_data.linkedin_url,
+                customer_data.website,
+                now,
+                now,
+                None,
+                0,
+                0,
+                0.0,
+            ),
+        )
+        customer_id: int = cur.lastrowid  # type: ignore[assignment]
+
+    # Fetch and return
+    return get_customer(customer_id)
+
 
 def get_customer(customer_id: int) -> Optional[dict]:
-    """获取客户"""
-    return _customers_db.get(customer_id)
+    """Return a single customer dict, or None."""
+    _lazy_init()
+    with get_db_ctx() as conn:
+        row = conn.execute(
+            "SELECT * FROM customers WHERE id = ?", (customer_id,)
+        ).fetchone()
+    if row is None:
+        return None
+    return _row_to_customer_dict(row)
+
 
 def update_customer(customer_id: int, customer_data: CustomerUpdate) -> Optional[dict]:
-    """更新客户"""
-    customer = _customers_db.get(customer_id)
-    if not customer:
-        return None
-    
-    update_data = customer_data.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        if value is not None:
-            if hasattr(value, 'value'):
-                customer[key] = value.value
-            else:
-                customer[key] = value
-    
-    customer["updated_at"] = datetime.utcnow()
-    return customer
+    """Update a customer. Returns the updated dict or None."""
+    _lazy_init()
+    # Build SET clause dynamically from fields that were actually provided
+    fields = customer_data.model_dump(exclude_unset=True)
+    if not fields:
+        return get_customer(customer_id)
+
+    # Convert enums to their string values
+    set_parts = []
+    values: list = []
+    for key, value in fields.items():
+        if hasattr(value, "value"):
+            value = value.value
+        if key == "tags":
+            value = json.dumps(value) if value is not None else None
+        set_parts.append(f"{key} = ?")
+        values.append(value)
+
+    set_parts.append("updated_at = ?")
+    values.append(_now_iso())
+    values.append(customer_id)
+
+    with get_db_ctx() as conn:
+        result = conn.execute(
+            f"UPDATE customers SET {', '.join(set_parts)} WHERE id = ?",
+            values,
+        )
+        if result.rowcount == 0:
+            return None
+
+    return get_customer(customer_id)
+
 
 def delete_customer(customer_id: int) -> bool:
-    """删除客户"""
-    if customer_id not in _customers_db:
-        return False
-    
-    # 删除相关跟进记录和报价
-    followups_to_delete = [fid for fid, f in _followups_db.items() if f["customer_id"] == customer_id]
-    for fid in followups_to_delete:
-        del _followups_db[fid]
-    
-    quotes_to_delete = [qid for qid, q in _quotes_db.items() if q["customer_id"] == customer_id]
-    for qid in quotes_to_delete:
-        del _quotes_db[qid]
-    
-    del _customers_db[customer_id]
-    return True
+    """Delete a customer and its related follow-ups / quotes."""
+    _lazy_init()
+    with get_db_ctx() as conn:
+        # Delete related records first
+        conn.execute("DELETE FROM follow_ups WHERE customer_id = ?", (customer_id,))
+        conn.execute("DELETE FROM quotes WHERE customer_id = ?", (customer_id,))
+        result = conn.execute("DELETE FROM customers WHERE id = ?", (customer_id,))
+        return result.rowcount > 0
 
-def list_customers(filter_params: Optional[CustomerFilter] = None, user_id: Optional[int] = None) -> List[dict]:
-    """列出客户"""
-    customers = list(_customers_db.values())
-    
-    # 非管理员只能看到分配给自己的客户
+
+def list_customers(
+    filter_params: Optional[CustomerFilter] = None,
+    user_id: Optional[int] = None,
+) -> List[dict]:
+    """List customers with optional filtering."""
+    _lazy_init()
+    clauses: List[str] = []
+    params: list = []
+
+    # Non-admin users see only their own or assigned customers
     if user_id is not None:
-        customers = [c for c in customers if c["assigned_to"] == user_id or c["created_by"] == user_id]
-    
+        clauses.append("(assigned_to = ? OR user_id = ?)")
+        params.extend([user_id, user_id])
+
     if filter_params:
         if filter_params.status:
-            customers = [c for c in customers if c["status"] == filter_params.status.value]
+            clauses.append("status = ?")
+            params.append(filter_params.status.value)
         if filter_params.source:
-            customers = [c for c in customers if c["source"] == filter_params.source.value]
+            clauses.append("source = ?")
+            params.append(filter_params.source.value)
         if filter_params.priority:
-            customers = [c for c in customers if c["priority"] == filter_params.priority.value]
+            clauses.append("priority = ?")
+            params.append(filter_params.priority.value)
         if filter_params.industry:
-            customers = [c for c in customers if c["industry"] == filter_params.industry]
+            clauses.append("industry = ?")
+            params.append(filter_params.industry)
         if filter_params.country:
-            customers = [c for c in customers if c["country"] == filter_params.country]
+            clauses.append("country = ?")
+            params.append(filter_params.country)
         if filter_params.assigned_to:
-            customers = [c for c in customers if c["assigned_to"] == filter_params.assigned_to]
+            clauses.append("assigned_to = ?")
+            params.append(filter_params.assigned_to)
         if filter_params.tags:
-            customers = [c for c in customers if any(tag in c.get("tags", []) for tag in filter_params.tags)]
+            # Match any of the provided tags (JSON array stored as text)
+            tag_clauses = []
+            for tag in filter_params.tags:
+                tag_clauses.append("tags LIKE ?")
+                params.append(f'%"{tag}"%')
+            clauses.append(f"({' OR '.join(tag_clauses)})")
         if filter_params.created_after:
-            customers = [c for c in customers if c["created_at"].date() >= filter_params.created_after]
+            clauses.append("created_at >= ?")
+            params.append(str(filter_params.created_after))
         if filter_params.created_before:
-            customers = [c for c in customers if c["created_at"].date() <= filter_params.created_before]
+            clauses.append("created_at <= ?")
+            params.append(str(filter_params.created_before) + " 23:59:59")
         if filter_params.search:
-            search = filter_params.search.lower()
-            customers = [c for c in customers if 
-                        search in c["name"].lower() or 
-                        search in (c.get("company") or "").lower() or
-                        search in (c.get("email") or "").lower()]
-    
-    # 按优先级和更新时间排序
+            search = f"%{filter_params.search}%"
+            clauses.append("(name LIKE ? OR company LIKE ? OR email LIKE ?)")
+            params.extend([search, search, search])
+
+    where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
+
+    with get_db_ctx() as conn:
+        rows = conn.execute(
+            f"SELECT * FROM customers {where} ORDER BY updated_at DESC",
+            params,
+        ).fetchall()
+
+    customers = [_row_to_customer_dict(r) for r in rows]
+
+    # Sort by priority then updated_at (descending)
     priority_order = {"high": 0, "medium": 1, "low": 2}
-    customers.sort(key=lambda c: (priority_order.get(c["priority"], 1), c["updated_at"]), reverse=True)
-    
+    customers.sort(
+        key=lambda c: (priority_order.get(c["priority"], 1), c["updated_at"] or datetime.min),
+        reverse=True,
+    )
+    # Fix sort: high priority first, then newest
+    customers.sort(
+        key=lambda c: (priority_order.get(c["priority"], 1), -(c["updated_at"] or datetime.min).timestamp()),
+    )
+
     return customers
 
-# ========== 跟进记录 ==========
 
-def create_followup(followup_data: FollowUpCreate, created_by: int) -> dict:
-    """创建跟进记录"""
-    # 检查客户是否存在
-    if followup_data.customer_id not in _customers_db:
+# ========== Follow-up records ==========
+
+def create_followup(followup_data: FollowUpCreate, created_by: int) -> Optional[dict]:
+    """Create a follow-up record. Returns dict or None if customer doesn't exist."""
+    _lazy_init()
+    # Verify customer exists
+    with get_db_ctx() as conn:
+        cust = conn.execute(
+            "SELECT id FROM customers WHERE id = ?", (followup_data.customer_id,)
+        ).fetchone()
+    if cust is None:
         return None
-    
-    followup_id = _get_next_followup_id()
-    now = datetime.utcnow()
-    
-    followup = {
-        "id": followup_id,
-        "customer_id": followup_data.customer_id,
-        "type": followup_data.type.value,
-        "content": followup_data.content,
-        "scheduled_at": followup_data.scheduled_at,
-        "completed_at": followup_data.completed_at,
-        "outcome": followup_data.outcome,
-        "next_action": followup_data.next_action,
-        "next_action_date": followup_data.next_action_date,
-        "created_at": now,
-        "created_by": created_by
-    }
-    
-    _followups_db[followup_id] = followup
-    
-    # 更新客户最后联系时间
-    _customers_db[followup_data.customer_id]["last_contact_at"] = now
-    _customers_db[followup_data.customer_id]["updated_at"] = now
-    
-    return followup
+
+    now = _now_iso()
+    with get_db_ctx() as conn:
+        cur = conn.execute(
+            """INSERT INTO follow_ups
+                   (user_id, customer_id, type, content, scheduled_at,
+                    completed_at, outcome, next_action, next_action_date,
+                    follow_up_date, status, created_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                created_by,
+                followup_data.customer_id,
+                followup_data.type.value if hasattr(followup_data.type, "value") else followup_data.type,
+                followup_data.content,
+                followup_data.scheduled_at.strftime("%Y-%m-%d %H:%M:%S") if followup_data.scheduled_at else None,
+                followup_data.completed_at.strftime("%Y-%m-%d %H:%M:%S") if followup_data.completed_at else None,
+                followup_data.outcome,
+                followup_data.next_action,
+                str(followup_data.next_action_date) if followup_data.next_action_date else None,
+                str(followup_data.scheduled_at.date()) if followup_data.scheduled_at else None,
+                "completed" if followup_data.completed_at else "pending",
+                now,
+            ),
+        )
+        followup_id: int = cur.lastrowid  # type: ignore[assignment]
+
+        # Update customer's last_contact_at
+        conn.execute(
+            "UPDATE customers SET last_contact_at = ?, updated_at = ? WHERE id = ?",
+            (now, now, followup_data.customer_id),
+        )
+
+    return _get_followup(followup_id)
+
+
+def _get_followup(followup_id: int) -> Optional[dict]:
+    with get_db_ctx() as conn:
+        row = conn.execute(
+            "SELECT * FROM follow_ups WHERE id = ?", (followup_id,)
+        ).fetchone()
+    return _row_to_followup_dict(row) if row else None
+
 
 def get_customer_followups(customer_id: int) -> List[dict]:
-    """获取客户的跟进记录"""
-    followups = [f for f in _followups_db.values() if f["customer_id"] == customer_id]
-    followups.sort(key=lambda f: f["created_at"], reverse=True)
-    return followups
+    """Return follow-ups for a customer, newest first."""
+    _lazy_init()
+    with get_db_ctx() as conn:
+        rows = conn.execute(
+            "SELECT * FROM follow_ups WHERE customer_id = ? ORDER BY created_at DESC",
+            (customer_id,),
+        ).fetchall()
+    return [_row_to_followup_dict(r) for r in rows]
+
 
 def get_pending_followups(user_id: Optional[int] = None) -> List[dict]:
-    """获取待办跟进"""
-    now = datetime.utcnow()
-    
-    # 获取有scheduled_at且未完成的跟进
-    pending = [f for f in _followups_db.values() 
-               if f["scheduled_at"] and not f["completed_at"] and f["scheduled_at"] >= now]
-    
-    # 获取next_action_date在今天或之前的跟进
-    today = date.today()
-    action_pending = [f for f in _followups_db.values()
-                     if f["next_action_date"] and f["next_action_date"] <= today and not f["completed_at"]]
-    
-    # 合并去重
-    all_pending = {f["id"]: f for f in pending + action_pending}
-    
-    # 过滤用户
-    if user_id:
-        result = []
-        for f in all_pending.values():
-            customer = _customers_db.get(f["customer_id"])
-            if customer and (customer["assigned_to"] == user_id or customer["created_by"] == user_id):
-                result.append(f)
-        return sorted(result, key=lambda f: f.get("scheduled_at") or f.get("next_action_date") or datetime.min)
-    
-    return sorted(all_pending.values(), key=lambda f: f.get("scheduled_at") or f.get("next_action_date") or datetime.min)
+    """Return pending follow-ups (scheduled in the future or action-date reached)."""
+    _lazy_init()
+    today = date.today().isoformat()
+    now = _now_iso()
 
-# ========== 报价管理 ==========
+    clauses = [
+        "(completed_at IS NULL OR completed_at = '')",
+        f"((scheduled_at IS NOT NULL AND scheduled_at >= ?) OR "
+        f"(next_action_date IS NOT NULL AND next_action_date <= ?))",
+    ]
+    params: list = [now, today]
 
-def create_quote(quote_data: QuoteCreate, created_by: int) -> dict:
-    """创建报价"""
-    if quote_data.customer_id not in _customers_db:
+    if user_id is not None:
+        clauses.append(
+            "customer_id IN (SELECT id FROM customers WHERE assigned_to = ? OR user_id = ?)"
+        )
+        params.extend([user_id, user_id])
+
+    where = " AND ".join(clauses)
+    with get_db_ctx() as conn:
+        rows = conn.execute(
+            f"SELECT * FROM follow_ups WHERE {where} ORDER BY COALESCE(scheduled_at, next_action_date)",
+            params,
+        ).fetchall()
+
+    return [_row_to_followup_dict(r) for r in rows]
+
+
+def complete_followup(followup_id: int, outcome: Optional[str] = None) -> Optional[dict]:
+    """Mark a follow-up as completed."""
+    _lazy_init()
+    now = _now_iso()
+    with get_db_ctx() as conn:
+        result = conn.execute(
+            "UPDATE follow_ups SET completed_at = ?, status = 'completed', outcome = COALESCE(?, outcome) WHERE id = ?",
+            (now, outcome, followup_id),
+        )
+        if result.rowcount == 0:
+            return None
+    return _get_followup(followup_id)
+
+
+# ========== Quotes ==========
+
+def create_quote(quote_data: QuoteCreate, created_by: int) -> Optional[dict]:
+    """Create a quote. Returns dict or None if customer doesn't exist."""
+    _lazy_init()
+    # Verify customer exists
+    with get_db_ctx() as conn:
+        cust = conn.execute(
+            "SELECT id FROM customers WHERE id = ?", (quote_data.customer_id,)
+        ).fetchone()
+    if cust is None:
         return None
-    
-    quote_id = _get_next_quote_id()
-    now = datetime.utcnow()
-    
-    # 计算金额
-    subtotal = sum(item.unit_price * item.quantity for item in quote_data.items)
-    tax_amount = subtotal * (quote_data.tax_rate / 100)
-    total = subtotal + tax_amount
-    
-    # 更新item totals
-    items = []
+
+    now = _now_iso()
+
+    # Calculate totals
+    items_list = []
+    subtotal = 0.0
     for item in quote_data.items:
-        items.append({
+        line_total = item.quantity * item.unit_price
+        subtotal += line_total
+        items_list.append({
             "description": item.description,
             "quantity": item.quantity,
             "unit_price": item.unit_price,
-            "total": item.quantity * item.unit_price
+            "total": line_total,
         })
-    
-    quote = {
-        "id": quote_id,
-        "customer_id": quote_data.customer_id,
-        "quote_number": quote_data.quote_number,
-        "items": items,
-        "currency": quote_data.currency,
-        "subtotal": subtotal,
-        "tax_rate": quote_data.tax_rate,
-        "tax_amount": tax_amount,
-        "total": total,
-        "valid_until": quote_data.valid_until,
-        "notes": quote_data.notes,
-        "status": quote_data.status,
-        "created_at": now,
-        "updated_at": now,
-        "created_by": created_by
-    }
-    
-    _quotes_db[quote_id] = quote
-    
-    # 更新客户统计
-    _customers_db[quote_data.customer_id]["total_quotes"] += 1
-    _customers_db[quote_data.customer_id]["updated_at"] = now
-    
-    return quote
+
+    tax_rate = quote_data.tax_rate or 0.0
+    tax_amount = subtotal * (tax_rate / 100)
+    total = subtotal + tax_amount
+
+    with get_db_ctx() as conn:
+        cur = conn.execute(
+            """INSERT INTO quotes
+                   (user_id, customer_id, quote_number, items, currency,
+                    subtotal, tax_rate, tax_amount, total, valid_until,
+                    notes, status, content, amount, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                created_by,
+                quote_data.customer_id,
+                quote_data.quote_number,
+                json.dumps(items_list),
+                quote_data.currency or "USD",
+                round(subtotal, 2),
+                tax_rate,
+                round(tax_amount, 2),
+                round(total, 2),
+                str(quote_data.valid_until) if quote_data.valid_until else None,
+                quote_data.notes,
+                quote_data.status or "draft",
+                quote_data.quote_number,  # content fallback
+                round(total, 2),          # amount fallback
+                now,
+                now,
+            ),
+        )
+        quote_id: int = cur.lastrowid  # type: ignore[assignment]
+
+        # Update customer stats
+        conn.execute(
+            "UPDATE customers SET total_quotes = total_quotes + 1, updated_at = ? WHERE id = ?",
+            (now, quote_data.customer_id),
+        )
+
+    return _get_quote(quote_id)
+
+
+def _get_quote(quote_id: int) -> Optional[dict]:
+    with get_db_ctx() as conn:
+        row = conn.execute(
+            "SELECT * FROM quotes WHERE id = ?", (quote_id,)
+        ).fetchone()
+    return _row_to_quote_dict(row) if row else None
+
 
 def get_customer_quotes(customer_id: int) -> List[dict]:
-    """获取客户报价"""
-    quotes = [q for q in _quotes_db.values() if q["customer_id"] == customer_id]
-    quotes.sort(key=lambda q: q["created_at"], reverse=True)
-    return quotes
+    """Return quotes for a customer, newest first."""
+    _lazy_init()
+    with get_db_ctx() as conn:
+        rows = conn.execute(
+            "SELECT * FROM quotes WHERE customer_id = ? ORDER BY created_at DESC",
+            (customer_id,),
+        ).fetchall()
+    return [_row_to_quote_dict(r) for r in rows]
 
-# ========== 统计报表 ==========
+
+# ========== Statistics ==========
 
 def get_customer_stats() -> CustomerStats:
-    """获取客户统计"""
-    customers = list(_customers_db.values())
-    
-    by_status = defaultdict(int)
-    by_source = defaultdict(int)
-    by_priority = defaultdict(int)
-    by_country = defaultdict(int)
-    
+    """Aggregate CRM statistics."""
+    _lazy_init()
     now = datetime.utcnow()
     this_month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    this_week_start = now - timedelta(days=now.weekday())
-    this_week_start = this_week_start.replace(hour=0, minute=0, second=0, microsecond=0)
-    
+    this_week_start = (now - timedelta(days=now.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+
+    with get_db_ctx() as conn:
+        rows = conn.execute("SELECT * FROM customers").fetchall()
+
+    customers = [_row_to_customer_dict(r) for r in rows]
+
+    by_status: Dict[str, int] = defaultdict(int)
+    by_source: Dict[str, int] = defaultdict(int)
+    by_priority: Dict[str, int] = defaultdict(int)
+    by_country: Dict[str, int] = defaultdict(int)
+
     new_this_month = 0
     new_this_week = 0
     total_revenue = 0.0
     total_quotes = 0
     total_orders = 0
-    
+
     for c in customers:
         by_status[c["status"]] += 1
         by_source[c["source"]] += 1
         by_priority[c["priority"]] += 1
         if c["country"]:
             by_country[c["country"]] += 1
-        
-        if c["created_at"] >= this_month_start:
+
+        ca = c["created_at"]
+        if ca and ca >= this_month_start:
             new_this_month += 1
-        if c["created_at"] >= this_week_start:
+        if ca and ca >= this_week_start:
             new_this_week += 1
-        
+
         total_revenue += c.get("total_revenue", 0)
         total_quotes += c.get("total_quotes", 0)
         total_orders += c.get("total_orders", 0)
-    
-    # 计算转化率
+
     total_leads = len(customers)
     won = by_status.get("won", 0)
     conversion_rate = (won / total_leads * 100) if total_leads > 0 else 0
-    
+
     return CustomerStats(
-        total_customers=len(customers),
+        total_customers=total_leads,
         by_status=dict(by_status),
         by_source=dict(by_source),
         by_priority=dict(by_priority),
@@ -326,114 +627,125 @@ def get_customer_stats() -> CustomerStats:
         conversion_rate=round(conversion_rate, 2),
         total_revenue=round(total_revenue, 2),
         total_quotes=total_quotes,
-        total_orders=total_orders
+        total_orders=total_orders,
     )
 
+
 def get_pipeline_summary() -> PipelineSummary:
-    """获取销售漏斗"""
-    customers = list(_customers_db.values())
-    
-    stages = [
-        {"stage": "lead", "label": "潜在客户"},
-        {"stage": "contacted", "label": "已联系"},
-        {"stage": "quoted", "label": "已报价"},
-        {"stage": "negotiating", "label": "谈判中"},
-        {"stage": "won", "label": "成交"},
-        {"stage": "lost", "label": "流失"}
+    """Build the sales pipeline funnel."""
+    _lazy_init()
+    with get_db_ctx() as conn:
+        rows = conn.execute("SELECT * FROM customers").fetchall()
+
+    customers = [_row_to_customer_dict(r) for r in rows]
+
+    stages_def = [
+        ("lead", "潜在客户"),
+        ("contacted", "已联系"),
+        ("quoted", "已报价"),
+        ("negotiating", "谈判中"),
+        ("won", "成交"),
+        ("lost", "流失"),
     ]
-    
-    pipeline_stages = []
+
+    pipeline_stages: List[PipelineStage] = []
     total_value = 0.0
-    
-    for stage_info in stages:
-        stage = stage_info["stage"]
-        stage_customers = [c for c in customers if c["status"] == stage]
+
+    for idx, (stage_key, stage_label) in enumerate(stages_def):
+        stage_customers = [c for c in customers if c["status"] == stage_key]
         count = len(stage_customers)
         value = sum(c.get("total_revenue", 0) for c in stage_customers)
-        
-        # 计算转化率（相对于前一阶段）
-        prev_stage_idx = stages.index(stage_info) - 1
-        if prev_stage_idx >= 0:
-            prev_stage = stages[prev_stage_idx]["stage"]
-            prev_count = len([c for c in customers if c["status"] == prev_stage])
+
+        # Conversion relative to previous stage
+        if idx > 0:
+            prev_key = stages_def[idx - 1][0]
+            prev_count = sum(1 for c in customers if c["status"] == prev_key)
             conversion = (count / prev_count * 100) if prev_count > 0 else 0
         else:
             conversion = 100.0
-        
-        # 计算平均停留天数
+
+        # Average days in stage (simplified: days since creation)
         avg_days = 0.0
         if stage_customers:
-            days = [(datetime.utcnow() - c["created_at"]).days for c in stage_customers]
-            avg_days = sum(days) / len(days)
-        
-        pipeline_stages.append(PipelineStage(
-            stage=stage_info["label"],
-            count=count,
-            value=round(value, 2),
-            conversion_rate=round(conversion, 2),
-            avg_days=round(avg_days, 1)
-        ))
-        
+            days = [
+                (datetime.utcnow() - c["created_at"]).days
+                for c in stage_customers
+                if c["created_at"]
+            ]
+            avg_days = (sum(days) / len(days)) if days else 0.0
+
+        pipeline_stages.append(
+            PipelineStage(
+                stage=stage_label,
+                count=count,
+                value=round(value, 2),
+                conversion_rate=round(conversion, 2),
+                avg_days=round(avg_days, 1),
+            )
+        )
         total_value += value
-    
+
     total_leads = len(customers)
-    won = len([c for c in customers if c["status"] == "won"])
+    won = sum(1 for c in customers if c["status"] == "won")
     overall_conversion = (won / total_leads * 100) if total_leads > 0 else 0
-    
+
     won_customers = [c for c in customers if c["status"] == "won"]
     avg_deal_size = (total_value / len(won_customers)) if won_customers else 0
-    
-    # 计算平均销售周期
+
     sales_cycles = []
     for c in won_customers:
-        # 简化为从创建到成交的天数
-        # 实际应该用第一次接触到成交的时间
-        days = (datetime.utcnow() - c["created_at"]).days
-        sales_cycles.append(days)
-    avg_sales_cycle = sum(sales_cycles) / len(sales_cycles) if sales_cycles else 0
-    
+        if c["created_at"]:
+            sales_cycles.append((datetime.utcnow() - c["created_at"]).days)
+    avg_sales_cycle = (sum(sales_cycles) / len(sales_cycles)) if sales_cycles else 0
+
     return PipelineSummary(
         stages=pipeline_stages,
         total_leads=total_leads,
         total_value=round(total_value, 2),
         overall_conversion=round(overall_conversion, 2),
         avg_deal_size=round(avg_deal_size, 2),
-        avg_sales_cycle=round(avg_sales_cycle, 1)
+        avg_sales_cycle=round(avg_sales_cycle, 1),
     )
 
+
 def get_recent_activities(limit: int = 20) -> List[Dict]:
-    """获取最近活动"""
-    activities = []
-    
-    # 客户创建
-    for c in _customers_db.values():
-        activities.append({
-            "type": "customer_created",
-            "description": f"创建客户: {c['name']}",
-            "timestamp": c["created_at"],
-            "customer_id": c["id"],
-            "user_id": c["created_by"]
-        })
-    
-    # 跟进记录
-    for f in _followups_db.values():
-        activities.append({
-            "type": "followup",
-            "description": f"跟进: {f['type']}",
-            "timestamp": f["created_at"],
-            "customer_id": f["customer_id"],
-            "user_id": f["created_by"]
-        })
-    
-    # 报价创建
-    for q in _quotes_db.values():
-        activities.append({
-            "type": "quote_created",
-            "description": f"创建报价: {q['quote_number']}",
-            "timestamp": q["created_at"],
-            "customer_id": q["customer_id"],
-            "user_id": q["created_by"]
-        })
-    
-    activities.sort(key=lambda a: a["timestamp"], reverse=True)
+    """Unified activity feed from customers, follow-ups, and quotes."""
+    _lazy_init()
+    activities: List[Dict] = []
+
+    with get_db_ctx() as conn:
+        # Customer creations
+        for c in conn.execute("SELECT * FROM customers ORDER BY created_at DESC").fetchall():
+            cd = dict(c)
+            activities.append({
+                "type": "customer_created",
+                "description": f"创建客户: {cd['name']}",
+                "timestamp": _parse_dt(cd.get("created_at")),
+                "customer_id": cd["id"],
+                "user_id": cd.get("user_id"),
+            })
+
+        # Follow-ups
+        for f in conn.execute("SELECT * FROM follow_ups ORDER BY created_at DESC").fetchall():
+            fd = dict(f)
+            activities.append({
+                "type": "followup",
+                "description": f"跟进: {fd.get('type', 'note')}",
+                "timestamp": _parse_dt(fd.get("created_at")),
+                "customer_id": fd["customer_id"],
+                "user_id": fd.get("user_id"),
+            })
+
+        # Quotes
+        for q in conn.execute("SELECT * FROM quotes ORDER BY created_at DESC").fetchall():
+            qd = dict(q)
+            activities.append({
+                "type": "quote_created",
+                "description": f"创建报价: {qd.get('quote_number', '')}",
+                "timestamp": _parse_dt(qd.get("created_at")),
+                "customer_id": qd["customer_id"],
+                "user_id": qd.get("user_id"),
+            })
+
+    activities.sort(key=lambda a: a["timestamp"] or datetime.min, reverse=True)
     return activities[:limit]

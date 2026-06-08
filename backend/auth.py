@@ -1,54 +1,29 @@
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict
+from typing import Optional, List
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
 from backend.schemas import UserRole, UserStatus, UserInDB, UserCreate, UserUpdate, TokenPayload
+from backend.database import get_db_ctx, init_db
 
 # 配置
 SECRET_KEY = "fortune-scm-secret-key-2024-change-in-production"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
-# 密码加密
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24小时
 
 # OAuth2 scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-# 内存数据库（生产环境应使用真实数据库）
-_users_db: Dict[int, dict] = {}
-_user_id_counter = 0
-
-def _get_next_id() -> int:
-    global _user_id_counter
-    _user_id_counter += 1
-    return _user_id_counter
-
-def init_admin_user():
-    """初始化管理员账号"""
-    global _users_db, _user_id_counter
-    if not _users_db:
-        admin_id = _get_next_id()
-        _users_db[admin_id] = {
-            "id": admin_id,
-            "username": "admin",
-            "email": "admin@fortune-scm.com",
-            "hashed_password": pwd_context.hash("admin123"),
-            "role": UserRole.ADMIN.value,
-            "status": UserStatus.ACTIVE.value,
-            "created_at": datetime.utcnow(),
-            "updated_at": datetime.utcnow(),
-            "created_by": None
-        }
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
@@ -59,6 +34,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt, expire
+
 
 def decode_token(token: str) -> Optional[TokenPayload]:
     try:
@@ -74,28 +50,53 @@ def decode_token(token: str) -> Optional[TokenPayload]:
     except JWTError:
         return None
 
+
+def init_admin_user():
+    """初始化管理员账号（如果不存在）"""
+    with get_db_ctx() as conn:
+        row = conn.execute("SELECT id FROM users WHERE username = 'admin'").fetchone()
+        if not row:
+            hashed = get_password_hash("admin123")
+            conn.execute(
+                "INSERT INTO users (username, email, hashed_password, role, status) VALUES (?, ?, ?, ?, ?)",
+                ("admin", "admin@fortune-scm.com", hashed, UserRole.ADMIN.value, UserStatus.ACTIVE.value)
+            )
+
+
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="无法验证凭据",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+
     token_data = decode_token(token)
     if token_data is None or token_data.sub is None:
         raise credentials_exception
-    
-    user = _users_db.get(token_data.sub)
-    if user is None:
+
+    with get_db_ctx() as conn:
+        row = conn.execute("SELECT * FROM users WHERE id = ?", (token_data.sub,)).fetchone()
+
+    if row is None:
         raise credentials_exception
-    
-    if user["status"] != UserStatus.ACTIVE.value:
+
+    if row["status"] != UserStatus.ACTIVE.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="账号已被禁用"
         )
-    
-    return UserInDB(**user)
+
+    return UserInDB(
+        id=row["id"],
+        username=row["username"],
+        email=row["email"],
+        role=row["role"],
+        status=row["status"],
+        created_at=datetime.fromisoformat(row["created_at"]) if isinstance(row["created_at"], str) else row["created_at"],
+        updated_at=datetime.fromisoformat(row["updated_at"]) if isinstance(row["updated_at"], str) else row["updated_at"],
+        created_by=row["created_by"],
+    )
+
 
 async def get_current_admin(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
     if current_user.role != UserRole.ADMIN:
@@ -105,81 +106,95 @@ async def get_current_admin(current_user: UserInDB = Depends(get_current_user)) 
         )
     return current_user
 
-# 用户CRUD操作
+
 def get_user_by_username(username: str) -> Optional[dict]:
-    for user in _users_db.values():
-        if user["username"] == username:
-            return user
-    return None
+    with get_db_ctx() as conn:
+        row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+        return dict(row) if row else None
+
 
 def get_user_by_id(user_id: int) -> Optional[dict]:
-    return _users_db.get(user_id)
+    with get_db_ctx() as conn:
+        row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+        return dict(row) if row else None
+
 
 def create_user(user_data: UserCreate, created_by: int) -> dict:
-    # 检查用户名是否已存在
     if get_user_by_username(user_data.username):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="用户名已存在"
         )
-    
-    user_id = _get_next_id()
-    now = datetime.utcnow()
-    user = {
-        "id": user_id,
-        "username": user_data.username,
-        "email": user_data.email,
-        "hashed_password": get_password_hash(user_data.password),
-        "role": user_data.role.value,
-        "status": user_data.status.value,
-        "created_at": now,
-        "updated_at": now,
-        "created_by": created_by
-    }
-    _users_db[user_id] = user
-    return user
+
+    hashed = get_password_hash(user_data.password)
+    now = datetime.utcnow().isoformat()
+
+    with get_db_ctx() as conn:
+        cursor = conn.execute(
+            "INSERT INTO users (username, email, hashed_password, role, status, created_at, updated_at, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_data.username, user_data.email, hashed, user_data.role.value, user_data.status.value, now, now, created_by)
+        )
+        user_id = cursor.lastrowid
+
+    return get_user_by_id(user_id)
+
 
 def update_user(user_id: int, user_data: UserUpdate) -> Optional[dict]:
-    user = _users_db.get(user_id)
+    user = get_user_by_id(user_id)
     if not user:
         return None
-    
+
     if user_data.username is not None:
-        # 检查新用户名是否与其他用户冲突
         existing = get_user_by_username(user_data.username)
         if existing and existing["id"] != user_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="用户名已存在"
             )
-        user["username"] = user_data.username
-    
+
+    now = datetime.utcnow().isoformat()
+    sets = ["updated_at = ?"]
+    params = [now]
+
+    if user_data.username is not None:
+        sets.append("username = ?")
+        params.append(user_data.username)
     if user_data.email is not None:
-        user["email"] = user_data.email
-    
+        sets.append("email = ?")
+        params.append(user_data.email)
     if user_data.password is not None:
-        user["hashed_password"] = get_password_hash(user_data.password)
-    
+        sets.append("hashed_password = ?")
+        params.append(get_password_hash(user_data.password))
     if user_data.status is not None:
-        user["status"] = user_data.status.value
-    
-    user["updated_at"] = datetime.utcnow()
-    return user
+        sets.append("status = ?")
+        params.append(user_data.status.value)
+
+    params.append(user_id)
+
+    with get_db_ctx() as conn:
+        conn.execute(f"UPDATE users SET {', '.join(sets)} WHERE id = ?", params)
+
+    return get_user_by_id(user_id)
+
 
 def delete_user(user_id: int) -> bool:
-    if user_id not in _users_db:
+    user = get_user_by_id(user_id)
+    if not user:
         return False
-    # 不能删除管理员
-    if _users_db[user_id]["role"] == UserRole.ADMIN.value:
+    if user["role"] == UserRole.ADMIN.value:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="不能删除管理员账号"
         )
-    del _users_db[user_id]
+    with get_db_ctx() as conn:
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
     return True
 
+
 def list_users(skip_admin: bool = False) -> List[dict]:
-    users = list(_users_db.values())
-    if skip_admin:
-        users = [u for u in users if u["role"] != UserRole.ADMIN.value]
-    return users
+    with get_db_ctx() as conn:
+        if skip_admin:
+            rows = conn.execute("SELECT * FROM users WHERE role != 'admin' ORDER BY created_at DESC").fetchall()
+        else:
+            rows = conn.execute("SELECT * FROM users ORDER BY created_at DESC").fetchall()
+    return [dict(r) for r in rows]

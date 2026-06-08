@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - FORTUNE SCM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>[x-cloak] { display: none !important; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="settingsApp()" x-init="init()">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center space-x-8">
+                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
+                    <span class="text-gray-500">系统设置</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">首页</a>
+                    <a href="/crm" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">客户管理</a>
+                    <a href="/linkedin" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">LinkedIn</a>
+                    <a href="/email" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">邮件</a>
+                    <a href="/analytics" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">数据分析</a>
+                    <span class="text-gray-400">|</span>
+                    <button @click="logout()" class="text-sm text-red-500 hover:text-red-700">退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- 网络代理设置 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">🌐 网络代理</h2>
+                <p class="text-sm text-gray-500 mt-1">自动检测系统 VPN/代理，无需手动配置</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center space-x-3">
+                    <span class="text-sm" :class="proxy.current ? 'text-green-600' : 'text-yellow-600'">
+                        <span x-show="proxy.current">✅ 已检测到代理: <code x-text="proxy.current" class="bg-gray-100 px-2 py-0.5 rounded"></code></span>
+                        <span x-show="!proxy.current">⚠️ 未检测到代理 — LinkedIn 功能需要 VPN（Clash/V2Ray/Shadowsocks 等）</span>
+                    </span>
+                </div>
+                <div class="text-xs text-gray-400">
+                    <p>支持自动检测：Clash (7890)、V2Ray (1081/10808)、Shadowsocks (1080)、系统环境变量 (HTTP_PROXY/ALL_PROXY)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- LinkedIn 设置 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">🔗 LinkedIn 账号</h2>
+                <p class="text-sm text-gray-500 mt-1">配置 LinkedIn 登录凭据（可选，用于自动登录）</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn 邮箱</label>
+                    <input type="email" x-model="linkedin.email"
+                        placeholder="your@email.com"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn 密码</label>
+                    <input type="password" x-model="linkedin.password"
+                        placeholder="••••••••"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                </div>
+                <button @click="saveLinkedin()"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    保存 LinkedIn 配置
+                </button>
+            </div>
+        </div>
+
+        <!-- 邮件 SMTP 设置 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">📧 邮件 SMTP</h2>
+                <p class="text-sm text-gray-500 mt-1">配置发件邮箱（Cold Email 功能需要）</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SMTP 服务器</label>
+                        <input type="text" x-model="smtp.host" placeholder="smtp.exmail.qq.com"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">端口</label>
+                        <input type="number" x-model="smtp.port" placeholder="465"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">发件邮箱</label>
+                        <input type="email" x-model="smtp.user" placeholder="you@company.com"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">SMTP 授权码</label>
+                        <input type="password" x-model="smtp.password" placeholder="授权码（非登录密码）"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" x-model="smtp.ssl" id="smtp-ssl" class="rounded">
+                    <label for="smtp-ssl" class="text-sm text-gray-700">使用 SSL</label>
+                </div>
+                <div class="flex space-x-3">
+                    <button @click="saveSmtp()"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        保存 SMTP 配置
+                    </button>
+                    <button @click="testSmtp()"
+                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+                        发送测试邮件
+                    </button>
+                    <span class="text-sm self-center" x-text="smtp.testResult" :class="smtp.testOk ? 'text-green-600' : 'text-red-500'"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 定时任务 -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">⏰ 定时任务</h2>
+                <p class="text-sm text-gray-500 mt-1">自动执行客户开发任务</p>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <template x-for="task in scheduler.tasks" :key="task.id">
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <span class="font-medium text-gray-800" x-text="task.display_name"></span>
+                                <span class="text-sm text-gray-500 ml-2" x-text="task.schedule_cron"></span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-xs text-gray-400" x-text="task.last_run ? '上次: ' + task.last_run : '未执行'"></span>
+                                <button @click="toggleTask(task)"
+                                    class="px-3 py-1 rounded text-sm"
+                                    :class="task.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'">
+                                    <span x-text="task.enabled ? '已启用' : '已禁用'"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+
+        <!-- 关于 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">ℹ️ 关于</h2>
+            </div>
+            <div class="p-6 text-sm text-gray-600 space-y-2">
+                <p><strong>FORTUNE SCM</strong> v1.0.0 — 供应链营销自动化系统</p>
+                <p>功能：客户管理 · LinkedIn 自动化 · AI 内容生成 · 邮件营销 · 数据分析</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function settingsApp() {
+            return {
+                token: '',
+                proxy: { current: '' },
+                linkedin: { email: '', password: '' },
+                smtp: { host: '', port: 465, user: '', password: '', ssl: true, testResult: '', testOk: false },
+                scheduler: { tasks: [] },
+
+                async init() {
+                    this.token = localStorage.getItem('access_token');
+                    if (!this.token) { window.location.href = '/login'; return; }
+
+                    // Load proxy config
+                    try {
+                        const r = await fetch('/api/linkedin/config', { headers: this.h() });
+                        if (r.ok) {
+                            const cfg = await r.json();
+                            this.proxy.url = cfg.proxy || '';
+                            this.proxy.current = cfg.proxy || '';
+                        }
+                    } catch(e) {}
+
+                    // Load scheduler tasks
+                    try {
+                        const r = await fetch('/api/scheduler/tasks', { headers: this.h() });
+                        if (r.ok) {
+                            const data = await r.json();
+                            this.scheduler.tasks = data.tasks || data || [];
+                        }
+                    } catch(e) {}
+                },
+
+                h() { return { 'Authorization': 'Bearer ' + this.token, 'Content-Type': 'application/json' }; },
+
+                async saveLinkedin() {
+                    alert('LinkedIn 配置已保存（功能开发中）');
+                },
+
+                async saveSmtp() {
+                    alert('SMTP 配置已保存（功能开发中）');
+                },
+
+                async testSmtp() {
+                    this.smtp.testResult = '发送中...';
+                    this.smtp.testResult = '测试功能开发中';
+                    this.smtp.testOk = false;
+                },
+
+                async toggleTask(task) {
+                    try {
+                        const r = await fetch(`/api/scheduler/tasks/${task.id}/toggle`, {
+                            method: 'POST', headers: this.h()
+                        });
+                        if (r.ok) {
+                            task.enabled = !task.enabled;
+                        }
+                    } catch(e) {}
+                },
+
+                logout() {
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('user_info');
+                    window.location.href = '/login';
+                }
+            };
+        }
+    </script>
+</body>
+</html>

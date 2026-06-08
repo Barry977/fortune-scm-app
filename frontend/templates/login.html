@@ -108,8 +108,8 @@
         const btnText = document.getElementById('btn-text');
         const btnLoading = document.getElementById('btn-loading');
 
-        // API基础URL
-        const API_BASE_URL = 'http://localhost:8000';
+        // API基础URL - 使用当前页面的host（自动适配端口）
+        const API_BASE_URL = window.location.origin;
 
         // 显示错误信息
         function showError(message) {
