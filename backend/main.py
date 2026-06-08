@@ -32,6 +32,7 @@ from backend.materials_routes import router as materials_router
 from backend.ai_content_routes import router as ai_content_router
 from backend.import_export_routes import router as import_export_router
 from backend.linkedin_analytics_routes import router as linkedin_analytics_router
+from backend.auto_import_routes import router as auto_import_router
 
 app = FastAPI(title="FORTUNE SCM", version="1.0.0")
 
@@ -46,6 +47,7 @@ app.include_router(materials_router)
 app.include_router(ai_content_router)
 app.include_router(import_export_router)
 app.include_router(linkedin_analytics_router)
+app.include_router(auto_import_router)
 
 # CORS
 app.add_middleware(

@@ -82,6 +82,27 @@ def _task_linkedin_daily_post():
         return {"success": False, "error": str(e)}
 
 
+def _task_auto_import():
+    """Daily auto-import from LinkedIn searches."""
+    logger.info("[Scheduler] Running auto-import")
+    try:
+        from backend.auto_import import auto_import_batch
+        
+        # Default search configurations for different markets
+        search_configs = [
+            {"keywords": "logistics manager", "market": "US", "max_results": 30},
+            {"keywords": "supply chain director", "market": "US", "max_results": 30},
+            {"keywords": "procurement manager", "market": "EU", "max_results": 30},
+            {"keywords": "shipping coordinator", "market": "ME", "max_results": 20},
+        ]
+        
+        result = asyncio.run(auto_import_batch(search_configs))
+        return result
+    except Exception as e:
+        logger.error("[Scheduler] Auto-import failed: %s", e)
+        return {"success": False, "error": str(e)}
+
+
 def _task_cold_email():
     """Daily cold email batch — emails customers with status 'new' that have an email."""
     logger.info("[Scheduler] Running cold email batch")
@@ -158,6 +179,13 @@ def _task_daily_stats():
 # ---------------------------------------------------------------------------
 
 BUILTIN_TASKS: List[Dict[str, Any]] = [
+    {
+        "name": "auto_import",
+        "display_name": "自动导入客户 (LinkedIn搜索)",
+        "cron_hour": 8,
+        "cron_minute": 0,
+        "func": _task_auto_import,
+    },
     {
         "name": "linkedin_daily_post",
         "display_name": "LinkedIn 每日自动发帖 (AI生成)",
