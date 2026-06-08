@@ -14,8 +14,8 @@ httpx>=0.25.0
 # Scheduling
 apscheduler>=3.10.4
 
-# Browser automation
-playwright>=1.40.0
+# Desktop window
+pywebview>=5.0
 
 # Utilities
 jinja2>=3.1.2
