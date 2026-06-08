@@ -83,3 +83,41 @@ jobs:
         with:
           name: FortuneSCM-Linux
           path: dist/FortuneSCM
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Prepare release assets
+        run: |
+          cd artifacts
+          zip -r ../FortuneSCM-Windows.zip FortuneSCM-Windows/
+          zip -r ../FortuneSCM-macOS.zip FortuneSCM-macOS/
+          zip -r ../FortuneSCM-Linux.zip FortuneSCM-Linux/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Fortune SCM Build ${{ github.run_number }}
+          body: |
+            Fortune SCM App - 自动构建版本
+            
+            ## 下载
+            - **Windows**: 下载 `FortuneSCM-Windows.zip`，解压后运行 `FortuneSCM.exe`
+            - **macOS**: 下载 `FortuneSCM-macOS.zip`，解压后运行 `FortuneSCM`
+            - **Linux**: 下载 `FortuneSCM-Linux.zip`，解压后运行 `./FortuneSCM`
+          files: |
+            FortuneSCM-Windows.zip
+            FortuneSCM-macOS.zip
+            FortuneSCM-Linux.zip
+          draft: false
+          prerelease: false
