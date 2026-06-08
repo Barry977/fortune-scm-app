@@ -5,15 +5,18 @@ PyInstaller spec file for Fortune SCM Desktop App
 
 import os
 import sys
-from PyInstaller.utils.hooks import collect_data_files, collect_submodules
+from pathlib import Path
 
 block_cipher = None
 
+# Get the project directory
+PROJECT_DIR = Path('.').resolve()
+
 # Collect all frontend templates, static files, AND backend code
 datas = [
-    ('frontend', 'frontend'),
-    ('data', 'data'),
-    ('backend', 'backend'),
+    (str(PROJECT_DIR / 'frontend'), 'frontend'),
+    (str(PROJECT_DIR / 'data'), 'data'),
+    (str(PROJECT_DIR / 'backend'), 'backend'),
 ]
 
 # Add hidden imports for backend modules
@@ -74,7 +77,7 @@ hiddenimports = [
 
 a = Analysis(
     ['start.py'],
-    pathex=[],
+    pathex=[str(PROJECT_DIR)],
     binaries=[],
     datas=datas,
     hiddenimports=hiddenimports,

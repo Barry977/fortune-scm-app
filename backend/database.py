@@ -1,8 +1,17 @@
 import sqlite3
 import os
+import sys
 from contextlib import contextmanager
 
-DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fortune.db")
+# 支持 PyInstaller 打包
+IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
+
+if IS_BUNDLED:
+    # PyInstaller 打包模式 - 数据目录在可执行文件旁边
+    DB_PATH = os.path.join(os.path.dirname(sys.executable), "data", "fortune.db")
+else:
+    # 开发模式
+    DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "fortune.db")
 
 
 def get_db():

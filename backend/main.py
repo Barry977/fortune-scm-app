@@ -58,8 +58,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 路径配置
-PROJECT_DIR = Path(__file__).parent.parent
+# 路径配置 - 支持 PyInstaller 打包
+import sys
+IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
+
+if IS_BUNDLED:
+    # PyInstaller 打包模式 - 文件在 _MEIPASS 目录
+    PROJECT_DIR = Path(sys._MEIPASS)
+else:
+    # 开发模式 - 文件在项目根目录
+    PROJECT_DIR = Path(__file__).parent.parent
+
 TEMPLATES_DIR = os.path.join(PROJECT_DIR, "frontend", "templates")
 STATIC_DIR = os.path.join(PROJECT_DIR, "frontend", "static")
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
