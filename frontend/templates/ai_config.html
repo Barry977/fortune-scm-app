@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 配置 - FORTUNE SCM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen" x-data="aiConfigApp()">
+    <!-- 导航栏 -->
+    <nav class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
+                    <span class="ml-4 text-gray-500">AI 配置</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900">首页</a>
+                    <button @click="logout()" class="text-gray-600 hover:text-gray-900">退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- 配置列表 -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-medium text-gray-800">AI 模型配置</h2>
+                <button @click="showAddModal = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    + 添加配置
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">名称</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">提供商</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">模型</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">默认</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <template x-for="config in configs" :key="config.id">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="config.name"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="getProviderLabel(config.provider)"></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="getModelLabel(config.model)"></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span x-show="config.is_default" class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">默认</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span :class="config.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs font-medium rounded-full" x-text="config.is_active ? '启用' : '禁用'"></span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                    <button @click="testConfig(config)" class="text-blue-600 hover:text-blue-900">测试</button>
+                                    <button @click="editConfig(config)" class="text-yellow-600 hover:text-yellow-900">编辑</button>
+                                    <button @click="deleteConfig(config.id)" class="text-red-600 hover:text-red-900">删除</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 使用统计 -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">使用统计</h2>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-gray-800" x-text="stats.total_requests"></p>
+                    <p class="text-sm text-gray-500">总请求数</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-gray-800" x-text="stats.total_tokens"></p>
+                    <p class="text-sm text-gray-500">总Token数</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-gray-800" x-text="stats.success_rate + '%'"></p>
+                    <p class="text-sm text-gray-500">成功率</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-3xl font-bold text-gray-800" x-text="stats.average_latency_ms + 'ms'"></p>
+                    <p class="text-sm text-gray-500">平均延迟</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI 生成工具 -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-medium text-gray-800">AI 生成工具</h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 营销内容生成 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-md font-medium text-gray-800 mb-4">营销内容生成</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">配置</label>
+                                <select x-model="marketingForm.config_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">选择配置</option>
+                                    <template x-for="config in configs" :key="config.id">
+                                        <option :value="config.id" x-text="config.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">内容类型</label>
+                                <select x-model="marketingForm.content_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="email">开发信</option>
+                                    <option value="social">社交媒体</option>
+                                    <option value="post">营销文案</option>
+                                    <option value="ad">广告文案</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">目标受众</label>
+                                <input type="text" x-model="marketingForm.target_audience" placeholder="如：欧美进口商" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">产品/服务</label>
+                                <input type="text" x-model="marketingForm.product_service" placeholder="如：国际空运DDU服务" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">语气</label>
+                                <select x-model="marketingForm.tone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="professional">专业</option>
+                                    <option value="friendly">友好</option>
+                                    <option value="urgent">紧迫</option>
+                                    <option value="casual">随意</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">语言</label>
+                                <select x-model="marketingForm.language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="zh">中文</option>
+                                    <option value="en">英文</option>
+                                </select>
+                            </div>
+                            <button @click="generateMarketing()" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:opacity-50">
+                                <span x-show="!loading">生成内容</span>
+                                <span x-show="loading">生成中...</span>
+                            </button>
+                        </div>
+                        <div x-show="marketingResult" class="mt-4 p-4 bg-gray-50 rounded-md">
+                            <pre class="text-sm text-gray-700 whitespace-pre-wrap" x-text="marketingResult"></pre>
+                        </div>
+                    </div>
+
+                    <!-- 客户分析 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-md font-medium text-gray-800 mb-4">客户分析</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">配置</label>
+                                <select x-model="analysisForm.config_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="">选择配置</option>
+                                    <template x-for="config in configs" :key="config.id">
+                                        <option :value="config.id" x-text="config.name"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">分析类型</label>
+                                <select x-model="analysisForm.analysis_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                    <option value="profile">客户画像</option>
+                                    <option value="needs">需求分析</option>
+                                    <option value="risk">风险评估</option>
+                                    <option value="opportunity">机会分析</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">客户数据</label>
+                                <textarea x-model="analysisForm.customer_data" rows="4" placeholder="粘贴客户数据（JSON或文本）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">行业（可选）</label>
+                                <input type="text" x-model="analysisForm.industry" placeholder="如：物流" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <button @click="analyzeCustomer()" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:opacity-50">
+                                <span x-show="!loading">开始分析</span>
+                                <span x-show="loading">分析中...</span>
+                            </button>
+                        </div>
+                        <div x-show="analysisResult" class="mt-4 p-4 bg-gray-50 rounded-md">
+                            <pre class="text-sm text-gray-700 whitespace-pre-wrap" x-text="analysisResult"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 添加/编辑配置模态框 -->
+        <div x-show="showAddModal || showEditModal" x-cloak class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-800" x-text="showEditModal ? '编辑配置' : '添加配置'"></h3>
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">×</button>
+                </div>
+                <form @submit.prevent="saveConfig()" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">配置名称</label>
+                        <input type="text" x-model="form.name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">提供商</label>
+                        <select x-model="form.provider" @change="updateModels()" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="">选择提供商</option>
+                            <template x-for="(provider, key) in providers" :key="key">
+                                <option :value="key" x-text="provider.label"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">模型</label>
+                        <select x-model="form.model" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                            <option value="">选择模型</option>
+                            <template x-for="model in availableModels" :key="model.value">
+                                <option :value="model.value" x-text="model.label"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
+                        <input type="password" x-model="form.api_key" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">自定义基础URL（可选）</label>
+                        <input type="text" x-model="form.base_url" placeholder="留空使用默认" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">温度</label>
+                            <input type="number" x-model="form.temperature" min="0" max="2" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">最大Token</label>
+                            <input type="number" x-model="form.max_tokens" min="1" max="32000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="form.is_default" class="mr-2">
+                            <span class="text-sm text-gray-700">设为默认</span>
+                        </label>
+                        <label class="flex items-center">
+                            <input type="checkbox" x-model="form.is_active" class="mr-2">
+                            <span class="text-sm text-gray-700">启用</span>
+                        </label>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" @click="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">取消</button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 错误提示 -->
+        <div x-show="error" x-cloak class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
+            <span x-text="error"></span>
+            <button @click="error = null" class="ml-2 text-red-500 hover:text-red-700">×</button>
+        </div>
+    </div>
+
+    <script>
+        function aiConfigApp() {
+            return {
+                loading: false,
+                error: null,
+                showAddModal: false,
+                showEditModal: false,
+                configs: [],
+                providers: {},
+                availableModels: [],
+                stats: {
+                    total_requests: 0,
+                    total_tokens: 0,
+                    success_rate: 0,
+                    average_latency_ms: 0
+                },
+                form: {
+                    id: null,
+                    name: '',
+                    provider: '',
+                    model: '',
+                    api_key: '',
+                    base_url: '',
+                    temperature: 0.7,
+                    max_tokens: 2000,
+                    is_default: false,
+                    is_active: true
+                },
+                marketingForm: {
+                    config_id: '',
+                    content_type: 'email',
+                    target_audience: '',
+                    product_service: '',
+                    tone: 'professional',
+                    language: 'zh',
+                    key_points: [],
+                    max_length: 500
+                },
+                marketingResult: '',
+                analysisForm: {
+                    config_id: '',
+                    analysis_type: 'profile',
+                    customer_data: '',
+                    industry: '',
+                    language: 'zh'
+                },
+                analysisResult: '',
+
+                async init() {
+                    await this.loadProviders();
+                    await this.loadConfigs();
+                    await this.loadStats();
+                },
+
+                async loadProviders() {
+                    try {
+                        const response = await fetch('/api/ai/providers');
+                        if (response.ok) {
+                            this.providers = await response.json();
+                        }
+                    } catch (e) {
+                        console.error('加载提供商失败:', e);
+                    }
+                },
+
+                async loadConfigs() {
+                    try {
+                        const response = await fetch('/api/ai/configs', {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                        });
+                        if (response.ok) {
+                            this.configs = await response.json();
+                        }
+                    } catch (e) {
+                        console.error('加载配置失败:', e);
+                    }
+                },
+
+                async loadStats() {
+                    try {
+                        const response = await fetch('/api/ai/stats', {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                        });
+                        if (response.ok) {
+                            this.stats = await response.json();
+                        }
+                    } catch (e) {
+                        console.error('加载统计失败:', e);
+                    }
+                },
+
+                updateModels() {
+                    const provider = this.providers[this.form.provider];
+                    this.availableModels = provider ? provider.models : [];
+                    this.form.model = '';
+                },
+
+                getProviderLabel(provider) {
+                    return this.providers[provider]?.label || provider;
+                },
+
+                getModelLabel(model) {
+                    for (const provider of Object.values(this.providers)) {
+                        const found = provider.models.find(m => m.value === model);
+                        if (found) return found.label;
+                    }
+                    return model;
+                },
+
+                editConfig(config) {
+                    this.form = { ...config };
+                    this.updateModels();
+                    this.showEditModal = true;
+                },
+
+                closeModal() {
+                    this.showAddModal = false;
+                    this.showEditModal = false;
+                    this.form = {
+                        id: null,
+                        name: '',
+                        provider: '',
+                        model: '',
+                        api_key: '',
+                        base_url: '',
+                        temperature: 0.7,
+                        max_tokens: 2000,
+                        is_default: false,
+                        is_active: true
+                    };
+                    this.availableModels = [];
+                },
+
+                async saveConfig() {
+                    this.loading = true;
+                    this.error = null;
+                    try {
+                        const url = this.showEditModal ? `/api/ai/configs/${this.form.id}` : '/api/ai/configs';
+                        const method = this.showEditModal ? 'PUT' : 'POST';
+                        const response = await fetch(url, {
+                            method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.form)
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            await this.loadConfigs();
+                            this.closeModal();
+                        } else {
+                            this.error = data.detail || '保存失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async deleteConfig(id) {
+                    if (!confirm('确定要删除这个配置吗？')) return;
+                    try {
+                        const response = await fetch(`/api/ai/configs/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                        });
+                        if (response.ok) {
+                            await this.loadConfigs();
+                        } else {
+                            const data = await response.json();
+                            this.error = data.detail || '删除失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    }
+                },
+
+                async testConfig(config) {
+                    this.loading = true;
+                    this.error = null;
+                    try {
+                        const response = await fetch('/api/ai/test', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify({
+                                provider: config.provider,
+                                model: config.model,
+                                api_key: config.api_key,
+                                base_url: config.base_url
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            alert(`连接成功! 延迟: ${data.latency_ms}ms`);
+                        } else {
+                            this.error = data.message || '连接失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async generateMarketing() {
+                    this.loading = true;
+                    this.error = null;
+                    this.marketingResult = '';
+                    try {
+                        const response = await fetch('/api/ai/generate/marketing', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.marketingForm)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            this.marketingResult = data.content;
+                            await this.loadStats();
+                        } else {
+                            this.error = data.error || '生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async analyzeCustomer() {
+                    this.loading = true;
+                    this.error = null;
+                    this.analysisResult = '';
+                    try {
+                        const response = await fetch('/api/ai/generate/analysis', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.analysisForm)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            this.analysisResult = data.content;
+                            await this.loadStats();
+                        } else {
+                            this.error = data.error || '分析失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                logout() {
+                    localStorage.clear();
+                    window.location.href = '/login.html';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

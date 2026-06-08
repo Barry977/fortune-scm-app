@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件营销 - FORTUNE SCM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
+        .nav { background: #1a1a2e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .nav a { color: #e0e0e0; text-decoration: none; margin-left: 20px; }
+        .nav a:hover { color: #4fc3f7; }
+        .nav .logo { color: #4fc3f7; font-size: 18px; font-weight: bold; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { color: #333; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 8px 20px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: white; }
+        .tab.active { background: #1a73e8; color: white; border-color: #1a73e8; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #555; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
+        .form-group textarea { height: 150px; resize: vertical; }
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .btn-primary { background: #1a73e8; color: white; }
+        .btn-success { background: #34a853; color: white; }
+        .btn-danger { background: #ea4335; color: white; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; }
+        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; }
+        .badge-success { background: #e8f5e9; color: #2e7d32; }
+        .badge-fail { background: #ffebee; color: #c62828; }
+        .badge-pending { background: #fff3e0; color: #e65100; }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <span class="logo">📧 FORTUNE SCM</span>
+        <div>
+            <a href="/">首页</a>
+            <a href="/linkedin">LinkedIn</a>
+            <a href="/ai_config">AI 配置</a>
+            <a href="/crm">CRM</a>
+            <a href="/analytics">数据分析</a>
+            <a href="/email">邮件营销</a>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('smtp')">SMTP 配置</button>
+            <button class="tab" onclick="showTab('send')">发送邮件</button>
+            <button class="tab" onclick="showTab('templates')">邮件模板</button>
+            <button class="tab" onclick="showTab('records')">发送记录</button>
+        </div>
+
+        <!-- SMTP 配置 -->
+        <div id="tab-smtp" class="card">
+            <h2>SMTP 配置</h2>
+            <div class="grid">
+                <div>
+                    <div class="form-group">
+                        <label>配置名称</label>
+                        <input type="text" id="smtp-name" placeholder="如：公司邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label>SMTP 服务器</label>
+                        <input type="text" id="smtp-host" placeholder="smtp.gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label>端口</label>
+                        <input type="number" id="smtp-port" value="587">
+                    </div>
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" id="smtp-username" placeholder="your@email.com">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label>密码/授权码</label>
+                        <input type="password" id="smtp-password">
+                    </div>
+                    <div class="form-group">
+                        <label>加密方式</label>
+                        <select id="smtp-encryption">
+                            <option value="tls">TLS</option>
+                            <option value="ssl">SSL</option>
+                            <option value="none">无加密</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>发件人名称</label>
+                        <input type="text" id="smtp-sender-name" placeholder="Fortune SCM Team">
+                    </div>
+                    <div class="form-group">
+                        <label>发件人邮箱</label>
+                        <input type="text" id="smtp-sender-email" placeholder="noreply@company.com">
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:10px;">
+                <button class="btn btn-primary" onclick="saveSMTP()">保存配置</button>
+                <button class="btn btn-success" onclick="testSMTP()">测试连接</button>
+            </div>
+            <div id="smtp-result" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- 发送邮件 -->
+        <div id="tab-send" class="card" style="display:none;">
+            <h2>发送邮件</h2>
+            <div class="form-group">
+                <label>收件人（多个用逗号分隔）</label>
+                <input type="text" id="send-to" placeholder="user1@example.com, user2@example.com">
+            </div>
+            <div class="form-group">
+                <label>主题</label>
+                <input type="text" id="send-subject" placeholder="邮件主题">
+            </div>
+            <div class="form-group">
+                <label>HTML 内容</label>
+                <textarea id="send-html" placeholder="<h1>标题</h1><p>正文内容...</p>"></textarea>
+            </div>
+            <div class="form-group">
+                <label>纯文本内容（可选）</label>
+                <textarea id="send-text" placeholder="纯文本备选内容..." style="height:80px;"></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="sendEmail()">发送</button>
+            <button class="btn btn-success" onclick="sendBatch()" style="margin-left:10px;">批量发送</button>
+            <div id="send-result" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- 邮件模板 -->
+        <div id="tab-templates" class="card" style="display:none;">
+            <h2>邮件模板</h2>
+            <button class="btn btn-primary" onclick="showCreateTemplate()" style="margin-bottom:15px;">+ 新建模板</button>
+            <table>
+                <thead><tr><th>名称</th><th>主题</th><th>分类</th><th>创建时间</th><th>操作</th></tr></thead>
+                <tbody id="templates-list"></tbody>
+            </table>
+        </div>
+
+        <!-- 发送记录 -->
+        <div id="tab-records" class="card" style="display:none;">
+            <h2>发送记录</h2>
+            <table>
+                <thead><tr><th>收件人</th><th>主题</th><th>状态</th><th>发送时间</th></tr></thead>
+                <tbody id="records-list"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api/email';
+        const token = localStorage.getItem('token');
+        const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
+
+        function showTab(name) {
+            document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + name).style.display = 'block';
+            event.target.classList.add('active');
+            if (name === 'templates') loadTemplates();
+            if (name === 'records') loadRecords();
+        }
+
+        async function saveSMTP() {
+            const data = {
+                name: document.getElementById('smtp-name').value,
+                host: document.getElementById('smtp-host').value,
+                port: parseInt(document.getElementById('smtp-port').value),
+                username: document.getElementById('smtp-username').value,
+                password: document.getElementById('smtp-password').value,
+                use_tls: document.getElementById('smtp-encryption').value === 'tls',
+                use_ssl: document.getElementById('smtp-encryption').value === 'ssl',
+                sender_name: document.getElementById('smtp-sender-name').value,
+                sender_email: document.getElementById('smtp-sender-email').value
+            };
+            try {
+                const res = await fetch(API + '/smtp-configs', {method:'POST', headers, body: JSON.stringify(data)});
+                const result = await res.json();
+                document.getElementById('smtp-result').innerHTML = '<span style="color:green">✅ 保存成功</span>';
+            } catch(e) {
+                document.getElementById('smtp-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
+            }
+        }
+
+        async function testSMTP() {
+            const data = { test_email: document.getElementById('smtp-username').value };
+            try {
+                const res = await fetch(API + '/test-smtp', {method:'POST', headers, body: JSON.stringify(data)});
+                const result = await res.json();
+                const color = result.success ? 'green' : 'red';
+                document.getElementById('smtp-result').innerHTML = `<span style="color:${color}">${result.success ? '✅' : '❌'} ${result.message} (${result.latency_ms}ms)</span>`;
+            } catch(e) {
+                document.getElementById('smtp-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
+            }
+        }
+
+        async function sendEmail() {
+            const to = document.getElementById('send-to').value.split(',').map(e => ({email: e.trim()}));
+            const data = {
+                to: to,
+                subject: document.getElementById('send-subject').value,
+                body_html: document.getElementById('send-html').value,
+                body_text: document.getElementById('send-text').value
+            };
+            try {
+                const res = await fetch(API + '/send', {method:'POST', headers, body: JSON.stringify(data)});
+                const result = await res.json();
+                document.getElementById('send-result').innerHTML = `<span style="color:${result.success?'green':'red'}">${result.message || (result.success?'发送成功':'发送失败')}</span>`;
+            } catch(e) {
+                document.getElementById('send-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
+            }
+        }
+
+        async function loadTemplates() {
+            try {
+                const res = await fetch(API + '/templates', {headers});
+                const data = await res.json();
+                const tbody = document.getElementById('templates-list');
+                tbody.innerHTML = data.map(t => `<tr><td>${t.name}</td><td>${t.subject}</td><td>${t.category||'-'}</td><td>${t.created_at||'-'}</td><td><button class="btn btn-danger" onclick="deleteTemplate('${t.id}')">删除</button></td></tr>`).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        async function deleteTemplate(id) {
+            await fetch(API + '/templates/' + id, {method:'DELETE', headers});
+            loadTemplates();
+        }
+
+        async function loadRecords() {
+            try {
+                const res = await fetch(API + '/records', {headers});
+                const data = await res.json();
+                const tbody = document.getElementById('records-list');
+                tbody.innerHTML = (data.records||[]).map(r => {
+                    const badge = r.status === 'sent' ? 'badge-success' : 'badge-fail';
+                    return `<tr><td>${r.to_email}</td><td>${r.subject||'-'}</td><td><span class="badge ${badge}">${r.status}</span></td><td>${r.sent_at}</td></tr>`;
+                }).join('');
+            } catch(e) { console.error(e); }
+        }
+    </script>
+</body>
+</html>
