@@ -113,6 +113,9 @@
                     <button @click="activeTab = 'post'" :class="activeTab === 'post' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
                         发图文帖
                     </button>
+                    <button @click="activeTab = 'ai-content'" :class="activeTab === 'ai-content' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
+                        AI内容生成
+                    </button>
                 </nav>
             </div>
 
@@ -333,9 +336,157 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 错误提示 -->
+            <!-- AI内容生成 -->
+            <div x-show="activeTab === 'ai-content'" x-cloak class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 生成帖子 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">🤖 AI 生成 LinkedIn 帖子</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">主题（可选）</label>
+                                <input type="text" x-model="aiPostForm.topic" placeholder="如: ocean freight rates" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">风格</label>
+                                <select x-model="aiPostForm.style" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="professional">专业</option>
+                                    <option value="thought_leadership">思想领导力</option>
+                                    <option value="tips">实用技巧</option>
+                                    <option value="story">故事型</option>
+                                </select>
+                            </div>
+                            <button @click="generateAIPost()" :disabled="aiLoading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md disabled:opacity-50">
+                                <span x-show="!aiLoading">生成帖子</span>
+                                <span x-show="aiLoading">生成中...</span>
+                            </button>
+                            <div x-show="aiGeneratedPost" class="mt-3 p-3 bg-gray-50 rounded">
+                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedPost"></p>
+                                <button @click="copyToClipboard(aiGeneratedPost)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 生成开发信 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">📧 AI 生成开发信</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">目标公司</label>
+                                <input type="text" x-model="aiEmailForm.company_name" placeholder="如: Amazon" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">联系人职位</label>
+                                <input type="text" x-model="aiEmailForm.contact_title" placeholder="如: Supply Chain Manager" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">补充信息</label>
+                                <textarea x-model="aiEmailForm.context" rows="2" placeholder="如: 他们刚扩展了欧洲市场" class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                            </div>
+                            <button @click="generateAIEmail()" :disabled="aiLoading" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md disabled:opacity-50">
+                                <span x-show="!aiLoading">生成开发信</span>
+                                <span x-show="aiLoading">生成中...</span>
+                            </button>
+                            <div x-show="aiGeneratedEmail" class="mt-3 p-3 bg-gray-50 rounded">
+                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedEmail"></p>
+                                <button @click="copyToClipboard(aiGeneratedEmail)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 生成回复 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">💬 AI 生成回复</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">客户消息</label>
+                                <textarea x-model="aiReplyForm.original_message" rows="3" placeholder="粘贴客户的消息..." class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">语气</label>
+                                <select x-model="aiReplyForm.tone" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                                    <option value="professional">专业</option>
+                                    <option value="friendly">友好</option>
+                                    <option value="formal">正式</option>
+                                </select>
+                            </div>
+                            <button @click="generateAIReply()" :disabled="aiLoading" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md disabled:opacity-50">
+                                <span x-show="!aiLoading">生成回复</span>
+                                <span x-show="aiLoading">生成中...</span>
+                            </button>
+                            <div x-show="aiGeneratedReply" class="mt-3 p-3 bg-gray-50 rounded">
+                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedReply"></p>
+                                <button @click="copyToClipboard(aiGeneratedReply)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 生成连接请求 -->
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <h3 class="text-lg font-medium text-gray-800 mb-4">🤝 AI 生成连接请求</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">对方姓名</label>
+                                <input type="text" x-model="aiNoteForm.person_name" placeholder="John Smith" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
+                                <input type="text" x-model="aiNoteForm.person_title" placeholder="Logistics Director" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">公司</label>
+                                <input type="text" x-model="aiNoteForm.person_company" placeholder="DHL" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            </div>
+                            <button @click="generateAINote()" :disabled="aiLoading" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md disabled:opacity-50">
+                                <span x-show="!aiLoading">生成连接请求</span>
+                                <span x-show="aiLoading">生成中...</span>
+                            </button>
+                            <div x-show="aiGeneratedNote" class="mt-3 p-3 bg-gray-50 rounded">
+                                <p class="text-sm text-gray-800" x-text="aiGeneratedNote"></p>
+                                <button @click="copyToClipboard(aiGeneratedNote)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 每日内容计划 -->
+                <div class="mt-6 border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-800">📅 AI 每日内容计划</h3>
+                        <button @click="generateDailyPlan()" :disabled="aiLoading" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md disabled:opacity-50">
+                            <span x-show="!aiLoading">生成今日计划</span>
+                            <span x-show="aiLoading">生成中...</span>
+                        </button>
+                    </div>
+                    <div x-show="dailyPlan" class="space-y-4">
+                        <div>
+                            <h4 class="font-medium text-gray-700">LinkedIn 帖子</h4>
+                            <p class="text-sm text-gray-600 whitespace-pre-wrap mt-1" x-text="dailyPlan.linkedin_post"></p>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700">连接请求模板</h4>
+                            <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
+                                <template x-for="note in dailyPlan.connection_notes">
+                                    <li x-text="note"></li>
+                                </template>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-medium text-gray-700">开发信模板</h4>
+                            <div class="space-y-2 mt-1">
+                                <template x-for="(email, idx) in dailyPlan.outreach_emails">
+                                    <div class="p-2 bg-gray-50 rounded text-sm">
+                                        <p class="font-medium">邮件 #<span x-text="idx + 1"></span></p>
+                                        <p class="text-gray-600 whitespace-pre-wrap" x-text="email"></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div x-show="error" x-cloak class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
             <span x-text="error"></span>
             <button @click="error = null" class="ml-2 text-red-500 hover:text-red-700">×</button>
@@ -380,6 +531,30 @@
                     content: '',
                     image_paths: []
                 },
+                aiPostForm: {
+                    topic: '',
+                    style: 'professional'
+                },
+                aiEmailForm: {
+                    company_name: '',
+                    contact_title: '',
+                    context: ''
+                },
+                aiReplyForm: {
+                    original_message: '',
+                    tone: 'professional'
+                },
+                aiNoteForm: {
+                    person_name: '',
+                    person_title: '',
+                    person_company: ''
+                },
+                aiLoading: false,
+                aiGeneratedPost: '',
+                aiGeneratedEmail: '',
+                aiGeneratedReply: '',
+                aiGeneratedNote: '',
+                dailyPlan: null,
                 searchResults: [],
                 tasks: [],
                 posts: [],
@@ -561,6 +736,141 @@
 
                 removeImage(index) {
                     this.postForm.image_paths.splice(index, 1);
+                },
+
+                async generateAIPost() {
+                    this.aiLoading = true;
+                    this.aiGeneratedPost = '';
+                    try {
+                        const response = await fetch('/api/ai-content/generate-post', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.aiPostForm)
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.aiGeneratedPost = data.content;
+                        } else {
+                            this.error = data.detail || 'AI生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                },
+
+                async generateAIEmail() {
+                    this.aiLoading = true;
+                    this.aiGeneratedEmail = '';
+                    try {
+                        const response = await fetch('/api/ai-content/generate-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.aiEmailForm)
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.aiGeneratedEmail = data.content;
+                        } else {
+                            this.error = data.detail || 'AI生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                },
+
+                async generateAIReply() {
+                    this.aiLoading = true;
+                    this.aiGeneratedReply = '';
+                    try {
+                        const response = await fetch('/api/ai-content/generate-reply', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.aiReplyForm)
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.aiGeneratedReply = data.content;
+                        } else {
+                            this.error = data.detail || 'AI生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                },
+
+                async generateAINote() {
+                    this.aiLoading = true;
+                    this.aiGeneratedNote = '';
+                    try {
+                        const response = await fetch('/api/ai-content/generate-note', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+                            },
+                            body: JSON.stringify(this.aiNoteForm)
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.aiGeneratedNote = data.content;
+                        } else {
+                            this.error = data.detail || 'AI生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                },
+
+                async generateDailyPlan() {
+                    this.aiLoading = true;
+                    this.dailyPlan = null;
+                    try {
+                        const response = await fetch('/api/ai-content/daily-plan', {
+                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.dailyPlan = data;
+                        } else {
+                            this.error = data.detail || 'AI生成失败';
+                        }
+                    } catch (e) {
+                        this.error = '网络错误: ' + e.message;
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                },
+
+                copyToClipboard(text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('已复制到剪贴板');
+                    }).catch(() => {
+                        // Fallback
+                        const textarea = document.createElement('textarea');
+                        textarea.value = text;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        alert('已复制到剪贴板');
+                    });
                 },
 
                 logout() {

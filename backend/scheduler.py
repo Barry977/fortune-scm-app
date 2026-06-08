@@ -70,6 +70,18 @@ def _task_linkedin_message():
         return {"success": False, "error": str(e)}
 
 
+def _task_linkedin_daily_post():
+    """Daily AI-generated LinkedIn post."""
+    logger.info("[Scheduler] Running daily LinkedIn post")
+    try:
+        from backend.linkedin_scheduler import daily_post_task
+        result = asyncio.run(daily_post_task())
+        return result
+    except Exception as e:
+        logger.error("[Scheduler] Daily post failed: %s", e)
+        return {"success": False, "error": str(e)}
+
+
 def _task_cold_email():
     """Daily cold email batch — emails customers with status 'new' that have an email."""
     logger.info("[Scheduler] Running cold email batch")
@@ -146,6 +158,13 @@ def _task_daily_stats():
 # ---------------------------------------------------------------------------
 
 BUILTIN_TASKS: List[Dict[str, Any]] = [
+    {
+        "name": "linkedin_daily_post",
+        "display_name": "LinkedIn 每日自动发帖 (AI生成)",
+        "cron_hour": 9,
+        "cron_minute": 0,
+        "func": _task_linkedin_daily_post,
+    },
     {
         "name": "linkedin_connect",
         "display_name": "LinkedIn 批量添加好友",
