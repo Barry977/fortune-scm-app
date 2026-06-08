@@ -1,0 +1,22 @@
+# Fortune SCM App - Dependencies
+# Python 3.9+
+
+# Web framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# Database (sqlite3 is built-in)
+
+# AI providers
+httpx>=0.25.0
+
+# Scheduling
+apscheduler>=3.10.4
+
+# Browser automation
+playwright>=1.40.0
+
+# Utilities
+jinja2>=3.1.2
+python-dotenv>=1.0.0

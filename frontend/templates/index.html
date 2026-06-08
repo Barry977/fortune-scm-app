@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortune SCM - 供应链营销自动化</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="stylesheet" href="static/css/style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            dark: {
+              50: '#ededed',
+              100: '#a1a1a1',
+              200: '#666666',
+              300: '#444444',
+              400: '#333333',
+              500: '#262626',
+              600: '#1f1f1f',
+              700: '#1a1a1a',
+              800: '#111111',
+              900: '#0a0a0a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="dark">
+  <!-- Toast Notifications -->
+  <div x-data class="toast-container">
+    <template x-for="toast in $store.app.toasts" :key="toast.id">
+      <div class="toast" :class="'toast-' + toast.type">
+        <span x-text="toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ'"></span>
+        <span x-text="toast.message"></span>
+      </div>
+    </template>
+  </div>
+
+  <div class="app-layout">
+    <!-- ═══════════════ SIDEBAR ═══════════════ -->
+    <aside class="sidebar" :class="{ 'open': $store.app.sidebarOpen }">
+      <!-- Logo / Brand -->
+      <div class="sidebar-header">
+        <h1>📦 Fortune SCM</h1>
+        <p>供应链营销自动化平台</p>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">概览</div>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'dashboard' }"
+           @click="$store.app.navigate('dashboard')">
+          <span class="nav-icon">📊</span>
+          <span>控制台</span>
+        </a>
+
+        <div class="nav-section-label">营销</div>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'linkedin' }"
+           @click="$store.app.navigate('linkedin')">
+          <span class="nav-icon">🔗</span>
+          <span>LinkedIn 自动化</span>
+        </a>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'materials' }"
+           @click="$store.app.navigate('materials')">
+          <span class="nav-icon">📁</span>
+          <span>素材库</span>
+        </a>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'ai-posts' }"
+           @click="$store.app.navigate('ai-posts')">
+          <span class="nav-icon">✨</span>
+          <span>AI 动态</span>
+        </a>
+
+        <div class="nav-section-label">管理</div>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'customers' }"
+           @click="$store.app.navigate('customers')">
+          <span class="nav-icon">👥</span>
+          <span>客户管理</span>
+        </a>
+        <a class="nav-item" :class="{ 'active': $store.app.currentPage === 'settings' }"
+           @click="$store.app.navigate('settings')">
+          <span class="nav-icon">⚙️</span>
+          <span>设置</span>
+        </a>
+      </nav>
+
+      <!-- LinkedIn Status -->
+      <div class="p-4 border-t" style="border-color: var(--border-default);">
+        <div class="flex items-center gap-2 text-xs">
+          <span class="status-dot"
+                :class="{
+                  'online': $store.app.linkedinStatus === 'connected',
+                  'offline': $store.app.linkedinStatus === 'disconnected' || $store.app.linkedinStatus === 'offline',
+                  'warning': $store.app.linkedinStatus === 'unknown'
+                }"></span>
+          <span style="color: var(--text-tertiary);">
+            LinkedIn:
+            <span x-text="$store.app.linkedinStatus === 'connected' ? '已连接' : $store.app.linkedinStatus === 'disconnected' ? '未连接' : '检测中...'"></span>
+          </span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+    <main class="main-content">
+
+      <!-- ────── DASHBOARD ────── -->
+      <div x-show="$store.app.currentPage === 'dashboard'" x-data="{
+        stats: { new_customers: 0, connections: 0, messages: 0, posts: 0 },
+        statsLoading: true,
+        activities: [],
+        activitiesLoading: true
+      }" id="dashboard-data" x-init="$nextTick(() => loadPageData('dashboard'))">
+
+        <div class="page-header">
+          <h2>控制台</h2>
+          <p>今日营销数据概览</p>
+        </div>
+
+        <div class="page-body">
+          <!-- Stat Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="stat-card">
+              <div class="stat-icon">👥</div>
+              <div class="stat-value" x-text="stats.new_customers || 0"></div>
+              <div class="stat-label">今日新增客户</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">🤝</div>
+              <div class="stat-value" x-text="stats.connections || 0"></div>
+              <div class="stat-label">加好友数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">💬</div>
+              <div class="stat-value" x-text="stats.messages || 0"></div>
+              <div class="stat-label">发消息数</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon">📝</div>
+              <div class="stat-value" x-text="stats.posts || 0"></div>
+              <div class="stat-label">发动态数</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <!-- Recent Activities -->
+            <div class="card lg:col-span-2">
+              <div class="card-header">
+                <span class="card-title">最近活动</span>
+                <button class="btn btn-ghost btn-sm" @click="loadPageData('dashboard')">刷新</button>
+              </div>
+              <div x-show="activitiesLoading" class="space-y-3">
+                <div class="skeleton h-12 w-full"></div>
+                <div class="skeleton h-12 w-full"></div>
+                <div class="skeleton h-12 w-full"></div>
+              </div>
+              <div x-show="!activitiesLoading && activities.length === 0" class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>暂无活动记录</p>
+              </div>
+              <div x-show="!activitiesLoading && activities.length > 0">
+                <template x-for="(act, i) in activities" :key="i">
+                  <div class="activity-item">
+                    <div class="activity-icon" x-text="act.icon || '📋'"></div>
+                    <div class="activity-content">
+                      <div class="activity-title" x-text="act.title || act.description"></div>
+                      <div class="activity-time" x-text="timeAgo(act.time || act.created_at)"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">快速操作</span>
+              </div>
+              <div class="space-y-2">
+                <button class="btn btn-secondary w-full justify-start"
+                        @click="$store.app.navigate('linkedin')">
+                  🔗 搜索 LinkedIn 客户
+                </button>
+                <button class="btn btn-secondary w-full justify-start"
+                        @click="$store.app.navigate('ai-posts')">
+                  ✨ 生成 AI 动态
+                </button>
+                <button class="btn btn-secondary w-full justify-start"
+                        @click="$store.app.navigate('materials')">
+                  📁 上传素材
+                </button>
+                <button class="btn btn-secondary w-full justify-start"
+                        @click="$store.app.navigate('customers')">
+                  👥 查看客户列表
+                </button>
+              </div>
+
+              <div class="mt-6 pt-4" style="border-top: 1px solid var(--border-default);">
+                <div class="card-title mb-3">系统状态</div>
+                <div class="space-y-2 text-xs" style="color: var(--text-tertiary);">
+                  <div class="flex justify-between">
+                    <span>API 服务</span>
+                    <span class="badge badge-success">运行中</span>
+                  </div>
+                  <div class="flex justify-between">
+                    <span>LinkedIn</span>
+                    <span class="badge"
+                          :class="$store.app.linkedinStatus === 'connected' ? 'badge-success' : 'badge-warning'"
+                          x-text="$store.app.linkedinStatus === 'connected' ? '已连接' : '未连接'"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── LINKEDIN AUTOMATION ────── -->
+      <div x-show="$store.app.currentPage === 'linkedin'" x-data="{
+        search: { industry: '', title: '', location: '', keywords: '' },
+        results: [],
+        selected: {},
+        searching: false,
+        batchLoading: false,
+        messageText: '',
+        showMessageModal: false,
+        quotas: { connections: { used: 0, limit: 50 }, messages: { used: 0, limit: 50 } },
+        quotasLoading: true
+      }" id="linkedin-data" x-init="$nextTick(() => loadPageData('linkedin'))">
+
+        <div class="page-header">
+          <h2>LinkedIn 自动化</h2>
+          <p>搜索目标客户、批量添加好友和发送消息</p>
+        </div>
+
+        <div class="page-body">
+          <!-- Quota Display -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div class="card">
+              <div class="flex items-center justify-between mb-2">
+                <span class="card-title">🤝 每日加好友额度</span>
+                <span class="text-xs" style="color: var(--text-tertiary);"
+                      x-text="quotas.connections.used + ' / ' + quotas.connections.limit"></span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill"
+                     :style="'width:' + (quotas.connections.limit ? (quotas.connections.used / quotas.connections.limit * 100) : 0) + '%'"
+                     :class="quotas.connections.used >= quotas.connections.limit ? 'bg-red-500' : ''"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="flex items-center justify-between mb-2">
+                <span class="card-title">💬 每日发消息额度</span>
+                <span class="text-xs" style="color: var(--text-tertiary);"
+                      x-text="quotas.messages.used + ' / ' + quotas.messages.limit"></span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill"
+                     :style="'width:' + (quotas.messages.limit ? (quotas.messages.used / quotas.messages.limit * 100) : 0) + '%'"
+                     :class="quotas.messages.used >= quotas.messages.limit ? 'bg-red-500' : ''"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Search Form -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <span class="card-title">🔍 搜索条件</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div class="input-group">
+                <label>行业</label>
+                <input type="text" class="input-field" x-model="search.industry"
+                       placeholder="如：物流、供应链">
+              </div>
+              <div class="input-group">
+                <label>职位</label>
+                <input type="text" class="input-field" x-model="search.title"
+                       placeholder="如：采购经理">
+              </div>
+              <div class="input-group">
+                <label>地区</label>
+                <input type="text" class="input-field" x-model="search.location"
+                       placeholder="如：上海、深圳">
+              </div>
+              <div class="input-group">
+                <label>关键词</label>
+                <input type="text" class="input-field" x-model="search.keywords"
+                       placeholder="任意关键词">
+              </div>
+            </div>
+            <div class="flex gap-2 mt-2">
+              <button class="btn btn-primary" @click="searchLinkedIn($data)" :disabled="searching">
+                <span x-show="searching" class="spinner" style="width:14px;height:14px;border-width:2px;"></span>
+                <span x-text="searching ? '搜索中...' : '搜索'"></span>
+              </button>
+              <button class="btn btn-secondary" @click="search = { industry: '', title: '', location: '', keywords: '' }">清空</button>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="card" x-show="results.length > 0">
+            <div class="card-header">
+              <span class="card-title">搜索结果 (<span x-text="results.length"></span>)</span>
+              <div class="flex gap-2">
+                <button class="btn btn-success btn-sm" @click="batchConnect($data)" :disabled="batchLoading">
+                  🤝 批量加好友
+                </button>
+                <button class="btn btn-primary btn-sm" @click="showMessageModal = true">
+                  💬 批量发消息
+                </button>
+              </div>
+            </div>
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:40px;"><input type="checkbox" @change="results.forEach((_, i) => selected[i] = $event.target.checked)"></th>
+                    <th>姓名</th>
+                    <th>职位</th>
+                    <th>公司</th>
+                    <th>地区</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="(person, i) in results" :key="i">
+                    <tr>
+                      <td><input type="checkbox" x-model="selected[i]"></td>
+                      <td>
+                        <div class="flex items-center gap-2">
+                          <div class="w-7 h-7 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-medium"
+                               x-text="(person.name || '?')[0]"></div>
+                          <span x-text="person.name" class="font-medium"></span>
+                        </div>
+                      </td>
+                      <td x-text="person.title || '-'"></td>
+                      <td x-text="person.company || '-'"></td>
+                      <td x-text="person.location || '-'"></td>
+                      <td>
+                        <a :href="person.url" target="_blank" class="btn btn-ghost btn-sm">查看</a>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Empty results -->
+          <div class="card" x-show="results.length === 0 && !searching">
+            <div class="empty-state">
+              <div class="empty-icon">🔍</div>
+              <p>设置搜索条件开始查找目标客户</p>
+            </div>
+          </div>
+
+          <!-- Message Modal -->
+          <div class="modal-overlay" x-show="showMessageModal" x-cloak
+               @click.self="showMessageModal = false">
+            <div class="modal">
+              <div class="modal-header">
+                <span class="modal-title">批量发送消息</span>
+                <button class="modal-close" @click="showMessageModal = false">✕</button>
+              </div>
+              <div class="input-group">
+                <label>消息内容</label>
+                <textarea class="input-field" rows="5" x-model="messageText"
+                          placeholder="输入要发送的消息内容...&#10;支持变量: {name} = 姓名, {company} = 公司"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" @click="showMessageModal = false">取消</button>
+                <button class="btn btn-primary" @click="batchMessage($data); showMessageModal = false" :disabled="batchLoading">
+                  发送
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── CONTENT LIBRARY ────── -->
+      <div x-show="$store.app.currentPage === 'materials'" x-data="{
+        materials: [],
+        tags: [],
+        filterTag: '',
+        searchQuery: '',
+        loading: true,
+        showModal: false,
+        saving: false,
+        form: { id: null, title: '', content: '', tags: '' }
+      }" id="materials-data" x-init="$nextTick(() => loadPageData('materials'))">
+
+        <div class="page-header">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2>素材库</h2>
+              <p>管理营销文案和素材内容</p>
+            </div>
+            <button class="btn btn-primary" @click="form = { id: null, title: '', content: '', tags: '' }; showModal = true">
+              ＋ 新建素材
+            </button>
+          </div>
+        </div>
+
+        <div class="page-body">
+          <!-- Filter Bar -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="search-input-wrapper flex-1 max-w-sm">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-field" x-model="searchQuery" placeholder="搜索素材...">
+            </div>
+            <div class="flex gap-1 flex-wrap">
+              <button class="btn btn-sm" :class="filterTag === '' ? 'btn-primary' : 'btn-ghost'"
+                      @click="filterTag = ''">全部</button>
+              <template x-for="tag in tags" :key="tag">
+                <button class="btn btn-sm" :class="filterTag === tag ? 'btn-primary' : 'btn-ghost'"
+                        @click="filterTag = tag" x-text="tag"></button>
+              </template>
+            </div>
+          </div>
+
+          <!-- Loading -->
+          <div x-show="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="skeleton h-40" x-data></div>
+            <div class="skeleton h-40" x-data></div>
+            <div class="skeleton h-40" x-data></div>
+          </div>
+
+          <!-- Empty -->
+          <div x-show="!loading && materials.length === 0" class="card">
+            <div class="empty-state">
+              <div class="empty-icon">📁</div>
+              <p>素材库为空，点击"新建素材"开始添加</p>
+            </div>
+          </div>
+
+          <!-- Materials Grid -->
+          <div x-show="!loading && materials.length > 0"
+               class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <template x-for="mat in materials.filter(m =>
+              (!filterTag || (m.tags || []).includes(filterTag)) &&
+              (!searchQuery || m.title.includes(searchQuery) || (m.content || '').includes(searchQuery))
+            )" :key="mat.id">
+              <div class="material-card">
+                <div class="material-title" x-text="mat.title"></div>
+                <div class="material-excerpt" x-text="truncate(mat.content, 120)"></div>
+                <div class="material-meta">
+                  <div class="flex flex-wrap flex-1">
+                    <template x-for="tag in (mat.tags || [])" :key="tag">
+                      <span class="tag" x-text="tag"></span>
+                    </template>
+                  </div>
+                  <div class="flex gap-1">
+                    <button class="btn btn-ghost btn-sm"
+                            @click="form = { id: mat.id, title: mat.title, content: mat.content, tags: (mat.tags || []).join(', ') }; showModal = true">
+                      ✏️
+                    </button>
+                    <button class="btn btn-ghost btn-sm" @click="deleteMaterial(mat.id)">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Create/Edit Modal -->
+          <div class="modal-overlay" x-show="showModal" x-cloak @click.self="showModal = false">
+            <div class="modal" style="max-width: 640px;">
+              <div class="modal-header">
+                <span class="modal-title" x-text="form.id ? '编辑素材' : '新建素材'"></span>
+                <button class="modal-close" @click="showModal = false">✕</button>
+              </div>
+              <div class="input-group">
+                <label>标题 *</label>
+                <input type="text" class="input-field" x-model="form.title" placeholder="素材标题">
+              </div>
+              <div class="input-group">
+                <label>内容 *</label>
+                <textarea class="input-field" rows="8" x-model="form.content"
+                          placeholder="输入素材内容..."></textarea>
+              </div>
+              <div class="input-group">
+                <label>标签（用逗号分隔）</label>
+                <input type="text" class="input-field" x-model="form.tags" placeholder="物流, 供应链, B2B">
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" @click="showModal = false">取消</button>
+                <button class="btn btn-primary" @click="saveMaterial($data)" :disabled="saving">
+                  <span x-show="saving" class="spinner" style="width:14px;height:14px;border-width:2px;"></span>
+                  <span x-text="saving ? '保存中...' : '保存'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── AI POSTS ────── -->
+      <div x-show="$store.app.currentPage === 'ai-posts'" x-data="{
+        posts: [],
+        preview: '',
+        topic: '',
+        generating: false,
+        publishing: false,
+        loading: true,
+        activeTab: 'generate'
+      }" id="aiposts-data" x-init="$nextTick(() => loadPageData('ai-posts'))">
+
+        <div class="page-header">
+          <h2>AI 动态</h2>
+          <p>使用 AI 生成并发布 LinkedIn 动态内容</p>
+        </div>
+
+        <div class="page-body">
+          <!-- Tabs -->
+          <div class="tab-list">
+            <div class="tab-item" :class="{ 'active': activeTab === 'generate' }"
+                 @click="activeTab = 'generate'">生成动态</div>
+            <div class="tab-item" :class="{ 'active': activeTab === 'history' }"
+                 @click="activeTab = 'history'">历史记录</div>
+          </div>
+
+          <!-- Generate Tab -->
+          <div x-show="activeTab === 'generate'">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Generation Controls -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">✨ AI 内容生成</span>
+                </div>
+                <div class="input-group">
+                  <label>主题/话题（可选）</label>
+                  <input type="text" class="input-field" x-model="topic"
+                         placeholder="如：国际物流趋势、供应链数字化">
+                </div>
+                <p class="text-xs mb-4" style="color: var(--text-tertiary);">
+                  留空将从素材库中随机抽取内容生成
+                </p>
+                <div class="flex gap-2">
+                  <button class="btn btn-primary" @click="generatePost($data)" :disabled="generating">
+                    <span x-show="generating" class="spinner" style="width:14px;height:14px;border-width:2px;"></span>
+                    <span x-text="generating ? '生成中...' : '🎲 生成内容'"></span>
+                  </button>
+                  <button class="btn btn-success" @click="publishPost($data)"
+                          :disabled="!preview || publishing">
+                    <span x-show="publishing" class="spinner" style="width:14px;height:14px;border-width:2px;"></span>
+                    <span x-text="publishing ? '发布中...' : '📤 发布动态'"></span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Preview -->
+              <div class="card">
+                <div class="card-header">
+                  <span class="card-title">预览</span>
+                  <button class="btn btn-ghost btn-sm" x-show="preview" @click="navigator.clipboard.writeText(preview); $store.app.addToast('success', '已复制到剪贴板')">
+                    📋 复制
+                  </button>
+                </div>
+                <div x-show="!preview && !generating" class="empty-state" style="padding: 32px;">
+                  <div class="empty-icon">✨</div>
+                  <p>点击"生成内容"预览 AI 创作的动态</p>
+                </div>
+                <div x-show="generating" class="space-y-2">
+                  <div class="skeleton h-4 w-full"></div>
+                  <div class="skeleton h-4 w-5/6"></div>
+                  <div class="skeleton h-4 w-4/6"></div>
+                  <div class="skeleton h-4 w-full"></div>
+                  <div class="skeleton h-4 w-3/4"></div>
+                </div>
+                <div x-show="preview" class="text-sm leading-relaxed whitespace-pre-wrap"
+                     style="color: var(--text-secondary);" x-text="preview"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- History Tab -->
+          <div x-show="activeTab === 'history'">
+            <div x-show="loading" class="space-y-3">
+              <div class="skeleton h-16 w-full"></div>
+              <div class="skeleton h-16 w-full"></div>
+            </div>
+            <div x-show="!loading && posts.length === 0" class="card">
+              <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <p>暂无发布记录</p>
+              </div>
+            </div>
+            <div x-show="!loading && posts.length > 0" class="space-y-3">
+              <template x-for="post in posts" :key="post.id">
+                <div class="card">
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm whitespace-pre-wrap mb-2" style="color: var(--text-secondary);"
+                           x-text="truncate(post.content, 200)"></div>
+                      <div class="flex items-center gap-3 text-xs" style="color: var(--text-tertiary);">
+                        <span x-text="timeAgo(post.created_at)"></span>
+                        <span class="badge"
+                              :class="post.status === 'published' ? 'badge-success' : post.status === 'failed' ? 'badge-danger' : 'badge-default'"
+                              x-text="post.status === 'published' ? '已发布' : post.status === 'failed' ? '失败' : '草稿'"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── CUSTOMERS ────── -->
+      <div x-show="$store.app.currentPage === 'customers'" x-data="{
+        customers: [],
+        searchQuery: '',
+        filterStatus: '',
+        loading: true,
+        showDetail: false,
+        detail: null,
+        records: [],
+        followUpNote: '',
+        followUpType: 'note'
+      }" id="customers-data" x-init="$nextTick(() => loadPageData('customers'))">
+
+        <div class="page-header">
+          <h2>客户管理</h2>
+          <p>管理 LinkedIn 客户关系和跟进记录</p>
+        </div>
+
+        <div class="page-body">
+          <!-- Filter Bar -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="search-input-wrapper flex-1 max-w-sm">
+              <span class="search-icon">🔍</span>
+              <input type="text" class="input-field" x-model="searchQuery"
+                     @input.debounce.300ms="loadCustomers()" placeholder="搜索客户姓名、公司...">
+            </div>
+            <select class="input-field" style="width: auto;" x-model="filterStatus"
+                    @change="loadCustomers()">
+              <option value="">全部状态</option>
+              <option value="new">新线索</option>
+              <option value="connected">已连接</option>
+              <option value="contacted">已联系</option>
+              <option value="replied">已回复</option>
+              <option value="converted">已转化</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" @click="loadCustomers()">刷新</button>
+          </div>
+
+          <!-- Loading -->
+          <div x-show="loading" class="card">
+            <div class="space-y-2">
+              <div class="skeleton h-10 w-full"></div>
+              <div class="skeleton h-10 w-full"></div>
+              <div class="skeleton h-10 w-full"></div>
+              <div class="skeleton h-10 w-full"></div>
+            </div>
+          </div>
+
+          <!-- Empty -->
+          <div x-show="!loading && customers.length === 0" class="card">
+            <div class="empty-state">
+              <div class="empty-icon">👥</div>
+              <p>暂无客户数据</p>
+            </div>
+          </div>
+
+          <!-- Customer Table -->
+          <div x-show="!loading && customers.length > 0" class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>客户</th>
+                  <th>公司</th>
+                  <th>职位</th>
+                  <th>状态</th>
+                  <th>来源</th>
+                  <th>添加时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="cust in customers" :key="cust.id">
+                  <tr>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-medium"
+                             x-text="(cust.name || '?')[0]"></div>
+                        <span class="font-medium" x-text="cust.name"></span>
+                      </div>
+                    </td>
+                    <td x-text="cust.company || '-'"></td>
+                    <td x-text="cust.title || '-'"></td>
+                    <td>
+                      <span class="badge"
+                            :class="{
+                              'badge-info': cust.status === 'new',
+                              'badge-success': cust.status === 'connected',
+                              'badge-warning': cust.status === 'contacted',
+                              'badge-success': cust.status === 'replied',
+                              'badge-success': cust.status === 'converted'
+                            }"
+                            x-text="{
+                              new: '新线索', connected: '已连接', contacted: '已联系',
+                              replied: '已回复', converted: '已转化'
+                            }[cust.status] || cust.status"></span>
+                    </td>
+                    <td x-text="cust.source || '-'"></td>
+                    <td class="text-xs" style="color: var(--text-tertiary);"
+                        x-text="timeAgo(cust.created_at)"></td>
+                    <td>
+                      <button class="btn btn-ghost btn-sm" @click="viewCustomer($data, cust)">详情</button>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Customer Detail Modal -->
+          <div class="modal-overlay" x-show="showDetail" x-cloak @click.self="showDetail = false">
+            <div class="modal" style="max-width: 600px;" x-show="detail">
+              <div class="modal-header">
+                <span class="modal-title" x-text="detail ? detail.name : ''"></span>
+                <button class="modal-close" @click="showDetail = false">✕</button>
+              </div>
+
+              <div x-show="detail" class="space-y-4">
+                <!-- Customer Info -->
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span class="text-xs" style="color: var(--text-tertiary);">公司</span>
+                    <div x-text="detail?.company || '-'"></div>
+                  </div>
+                  <div>
+                    <span class="text-xs" style="color: var(--text-tertiary);">职位</span>
+                    <div x-text="detail?.title || '-'"></div>
+                  </div>
+                  <div>
+                    <span class="text-xs" style="color: var(--text-tertiary);">邮箱</span>
+                    <div x-text="detail?.email || '-'"></div>
+                  </div>
+                  <div>
+                    <span class="text-xs" style="color: var(--text-tertiary);">状态</span>
+                    <div x-text="detail?.status || '-'"></div>
+                  </div>
+                </div>
+
+                <!-- Follow-up Records -->
+                <div style="border-top: 1px solid var(--border-default); padding-top: 16px;">
+                  <div class="card-title mb-3">跟进记录</div>
+                  <div x-show="records.length === 0" class="text-xs" style="color: var(--text-tertiary);">暂无跟进记录</div>
+                  <div class="space-y-2 max-h-40 overflow-y-auto">
+                    <template x-for="rec in records" :key="rec.id">
+                      <div class="p-2 rounded text-sm" style="background: var(--bg-primary);">
+                        <div x-text="rec.note || rec.content"></div>
+                        <div class="text-xs mt-1" style="color: var(--text-tertiary);" x-text="timeAgo(rec.created_at)"></div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Add Follow-up -->
+                <div style="border-top: 1px solid var(--border-default); padding-top: 16px;">
+                  <div class="input-group">
+                    <label>添加跟进记录</label>
+                    <textarea class="input-field" rows="2" x-model="followUpNote" placeholder="记录跟进内容..."></textarea>
+                  </div>
+                  <div class="flex gap-2">
+                    <select class="input-field" style="width: auto;" x-model="followUpType">
+                      <option value="note">备注</option>
+                      <option value="call">电话</option>
+                      <option value="email">邮件</option>
+                      <option value="meeting">会议</option>
+                    </select>
+                    <button class="btn btn-primary btn-sm" @click="addFollowUp($data)">添加</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer">
+                <button class="btn btn-secondary" @click="showDetail = false">关闭</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ────── SETTINGS ────── -->
+      <div x-show="$store.app.currentPage === 'settings'" x-data="{
+        config: {
+          ai_api_key: '',
+          ai_model: 'gpt-4',
+          ai_base_url: '',
+          smtp_host: '',
+          smtp_port: 587,
+          smtp_user: '',
+          smtp_password: '',
+          smtp_from: '',
+          daily_connections: 50,
+          daily_messages: 50,
+          publish_times: '09:00, 12:00, 18:00',
+          linkedin_email: '',
+          linkedin_password: ''
+        },
+        loading: true,
+        saving: false,
+        activeTab: 'ai'
+      }" id="settings-data" x-init="$nextTick(() => loadPageData('settings'))">
+
+        <div class="page-header">
+          <h2>设置</h2>
+          <p>配置 AI 模型、邮件服务和自动化参数</p>
+        </div>
+
+        <div class="page-body">
+          <!-- Tabs -->
+          <div class="tab-list">
+            <div class="tab-item" :class="{ 'active': activeTab === 'ai' }"
+                 @click="activeTab = 'ai'">AI 模型</div>
+            <div class="tab-item" :class="{ 'active': activeTab === 'email' }"
+                 @click="activeTab = 'email'">邮件配置</div>
+            <div class="tab-item" :class="{ 'active': activeTab === 'automation' }"
+                 @click="activeTab = 'automation'">自动化参数</div>
+            <div class="tab-item" :class="{ 'active': activeTab === 'linkedin' }"
+                 @click="activeTab = 'linkedin'">LinkedIn 账号</div>
+          </div>
+
+          <!-- AI Config -->
+          <div x-show="activeTab === 'ai'" class="card" style="max-width: 600px;">
+            <div class="card-header">
+              <span class="card-title">🤖 AI 模型配置</span>
+            </div>
+            <div class="input-group">
+              <label>API Key</label>
+              <input type="password" class="input-field" x-model="config.ai_api_key" placeholder="sk-...">
+            </div>
+            <div class="input-group">
+              <label>模型</label>
+              <select class="input-field" x-model="config.ai_model">
+                <option value="gpt-4">GPT-4</option>
+                <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                <option value="claude-3-opus">Claude 3 Opus</option>
+                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                <option value="deepseek-chat">DeepSeek Chat</option>
+                <option value="qwen-turbo">通义千问 Turbo</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>API Base URL（可选）</label>
+              <input type="text" class="input-field" x-model="config.ai_base_url"
+                     placeholder="https://api.openai.com/v1">
+            </div>
+            <button class="btn btn-primary" @click="saveSettings($data)" :disabled="saving">
+              <span x-show="saving" class="spinner" style="width:14px;height:14px;border-width:2px;"></span>
+              保存设置
+            </button>
+          </div>
+
+          <!-- Email Config -->
+          <div x-show="activeTab === 'email'" class="card" style="max-width: 600px;">
+            <div class="card-header">
+              <span class="card-title">📧 SMTP 邮件配置</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="input-group">
+                <label>SMTP 服务器</label>
+                <input type="text" class="input-field" x-model="config.smtp_host" placeholder="smtp.gmail.com">
+              </div>
+              <div class="input-group">
+                <label>端口</label>
+                <input type="number" class="input-field" x-model="config.smtp_port" placeholder="587">
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="input-group">
+                <label>用户名</label>
+                <input type="text" class="input-field" x-model="config.smtp_user" placeholder="your@email.com">
+              </div>
+              <div class="input-group">
+                <label>密码</label>
+                <input type="password" class="input-field" x-model="config.smtp_password">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>发件人地址</label>
+              <input type="email" class="input-field" x-model="config.smtp_from" placeholder="your@email.com">
+            </div>
+            <button class="btn btn-primary" @click="saveSettings($data)" :disabled="saving">
+              保存设置
+            </button>
+          </div>
+
+          <!-- Automation Params -->
+          <div x-show="activeTab === 'automation'" class="card" style="max-width: 600px;">
+            <div class="card-header">
+              <span class="card-title">⚡ 自动化参数</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="input-group">
+                <label>每日加好友上限</label>
+                <input type="number" class="input-field" x-model="config.daily_connections" min="1" max="200">
+              </div>
+              <div class="input-group">
+                <label>每日发消息上限</label>
+                <input type="number" class="input-field" x-model="config.daily_messages" min="1" max="200">
+              </div>
+            </div>
+            <div class="input-group">
+              <label>发布时间（用逗号分隔，24小时制）</label>
+              <input type="text" class="input-field" x-model="config.publish_times" placeholder="09:00, 12:00, 18:00">
+            </div>
+            <button class="btn btn-primary" @click="saveSettings($data)" :disabled="saving">
+              保存设置
+            </button>
+          </div>
+
+          <!-- LinkedIn Account -->
+          <div x-show="activeTab === 'linkedin'" class="card" style="max-width: 600px;">
+            <div class="card-header">
+              <span class="card-title">🔗 LinkedIn 账号</span>
+            </div>
+            <div class="input-group">
+              <label>邮箱</label>
+              <input type="email" class="input-field" x-model="config.linkedin_email" placeholder="your@linkedin.email">
+            </div>
+            <div class="input-group">
+              <label>密码</label>
+              <input type="password" class="input-field" x-model="config.linkedin_password">
+            </div>
+            <p class="text-xs mb-4" style="color: var(--text-tertiary);">
+              ⚠️ 账号信息加密存储，仅用于自动化操作
+            </p>
+            <button class="btn btn-primary" @click="saveSettings($data)" :disabled="saving">
+              保存设置
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- App JS -->
+  <script src="static/js/app.js"></script>
+</body>
+</html>
