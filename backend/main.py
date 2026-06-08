@@ -30,6 +30,8 @@ from backend.email_routes import router as email_router
 from backend.scheduler_routes import router as scheduler_router
 from backend.materials_routes import router as materials_router
 from backend.ai_content_routes import router as ai_content_router
+from backend.import_export_routes import router as import_export_router
+from backend.linkedin_analytics_routes import router as linkedin_analytics_router
 
 app = FastAPI(title="FORTUNE SCM", version="1.0.0")
 
@@ -42,6 +44,8 @@ app.include_router(email_router)
 app.include_router(scheduler_router)
 app.include_router(materials_router)
 app.include_router(ai_content_router)
+app.include_router(import_export_router)
+app.include_router(linkedin_analytics_router)
 
 # CORS
 app.add_middleware(
