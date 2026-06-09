@@ -504,6 +504,7 @@
         <div class="top-bar">
             <h1 class="page-title">📁 素材库</h1>
             <button class="btn btn-primary" onclick="openMaterialModal()">+ 添加素材</button>
+            <button class="btn btn-secondary" onclick="openImageUploadModal()">📷 上传图片</button>
         </div>
 
         <!-- 统计卡片 -->
@@ -635,6 +636,40 @@
                 <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
                 <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 图片上传模态框 -->
+    <div class="modal" id="imageUploadModal">
+        <div class="modal-content" style="max-width:500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">📷 上传图片素材</h2>
+                <button class="modal-close" onclick="closeImageUploadModal()">&times;</button>
+            </div>
+            <form id="imageUploadForm" onsubmit="handleImageUpload(event)">
+                <div class="form-group">
+                    <label class="form-label">选择图片 *</label>
+                    <input type="file" class="form-input" id="imageFile" accept="image/*" required
+                        style="padding: 8px;" onchange="previewImage(this)">
+                    <div id="imagePreview" style="margin-top:8px;"></div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标题</label>
+                    <input type="text" class="form-input" id="uploadTitle" placeholder="图片标题（可选，默认使用文件名）">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">分类</label>
+                    <input type="text" class="form-input" id="uploadCategory" value="general" placeholder="分类名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标签 (逗号分隔)</label>
+                    <input type="text" class="form-input" id="uploadTags" placeholder="图片, 素材, 产品">
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeImageUploadModal()">取消</button>
+                    <button type="submit" class="btn btn-primary" id="uploadSubmitBtn">上传</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -788,7 +823,10 @@
                             <span class="material-type-icon">${getTypeIcon(m.type)}</span>
                         </div>
                         <div class="material-card-body" onclick="viewMaterial(${m.id})" style="cursor:pointer;">
-                            <div class="content-preview">${escapeHtml(truncateText(m.content, 200))}</div>
+                            ${m.type === 'image' && m.content && m.content.startsWith('/api/materials/files/')
+                                ? `<img src="${escapeHtml(m.content)}" style="width:100%; max-height:200px; object-fit:cover; border-radius:6px; margin-bottom:8px;">`
+                                : `<div class="content-preview">${escapeHtml(truncateText(m.content, 200))}</div>`
+                            }
                         </div>
                         <div class="material-card-meta">
                             <div class="material-tags">
@@ -975,6 +1013,85 @@
             }
         }
         
+        // ==================== 图片上传 ====================
+        function openImageUploadModal() {
+            document.getElementById('imageUploadForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            document.getElementById('imageUploadModal').classList.add('active');
+        }
+
+        function closeImageUploadModal() {
+            document.getElementById('imageUploadModal').classList.remove('active');
+        }
+
+        function previewImage(input) {
+            const preview = document.getElementById('imagePreview');
+            preview.innerHTML = '';
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.innerHTML = `<img src="${e.target.result}" style="max-width:100%; max-height:200px; border-radius:8px; border:1px solid #e5e5e5;">`;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
+        async function handleImageUpload(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('imageFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                showToast('请选择要上传的图片', 'error');
+                return;
+            }
+
+            const submitBtn = document.getElementById('uploadSubmitBtn');
+            submitBtn.textContent = '上传中...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('title', document.getElementById('uploadTitle').value || '');
+                formData.append('category', document.getElementById('uploadCategory').value || 'general');
+                formData.append('tags', document.getElementById('uploadTags').value || '');
+
+                const token = getToken();
+                const response = await fetch(`${API_BASE}/api/materials/upload-image`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({ detail: '上传失败' }));
+                    throw new Error(error.detail || '上传失败');
+                }
+
+                showToast('图片上传成功');
+                closeImageUploadModal();
+                loadMaterials();
+                loadStats();
+                loadCategories();
+            } catch (e) {
+                showToast('上传失败: ' + e.message, 'error');
+            } finally {
+                submitBtn.textContent = '上传';
+                submitBtn.disabled = false;
+            }
+        }
+
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
             if (!getToken()) {
