@@ -47,7 +47,8 @@ def build_app():
 
 def create_data_dir():
     """Ensure data directory exists in the dist."""
-    dist_path = os.path.join('dist', '命运')
+    app_name = 'Destiny' if platform.system() == 'Windows' else '命运'
+    dist_path = os.path.join('dist', app_name)
     if platform.system() == 'Darwin':
         # macOS .app bundle
         dist_path = os.path.join('dist', '命运.app', 'Contents', 'MacOS')
@@ -105,6 +106,7 @@ def create_windows_installer():
 def print_summary():
     """Print build summary."""
     system = platform.system()
+    app_name = 'Destiny' if system == 'Windows' else '命运'
     
     print("\n" + "=" * 60)
     print("BUILD COMPLETE!")
@@ -112,20 +114,20 @@ def print_summary():
     
     if system == 'Darwin':
         print("\nmacOS Application:")
-        print(f"  - App Bundle: dist/命运.app")
+        print(f"  - App Bundle: dist/{app_name}.app")
         print(f"  - DMG Installer: dist/Destiny-Installer.dmg")
         print("\nTo distribute:")
         print("  1. Share the .app bundle (drag to Applications)")
         print("  2. Or share the .dmg file")
     elif system == 'Windows':
         print("\nWindows Application:")
-        print(f"  - Executable: dist/命运/命运.exe")
+        print(f"  - Executable: dist/{app_name}/{app_name}.exe")
         print("\nTo distribute:")
-        print("  1. Zip the 'dist/命运' folder")
+        print(f"  1. Zip the 'dist/{app_name}' folder")
         print("  2. Share the zip file")
     else:
         print(f"\nLinux Application:")
-        print(f"  - Executable: dist/命运/命运")
+        print(f"  - Executable: dist/{app_name}/{app_name}")
     
     print("\n" + "=" * 60)
 

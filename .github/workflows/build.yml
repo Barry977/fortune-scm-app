@@ -8,6 +8,8 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    env:
+      PYTHONIOENCODING: utf-8
     steps:
       - uses: actions/checkout@v4
 
@@ -28,8 +30,11 @@ jobs:
       - name: Create zip package
         shell: pwsh
         run: |
-          if (Test-Path "dist/命运") {
-            Compress-Archive -Path "dist/命运/*" -DestinationPath "dist/Destiny-Windows.zip"
+          $destDir = "命运"
+          if (Test-Path "dist/$destDir") {
+            Compress-Archive -Path "dist/$destDir/*" -DestinationPath "dist/Destiny-Windows.zip"
+          } elseif (Test-Path "dist/Destiny") {
+            Compress-Archive -Path "dist/Destiny/*" -DestinationPath "dist/Destiny-Windows.zip"
           }
 
       - name: Upload Windows build

@@ -101,12 +101,16 @@ a = Analysis(
 
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
+# Use English name on Windows to avoid encoding issues
+import platform as _plat
+_app_name = 'Destiny' if _plat.system() == 'Windows' else '命运'
+
 exe = EXE(
     pyz,
     a.scripts,
     [],
     exclude_binaries=True,
-    name='命运',
+    name=_app_name,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -128,7 +132,7 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='命运',
+    name=_app_name,
 )
 
 # For macOS .app bundle
