@@ -70,8 +70,6 @@ def _detect_system_proxy() -> str:
 PROXY = _detect_system_proxy()
 
 # Chrome path: auto-detect per platform, fallback to Playwright bundled Chromium
-# Chromium is auto-installed on first use (see _ensure_chromium)
-BROWSER_PATH = None
 
 LINKEDIN_EMAIL = os.environ.get("LINKEDIN_EMAIL", "")
 LINKEDIN_PASSWORD = os.environ.get("LINKEDIN_PASSWORD", "")
@@ -168,32 +166,10 @@ def is_browser_running() -> bool:
     return False
 
 
-async def _ensure_chromium():
-    """Auto-download Chromium on first use. Idempotent — skips if already installed."""
-    import subprocess
-    logger.info("[LinkedIn] 检查 Chromium 浏览器...")
-    try:
-        # playwright install is idempotent: skips download if already installed
-        proc = await asyncio.create_subprocess_exec(
-            sys.executable, '-m', 'playwright', 'install', 'chromium',
-            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await proc.communicate()
-        if proc.returncode == 0:
-            logger.info("[LinkedIn] Chromium 就绪")
-            return True
-        else:
-            logger.error("[LinkedIn] Chromium 安装失败: %s", stderr.decode() or stdout.decode())
-            return False
-    except Exception as e:
-        logger.error("[LinkedIn] Chromium 安装异常: %s", e)
-        return False
-
-
 async def _get_page(headless: bool = True):
     """Get or create a persistent Playwright browser page."""
     if not HAS_PLAYWRIGHT:
-        raise RuntimeError('Playwright 未安装。请运行: pip install playwright && playwright install chromium')
+        raise RuntimeError('Playwright 未安装')
     global _playwright, _browser_ctx, _page
 
     if _page and not _page.is_closed():
@@ -217,10 +193,6 @@ async def _get_page(headless: bool = True):
             await _playwright.stop()
         except Exception:
             pass
-
-    # Ensure Chromium is installed (auto-download on first use)
-    if not await _ensure_chromium():
-        raise RuntimeError('Chromium 浏览器下载失败，请检查网络连接')
 
     # Ensure profile directory exists
     os.makedirs(PROFILE_DIR, exist_ok=True)

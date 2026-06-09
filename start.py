@@ -50,6 +50,12 @@ URL = f"http://{HOST}:{PORT}"
 APP_TITLE = "命运 (DESTINY) - 智能客户开发系统"
 APP_ICON = str(PROJECT_DIR / "frontend" / "assets" / "icon.png") if (PROJECT_DIR / "frontend" / "assets" / "icon.png").exists() else None
 
+# Playwright: use bundled Chromium from app directory
+CHROMIUM_DIR = PROJECT_DIR / "data" / "chromium"
+if CHROMIUM_DIR.exists():
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(CHROMIUM_DIR)
+    logger.info("Playwright browsers path: %s", CHROMIUM_DIR)
+
 def show_error_dialog(title, message):
     """Show error dialog that works even if pywebview isn't available."""
     try:
