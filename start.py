@@ -224,17 +224,17 @@ class DestinyApp:
         """设置JS API，供前端调用"""
         class JSAPI:
             def __init__(self, app):
-                self.app = app
+                self._app = app
             
             def save_token(self, token):
                 """保存登录token"""
-                self.app.save_token(token)
-                self.app.is_logged_in = True
+                self._app.save_token(token)
+                self._app.is_logged_in = True
             
             def clear_token(self):
                 """清除登录token"""
-                self.app.clear_token()
-                self.app.is_logged_in = False
+                self._app.clear_token()
+                self._app.is_logged_in = False
             
             def get_version(self):
                 """获取应用版本"""
@@ -242,17 +242,17 @@ class DestinyApp:
             
             def get_user_info(self):
                 """获取用户信息"""
-                return json.dumps(self.app.current_user or {})
+                return json.dumps(self._app.current_user or {})
             
             def minimize_window(self):
                 """最小化窗口"""
-                if self.app.window:
-                    self.app.window.minimize()
+                if self._app.window:
+                    self._app.window.minimize()
             
             def toggle_fullscreen(self):
                 """切换全屏"""
-                if self.app.window:
-                    self.app.window.toggle_fullscreen()
+                if self._app.window:
+                    self._app.window.toggle_fullscreen()
         
         return JSAPI(self)
     
