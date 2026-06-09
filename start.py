@@ -9,6 +9,7 @@ import sys
 import threading
 import time
 import json
+import traceback
 from pathlib import Path
 
 IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
@@ -23,6 +24,27 @@ PORT = 8765
 URL = f"http://{HOST}:{PORT}"
 APP_TITLE = "命运 (DESTINY) - 智能客户开发系统"
 APP_ICON = str(PROJECT_DIR / "frontend" / "assets" / "icon.png") if (PROJECT_DIR / "frontend" / "assets" / "icon.png").exists() else None
+
+def show_error_dialog(title, message):
+    """Show error dialog that works even if pywebview isn't available."""
+    try:
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(0, message, title, 0x10)
+    except Exception:
+        try:
+            import tkinter as tk
+            from tkinter import messagebox
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showerror(title, message)
+            root.destroy()
+        except Exception:
+            print(f"\n{'='*50}")
+            print(f"ERROR: {title}")
+            print(f"{'='*50}")
+            print(message)
+            print(f"{'='*50}")
+            input("\nPress Enter to exit...")
 
 
 class DestinyApp:
@@ -304,8 +326,13 @@ class DestinyApp:
 
 
 def main():
-    app = DestinyApp()
-    app.run()
+    try:
+        app = DestinyApp()
+        app.run()
+    except Exception as e:
+        error_msg = f"应用启动失败:\n\n{str(e)}\n\n{traceback.format_exc()}"
+        show_error_dialog("命运 - 启动错误", error_msg)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
