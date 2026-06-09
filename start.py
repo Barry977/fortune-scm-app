@@ -10,7 +10,23 @@ import threading
 import time
 import json
 import traceback
+import logging
 from pathlib import Path
+
+# ── 日志文件 ───────────────────────────────────────────────────
+LOG_DIR = Path(os.environ.get("APPDATA", os.path.expanduser("~"))) / ".destiny"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / "destiny.log"
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE, encoding="utf-8"),
+        logging.StreamHandler(sys.stdout),
+    ],
+)
+logger = logging.getLogger("destiny")
 
 IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
 
@@ -64,6 +80,7 @@ class DestinyApp:
                 sys.path.insert(0, p)
         os.chdir(PROJECT_DIR)
         
+        logger.info("Starting uvicorn server on %s:%s", HOST, PORT)
         import uvicorn
         uvicorn.run("main:app", host=HOST, port=PORT, log_level="warning", access_log=False)
     
@@ -266,12 +283,14 @@ class DestinyApp:
         # 创建原生窗口（必须在主线程）
         try:
             import webview
+            logger.info("pywebview imported successfully, version: %s", getattr(webview, '__version__', 'unknown'))
             
             # 创建JS API
             js_api = self.setup_js_api()
             
             # 确定初始URL
             initial_url = self.get_initial_url()
+            logger.info("Initial URL: %s", initial_url)
             
             # 创建窗口
             window_kwargs = {
@@ -286,51 +305,55 @@ class DestinyApp:
                 "js_api": js_api,
             }
             
-            # 添加图标（如果存在）
-            # Note: pywebview 不支持 icon 参数，图标通过 .app bundle 或 .ico 设置
-            # if APP_ICON and os.path.exists(APP_ICON):
-            #     window_kwargs["icon"] = APP_ICON
-            
             self.window = webview.create_window(**window_kwargs)
-            
-            # 设置菜单（macOS/Linux支持）
-            if hasattr(webview, 'menu'):
-                try:
-                    webview.menu = self.create_menu()
-                except Exception:
-                    pass
+            logger.info("Window created, starting webview...")
             
             # webview.start() 会阻塞直到窗口关闭
             webview.start(debug=not IS_BUNDLED)
             
-        except ImportError:
+        except ImportError as e:
+            logger.warning("pywebview import failed: %s, falling back to browser", e)
             print("⚠️ pywebview 未安装，回退到浏览器模式...")
-            import webbrowser
-            webbrowser.open(self.get_initial_url())
-            print(f"🌐 请在浏览器中访问: {URL}")
-            print("   按 Ctrl+C 退出\n")
-            try:
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                pass
+            self._open_in_browser()
         except Exception as e:
-            print(f"❌ 窗口错误: {e}")
-            import traceback
-            traceback.print_exc()
-            if getattr(sys.stdin, 'isatty', lambda: False)():
-                input("\n按回车键退出...")
-            sys.exit(1)
+            logger.error("pywebview failed: %s\n%s", e, traceback.format_exc())
+            print(f"⚠️ 原生窗口创建失败: {e}")
+            print("   回退到浏览器模式...")
+            self._open_in_browser()
+    
+    def _open_in_browser(self):
+        """回退到浏览器模式"""
+        import webbrowser
+        initial_url = self.get_initial_url()
+        webbrowser.open(initial_url)
+        print(f"🌐 已在浏览器中打开: {initial_url}")
+        print(f"   日志文件: {LOG_FILE}")
+        print("   按 Ctrl+C 退出\n")
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            pass
         
         print("\n👋 应用已关闭")
 
 
 def main():
     try:
+        logger.info("=== 命运 DESTINY 启动 ===")
+        logger.info("Python: %s", sys.version)
+        logger.info("Platform: %s", sys.platform)
+        logger.info("PID: %s", os.getpid())
+        logger.info("CWD: %s", os.getcwd())
+        logger.info("Bundled: %s", IS_BUNDLED)
+        logger.info("Log file: %s", LOG_FILE)
+        
         app = DestinyApp()
         app.run()
     except Exception as e:
         error_msg = f"应用启动失败:\n\n{str(e)}\n\n{traceback.format_exc()}"
+        logger.critical(error_msg)
+        print(error_msg)
         show_error_dialog("命运 - 启动错误", error_msg)
         sys.exit(1)
 
