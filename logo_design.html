@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logo设计方案 - 命运 (白底黑字+曙光黄)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Logo设计方案 - 命运</h1>
+        <p class="text-gray-600 mb-8">配色：白底黑字 + 曙光黄光影元素</p>
+        
+        <!-- 方案一 -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">方案一：简约飞机图标</h2>
+            <div class="flex items-center justify-center py-12 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <svg width="240" height="80" viewBox="0 0 240 80" class="mx-auto mb-4">
+                        <!-- 曙光黄背景光晕 -->
+                        <defs>
+                            <radialGradient id="glow1" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="60" cy="40" r="35" fill="url(#glow1)"/>
+                        
+                        <!-- 飞机图标 -->
+                        <g transform="translate(25, 15)">
+                            <!-- 飞机主体 -->
+                            <path d="M45 10 L65 30 L45 50 L50 30 Z" fill="#1f2937"/>
+                            <!-- 机翼 -->
+                            <path d="M40 25 L65 30 L40 35 Z" fill="#374151"/>
+                            <!-- 尾翼 -->
+                            <path d="M30 20 L45 30 L30 40 Z" fill="#6b7280"/>
+                            <!-- 曙光黄点缀 -->
+                            <path d="M45 10 L65 30 L45 50 L50 30 Z" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+                        </g>
+                        
+                        <!-- 文字 -->
+                        <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="600" fill="#1f293b">Destiny</text>
+                        <text x="100" y="55" font-family="Inter, sans-serif" font-size="12" font-weight="400" fill="#6b7280">命运 · 供应链营销自动化</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方案二 -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">方案二：抽象飞机线条</h2>
+            <div class="flex items-center justify-center py-12 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <svg width="240" height="80" viewBox="0 0 240 80" class="mx-auto mb-4">
+                        <!-- 曙光黄光晕 -->
+                        <defs>
+                            <radialGradient id="glow2" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.25"/>
+                                <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="55" cy="40" r="30" fill="url(#glow2)"/>
+                        
+                        <!-- 抽象飞机线条 -->
+                        <g transform="translate(20, 15)">
+                            <path d="M50 5 L70 25 L50 45 L55 25 Z" fill="none" stroke="#1f2937" stroke-width="2.5"/>
+                            <line x1="45" y1="20" x2="70" y2="25" stroke="#374151" stroke-width="2"/>
+                            <line x1="45" y1="30" x2="70" y2="25" stroke="#374151" stroke-width="2"/>
+                            <line x1="30" y1="15" x2="50" y2="25" stroke="#6b7280" stroke-width="2"/>
+                            <line x1="30" y1="35" x2="50" y2="25" stroke="#6b7280" stroke-width="2"/>
+                            <!-- 曙光黄点缀 -->
+                            <circle cx="70" cy="25" r="3" fill="#fbbf24"/>
+                        </g>
+                        
+                        <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="600" fill="#1f293b">Destiny</text>
+                        <text x="100" y="55" font-family="Inter, sans-serif" font-size="12" font-weight="400" fill="#6b7280">命运 · 供应链营销自动化</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方案三 -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">方案三：几何飞机</h2>
+            <div class="flex items-center justify-center py-12 bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <svg width="240" height="80" viewBox="0 0 240 80" class="mx-auto mb-4">
+                        <!-- 曙光黄光晕 -->
+                        <defs>
+                            <radialGradient id="glow3" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.2"/>
+                                <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0"/>
+                            </radialGradient>
+                        </defs>
+                        <circle cx="55" cy="40" r="28" fill="url(#glow3)"/>
+                        
+                        <!-- 几何飞机 -->
+                        <g transform="translate(15, 10)">
+                            <polygon points="60,5 80,30 60,55 65,30" fill="#1f2937"/>
+                            <polygon points="50,20 80,30 50,40" fill="#374151"/>
+                            <polygon points="35,15 60,30 35,45" fill="#6b7280"/>
+                            <!-- 曙光黄点缀 -->
+                            <polygon points="60,5 80,30 60,55 65,30" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+                            <circle cx="80" cy="30" r="2.5" fill="#fbbf24"/>
+                        </g>
+                        
+                        <text x="100" y="35" font-family="Inter, sans-serif" font-size="28" font-weight="600" fill="#1f293b">Destiny</text>
+                        <text x="100" y="55" font-family="Inter, sans-serif" font-size="12" font-weight="400" fill="#6b7280">命运 · 供应链营销自动化</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- 配色方案 -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">配色方案</h2>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-white border-2 border-gray-200 rounded-lg mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-600">背景 #ffffff</p>
+                    <p class="text-xs text-gray-400">白色</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gray-900 rounded-lg mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-600">主文字 #1f2937</p>
+                    <p class="text-xs text-gray-400">深灰黑</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-gray-500 rounded-lg mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-600">副文字 #6b7280</p>
+                    <p class="text-xs text-gray-400">中灰</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-yellow-400 rounded-lg mx-auto mb-2"></div>
+                    <p class="text-sm text-gray-600">曙光黄 #fbbf24</p>
+                    <p class="text-xs text-gray-400">点缀色</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 应用场景 -->
+        <div class="bg-white rounded-xl shadow-lg p-8 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-700 mb-6">应用场景</h2>
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-medium text-gray-600 mb-3">应用图标</h3>
+                    <div class="w-24 h-24 bg-white rounded-2xl border-2 border-gray-200 flex items-center justify-center shadow-md">
+                        <svg width="60" height="60" viewBox="0 0 60 60">
+                            <defs>
+                                <radialGradient id="iconGlow" cx="50%" cy="50%" r="50%">
+                                    <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.3"/>
+                                    <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0"/>
+                                </radialGradient>
+                            </defs>
+                            <circle cx="30" cy="30" r="20" fill="url(#iconGlow)"/>
+                            <g transform="translate(10, 15)">
+                                <path d="M25 5 L40 20 L25 35 L28 20 Z" fill="#1f2937"/>
+                                <path d="M20 15 L40 20 L20 25 Z" fill="#374151"/>
+                                <path d="M10 10 L25 20 L10 30 Z" fill="#6b7280"/>
+                                <path d="M25 5 L40 20 L25 35 L28 20 Z" fill="none" stroke="#fbbf24" stroke-width="1"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium text-gray-600 mb-3">登录页面</h3>
+                    <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <svg width="40" height="40" viewBox="0 0 40 40">
+                                <defs>
+                                    <radialGradient id="loginGlow" cx="50%" cy="50%" r="50%">
+                                        <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:0.25"/>
+                                        <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:0"/>
+                                    </radialGradient>
+                                </defs>
+                                <circle cx="20" cy="20" r="15" fill="url(#loginGlow)"/>
+                                <g transform="translate(5, 10)">
+                                    <path d="M20 5 L30 15 L20 25 L22 15 Z" fill="#1f2937"/>
+                                    <path d="M15 10 L30 15 L15 20 Z" fill="#374151"/>
+                                </g>
+                            </svg>
+                            <div>
+                                <p class="font-semibold text-gray-900">Destiny</p>
+                                <p class="text-xs text-gray-500">命运 · 供应链营销自动化</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

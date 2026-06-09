@@ -3,214 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>素材库 - FORTUNE SCM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>[x-cloak] { display: none !important; }</style>
+    <title>素材库 - 命运 DESTINY</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+
+        /* Layout */
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
+        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Sidebar */
+        .logo { padding: 20px 24px; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 36px; height: 36px; }
+        .logo-text { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+        .logo-sub { font-size: 11px; color: #888; letter-spacing: 2px; }
+
+        .nav-section { padding: 16px 0; }
+        .nav-label { padding: 8px 24px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .nav-item { display: flex; align-items: center; padding: 10px 24px; color: #555; font-size: 14px; cursor: pointer; transition: all .15s; gap: 12px; }
+        .nav-item:hover { background: #f9f9f9; color: #1a1a1a; }
+        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 600; border-right: 3px solid #fbbf24; }
+        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+
+        .sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1a1a1a; }
+        .user-info { flex: 1; }
+        .user-name { font-size: 13px; font-weight: 600; }
+        .user-role { font-size: 11px; color: #888; }
+
+        /* Top Bar */
+        .topbar { background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+        .topbar-title { font-size: 22px; font-weight: 700; }
+        .topbar-actions { display: flex; gap: 12px; }
+        .btn { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid #e5e5e5; background: #fff; color: #1a1a1a; transition: all .15s; }
+        .btn:hover { background: #f9f9f9; }
+        .btn-primary { background: #fbbf24; border-color: #fbbf24; color: #1a1a1a; }
+        .btn-primary:hover { background: #f59e0b; }
+
+        /* Content */
+        .content { padding: 24px 32px; flex: 1; }
+
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #ffffff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; }
+        .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e5e5e5; margin-bottom: 20px; background: #fff; border-radius: 12px 12px 0 0; border: 1px solid #e5e5e5; border-bottom: none; overflow: hidden; }
+        .tab { padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; color: #888; border-bottom: 2px solid transparent; transition: all .15s; }
+        .tab:hover { color: #1a1a1a; background: #fafafa; }
+        .tab.active { color: #1a1a1a; border-bottom-color: #fbbf24; background: #fff; }
+
+        /* Filter Bar */
+        .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+        .filter-select { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; cursor: pointer; min-width: 140px; }
+        .filter-search { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; flex: 1; max-width: 320px; }
+        .filter-search::placeholder { color: #bbb; }
+
+        /* Materials Grid */
+        .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .material-card { background: #ffffff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all .15s; position: relative; }
+        .material-card:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+        .material-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .material-title { font-size: 15px; font-weight: 700; }
+        .material-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+        .badge-blue { background: #eff6ff; color: #2563eb; }
+        .badge-green { background: #f0fdf4; color: #16a34a; }
+        .badge-purple { background: #faf5ff; color: #9333ea; }
+        .badge-orange { background: #fff7ed; color: #ea580c; }
+        .badge-rose { background: #fff1f2; color: #e11d48; }
+        .material-preview { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .material-footer { display: flex; align-items: center; justify-content: space-between; }
+        .material-date { font-size: 12px; color: #999; }
+        .material-actions { display: flex; gap: 8px; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; border: 1px solid #e5e5e5; background: #fff; color: #555; transition: all .15s; }
+        .btn-sm:hover { border-color: #1a1a1a; color: #1a1a1a; }
+        .btn-sm-danger { color: #ef4444; border-color: #fecaca; }
+        .btn-sm-danger:hover { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="materialsApp()" x-init="init()">
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
-                    <span class="text-gray-500">素材库</span>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+                    <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
+                    <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
+                    <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" fill="none"/>
+                </svg>
+                <div>
+                    <div class="logo-text">命运</div>
+                    <div class="logo-sub">DESTINY</div>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">首页</a>
-                    <a href="/crm" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">客户管理</a>
-                    <a href="/linkedin" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">LinkedIn</a>
-                    <a href="/email" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">邮件</a>
-                    <a href="/settings" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">设置</a>
-                    <button @click="logout()" class="text-sm text-red-500 hover:text-red-700">退出</button>
+            </div>
+
+            <nav class="nav-section">
+                <div class="nav-label">主菜单</div>
+                <div class="nav-item" onclick="location.href='/dashboard'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+                    控制面板
+                </div>
+                <div class="nav-item" onclick="location.href='/clients'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+                    客户管理
+                    <span class="nav-badge">128</span>
+                </div>
+                <div class="nav-item" onclick="location.href='/linkedin'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd"/></svg>
+                    LinkedIn
+                </div>
+                <div class="nav-item" onclick="location.href='/email'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+                    邮件营销
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">自动化</div>
+                <div class="nav-item" onclick="location.href='/tasks'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+                    定时任务
+                </div>
+                <div class="nav-item active" onclick="location.href='/materials'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
+                    素材库
+                </div>
+            </nav>
+
+            <nav class="nav-section">
+                <div class="nav-label">系统</div>
+                <div class="nav-item" onclick="location.href='/analytics'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+                    数据分析
+                </div>
+                <div class="nav-item" onclick="location.href='/ai-config'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
+                    AI 配置
+                </div>
+                <div class="nav-item" onclick="location.href='/settings'">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+                    设置
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="avatar">A</div>
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">管理员</div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </aside>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 统计 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-4">
-                <p class="text-sm text-gray-500">总素材数</p>
-                <p class="text-2xl font-bold text-gray-800" x-text="stats.total || 0"></p>
+        <!-- Main Content -->
+        <div class="main">
+            <div class="topbar">
+                <h1 class="topbar-title">素材库</h1>
+                <div class="topbar-actions">
+                    <button class="btn">上传素材</button>
+                    <button class="btn btn-primary">新建分类</button>
+                </div>
             </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <p class="text-sm text-gray-500">分类数</p>
-                <p class="text-2xl font-bold text-gray-800" x-text="Object.keys(stats.by_category || {}).length"></p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <p class="text-sm text-gray-500">共享状态</p>
-                <p class="text-2xl font-bold text-green-600">全员共享</p>
-            </div>
-        </div>
 
-        <!-- 筛选 + 添加 -->
-        <div class="bg-white rounded-lg shadow mb-6">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <div class="flex items-center space-x-4">
-                    <select x-model="filter.category" @change="loadMaterials()" class="px-3 py-2 border rounded-lg text-sm">
-                        <option value="">全部分类</option>
-                        <template x-for="cat in categories" :key="cat">
-                            <option :value="cat" x-text="cat"></option>
-                        </template>
+            <div class="content">
+                <!-- Stats -->
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-value">24</div>
+                        <div class="stat-label">总素材</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">18</div>
+                        <div class="stat-label">文本</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">6</div>
+                        <div class="stat-label">图片</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">分类</div>
+                    </div>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <div class="tab active">文本素材</div>
+                    <div class="tab">图片素材</div>
+                    <div class="tab">分类管理</div>
+                </div>
+
+                <!-- Filter Bar -->
+                <div class="filter-bar">
+                    <select class="filter-select">
+                        <option>全部分类</option>
+                        <option>公司介绍</option>
+                        <option>物流服务</option>
+                        <option>海运</option>
+                        <option>空运</option>
+                        <option>专线</option>
                     </select>
-                    <input type="text" x-model="filter.search" @input.debounce.300ms="loadMaterials()"
-                        placeholder="搜索素材..." class="px-4 py-2 border rounded-lg text-sm w-64">
+                    <input type="text" class="filter-search" placeholder="搜索素材标题或内容...">
                 </div>
-                <button @click="showAdd = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
-                    + 添加素材
-                </button>
-            </div>
-        </div>
 
-        <!-- 素材列表 -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <template x-for="m in materials" :key="m.id">
-                <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-                    <div class="p-4">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-800 text-sm" x-text="m.title"></h3>
-                            <span class="text-xs px-2 py-0.5 rounded-full"
-                                :class="m.category === 'cold_email' ? 'bg-blue-100 text-blue-700' : m.category === 'linkedin' ? 'bg-indigo-100 text-indigo-700' : 'bg-gray-100 text-gray-600'"
-                                x-text="m.category"></span>
+                <!-- Materials Grid -->
+                <div class="materials-grid">
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">公司简介</span>
+                            <span class="material-badge badge-blue">公司介绍</span>
                         </div>
-                        <p class="text-xs text-gray-600 mb-3 line-clamp-4 whitespace-pre-wrap" x-text="m.content"></p>
-                        <div class="flex justify-between items-center text-xs text-gray-400">
-                            <span>使用 <span x-text="m.usage_count || 0"></span> 次</span>
-                            <span x-text="m.language === 'zh' ? '中文' : 'English'"></span>
+                        <div class="material-preview">命运供应链管理有限公司是一家专业的国际物流服务商，致力于为全球客户提供高效、安全、可靠的供应链解决方案。公司拥有多年的行业经验，覆盖海运、空运、陆运等多种运输方式...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-15 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
                         </div>
-                        <div class="mt-3 flex space-x-2">
-                            <button @click="copyToClipboard(m)" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded">复制</button>
-                            <button @click="editMaterial(m)" class="text-xs px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded">编辑</button>
-                            <button @click="deleteMaterial(m.id)" class="text-xs px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded">删除</button>
+                    </div>
+
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">物流服务介绍</span>
+                            <span class="material-badge badge-green">物流服务</span>
+                        </div>
+                        <div class="material-preview">我们提供全方位的物流服务，包括国际海运、空运、铁路运输、仓储管理、报关清关等一站式解决方案。专业的团队为您量身定制最优物流方案，降低运输成本...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-12 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">海运优势</span>
+                            <span class="material-badge badge-purple">海运</span>
+                        </div>
+                        <div class="material-preview">海运是国际贸易中最主要的运输方式，具有运量大、成本低、覆盖面广等优势。我们与全球多家船公司建立长期合作关系，确保舱位充足、运价优惠、时效稳定...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-10 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">空运时效</span>
+                            <span class="material-badge badge-orange">空运</span>
+                        </div>
+                        <div class="material-preview">空运以其快速、安全的特点成为高价值货物和时效敏感货物的首选。我们提供门到门空运服务，主要航线3-5个工作日可达，支持普货、敏感货、带电产品等多种货物类型...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-08 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">中东专线</span>
+                            <span class="material-badge badge-rose">专线</span>
+                        </div>
+                        <div class="material-preview">中东专线覆盖阿联酋、沙特、卡塔尔、科威特等主要国家，提供海运、空运双渠道运输方案。自有海外仓支持一件代发，清关能力强，末端派送覆盖广...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-05 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="material-card">
+                        <div class="material-header">
+                            <span class="material-title">欧美专线</span>
+                            <span class="material-badge badge-rose">专线</span>
+                        </div>
+                        <div class="material-preview">欧美专线覆盖美国、英国、德国、法国等主要市场，提供FBA头程、海外仓一件代发、专线小包等多元化物流方案。时效稳定，价格透明，全程可追踪...</div>
+                        <div class="material-footer">
+                            <span class="material-date">2026-05-02 创建</span>
+                            <div class="material-actions">
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm btn-sm-danger">删除</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </template>
-        </div>
-
-        <div x-show="materials.length === 0" class="text-center py-12 text-gray-400">
-            暂无素材，点击「添加素材」创建
+            </div>
         </div>
     </div>
-
-    <!-- 添加/编辑弹窗 -->
-    <div x-show="showAdd || editing" x-cloak class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h3 class="text-lg font-semibold" x-text="editing ? '编辑素材' : '添加素材'"></h3>
-                <button @click="showAdd = false; editing = null" class="text-gray-400 hover:text-gray-600">✕</button>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">标题</label>
-                    <input type="text" x-model="form.title" class="w-full px-4 py-2 border rounded-lg" placeholder="素材名称">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">分类</label>
-                        <select x-model="form.category" class="w-full px-4 py-2 border rounded-lg">
-                            <option value="cold_email">cold_email</option>
-                            <option value="linkedin">linkedin</option>
-                            <option value="follow_up">follow_up</option>
-                            <option value="reply">reply</option>
-                            <option value="general">general</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">语言</label>
-                        <select x-model="form.language" class="w-full px-4 py-2 border rounded-lg">
-                            <option value="en">English</option>
-                            <option value="zh">中文</option>
-                        </select>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">内容</label>
-                    <textarea x-model="form.content" rows="8" class="w-full px-4 py-2 border rounded-lg" placeholder="支持变量: {name} {company} {industry}"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">标签（逗号分隔）</label>
-                    <input type="text" x-model="form.tags" class="w-full px-4 py-2 border rounded-lg" placeholder="introduction,cold,email">
-                </div>
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-                <button @click="showAdd = false; editing = null" class="px-4 py-2 bg-gray-200 rounded-lg text-sm">取消</button>
-                <button @click="saveMaterial()" class="px-6 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">保存</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        function materialsApp() {
-            return {
-                token: '', materials: [], categories: [], stats: {},
-                filter: { category: '', search: '' },
-                showAdd: false, editing: null,
-                form: { title: '', content: '', category: 'cold_email', language: 'en', tags: '' },
-
-                async init() {
-                    this.token = localStorage.getItem('access_token');
-                    if (!this.token) { window.location.href = '/login'; return; }
-                    await this.loadMaterials();
-                    await this.loadCategories();
-                    await this.loadStats();
-                },
-
-                h() { return { 'Authorization': 'Bearer ' + this.token, 'Content-Type': 'application/json' }; },
-
-                async loadMaterials() {
-                    let url = '/api/materials/?limit=100';
-                    if (this.filter.category) url += '&category=' + this.filter.category;
-                    if (this.filter.search) url += '&search=' + this.filter.search;
-                    const r = await fetch(url, { headers: this.h() });
-                    if (r.ok) this.materials = await r.json();
-                },
-
-                async loadCategories() {
-                    const r = await fetch('/api/materials/categories', { headers: this.h() });
-                    if (r.ok) { const d = await r.json(); this.categories = d.categories || []; }
-                },
-
-                async loadStats() {
-                    const r = await fetch('/api/materials/stats', { headers: this.h() });
-                    if (r.ok) this.stats = await r.json();
-                },
-
-                editMaterial(m) {
-                    this.editing = m;
-                    this.form = { title: m.title, content: m.content, category: m.category, language: m.language, tags: m.tags };
-                },
-
-                async saveMaterial() {
-                    const url = this.editing ? `/api/materials/${this.editing.id}` : '/api/materials/';
-                    const method = this.editing ? 'PUT' : 'POST';
-                    const r = await fetch(url, { method, headers: this.h(), body: JSON.stringify(this.form) });
-                    if (r.ok) {
-                        this.showAdd = false; this.editing = null;
-                        this.form = { title: '', content: '', category: 'cold_email', language: 'en', tags: '' };
-                        await this.loadMaterials(); await this.loadStats();
-                    }
-                },
-
-                async deleteMaterial(id) {
-                    if (!confirm('确定删除？')) return;
-                    await fetch(`/api/materials/${id}`, { method: 'DELETE', headers: this.h() });
-                    await this.loadMaterials(); await this.loadStats();
-                },
-
-                copyToClipboard(m) {
-                    navigator.clipboard.writeText(m.content);
-                    alert('已复制到剪贴板');
-                },
-
-                logout() {
-                    localStorage.removeItem('access_token');
-                    window.location.href = '/login';
-                }
-            };
-        }
-    </script>
 </body>
 </html>

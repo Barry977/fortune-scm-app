@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运 Logo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .icon-wrapper {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        .sunrise-glow {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 30px;
+            background: radial-gradient(ellipse, #fbbf24 0%, transparent 70%);
+            opacity: 0.6;
+        }
+        .plane-icon {
+            position: relative;
+            z-index: 1;
+        }
+        .text-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .brand-name {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+        }
+        .brand-english {
+            font-size: 16px;
+            color: #666;
+            letter-spacing: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="icon-wrapper">
+            <div class="sunrise-glow"></div>
+            <svg class="plane-icon" width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- 抽象飞机线条 -->
+                <path d="M15 45 L40 20 L65 45" stroke="#1a1a1a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M25 40 L40 28 L55 40" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="40" cy="50" r="3" fill="#fbbf24"/>
+                <path d="M35 55 L40 50 L45 55" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="text-section">
+            <span class="brand-name">命运</span>
+            <span class="brand-english">DESTINY</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运 - 配色方案</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #1a1a1a;
+        }
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .color-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .color-preview {
+            height: 80px;
+        }
+        .color-info {
+            padding: 12px;
+        }
+        .color-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .color-value {
+            font-size: 12px;
+            color: #666;
+        }
+        .color-usage {
+            font-size: 11px;
+            color: #999;
+            margin-top: 4px;
+        }
+        .preview-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .preview-card {
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .btn-primary {
+            background: #fbbf24;
+            color: #1a1a1a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-secondary {
+            background: white;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .input-demo {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        .nav-demo {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e5e5;
+        }
+        .nav-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .nav-item.active {
+            background: #fffbeb;
+            border-left: 3px solid #fbbf24;
+        }
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: #e5e5e5;
+            border-radius: 4px;
+        }
+        .nav-text {
+            font-size: 14px;
+            color: #333;
+        }
+        .header-demo {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e5e5;
+            margin-bottom: 20px;
+        }
+        .header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .header-action {
+            background: #fbbf24;
+            color: #1a1a1a;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .table-demo {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .table-demo th,
+        .table-demo td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
+        }
+        .table-demo th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #666;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .card-demo {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e5e5e5;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .card-badge {
+            background: #fbbf24;
+            color: #1a1a1a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .progress-bar {
+            height: 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: #fbbf24;
+            border-radius: 4px;
+            width: 65%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>命运 - 配色方案</h1>
+        
+        <!-- 主色板 -->
+        <div class="section">
+            <div class="section-title">主色板</div>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-preview" style="background: #ffffff;"></div>
+                    <div class="color-info">
+                        <div class="color-name">纯白</div>
+                        <div class="color-value">#FFFFFF</div>
+                        <div class="color-usage">主背景色</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #1a1a1a;"></div>
+                    <div class="color-info">
+                        <div class="color-name">深黑</div>
+                        <div class="color-value">#1A1A1A</div>
+                        <div class="color-usage">主文字、标题</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #fbbf24;"></div>
+                    <div class="color-info">
+                        <div class="color-name">曙光黄</div>
+                        <div class="color-value">#FBBF24</div>
+                        <div class="color-usage">主按钮、强调、图标</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #666666;"></div>
+                    <div class="color-info">
+                        <div class="color-name">中灰</div>
+                        <div class="color-value">#666666</div>
+                        <div class="color-usage">副标题、说明文字</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 辅助色 -->
+        <div class="section">
+            <div class="section-title">辅助色</div>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-preview" style="background: #f5f5f5;"></div>
+                    <div class="color-info">
+                        <div class="color-name">浅灰</div>
+                        <div class="color-value">#F5F5F5</div>
+                        <div class="color-usage">分割线、背景</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #e5e5e5;"></div>
+                    <div class="color-info">
+                        <div class="color-name">边框灰</div>
+                        <div class="color-value">#E5E5E5</div>
+                        <div class="color-usage">边框、分割</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #999999;"></div>
+                    <div class="color-info">
+                        <div class="color-name">浅灰文字</div>
+                        <div class="color-value">#999999</div>
+                        <div class="color-usage">辅助说明、占位符</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #f9fafb;"></div>
+                    <div class="color-info">
+                        <div class="color-name">表头灰</div>
+                        <div class="color-value">#F9FAFB</div>
+                        <div class="color-usage">表格头部背景</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 功能色 -->
+        <div class="section">
+            <div class="section-title">功能色</div>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-preview" style="background: #d1fae5;"></div>
+                    <div class="color-info">
+                        <div class="color-name">成功绿</div>
+                        <div class="color-value">#D1FAE5</div>
+                        <div class="color-usage">成功状态、完成</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #fef3c7;"></div>
+                    <div class="color-info">
+                        <div class="color-name">警告黄</div>
+                        <div class="color-value">#FEF3C7</div>
+                        <div class="color-usage">进行中、待处理</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #fee2e2;"></div>
+                    <div class="color-info">
+                        <div class="color-name">错误红</div>
+                        <div class="color-value">#FEE2E2</div>
+                        <div class="color-usage">错误、失败状态</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-preview" style="background: #dbeafe;"></div>
+                    <div class="color-info">
+                        <div class="color-name">信息蓝</div>
+                        <div class="color-value">#DBEAFE</div>
+                        <div class="color-usage">提示、信息</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- UI 示例 -->
+        <div class="section">
+            <div class="section-title">UI 组件示例</div>
+            <div class="preview-section">
+                <div class="preview-card">
+                    <div class="preview-title">按钮样式</div>
+                    <button class="btn-primary">主要按钮</button>
+                    <button class="btn-secondary">次要按钮</button>
+                </div>
+                <div class="preview-card">
+                    <div class="preview-title">输入框</div>
+                    <input class="input-demo" placeholder="请输入内容..." />
+                    <input class="input-demo" placeholder="搜索客户..." />
+                </div>
+            </div>
+        </div>
+        
+        <!-- 导航栏示例 -->
+        <div class="section">
+            <div class="section-title">左侧导航栏示例</div>
+            <div style="display: flex; gap: 20px;">
+                <div style="width: 200px;">
+                    <div class="nav-demo">
+                        <div class="nav-item active">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">控制面板</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">客户管理</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">LinkedIn</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">邮件营销</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">定时任务</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">素材库</span>
+                        </div>
+                        <div class="nav-item">
+                            <div class="nav-icon"></div>
+                            <span class="nav-text">设置</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="flex: 1;">
+                    <div class="header-demo">
+                        <span class="header-title">控制面板</span>
+                        <button class="header-action">+ 添加客户</button>
+                    </div>
+                    <div class="card-demo">
+                        <div class="card-header">
+                            <span class="card-title">今日任务</span>
+                            <span class="card-badge">进行中</span>
+                        </div>
+                        <div style="font-size: 13px; color: #666; margin-bottom: 10px;">
+                            已完成 65% 的今日任务
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 表格示例 -->
+        <div class="section">
+            <div class="section-title">表格示例</div>
+            <table class="table-demo">
+                <thead>
+                    <tr>
+                        <th>客户名称</th>
+                        <th>邮箱</th>
+                        <th>状态</th>
+                        <th>最后联系</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Smith</td>
+                        <td>john@example.com</td>
+                        <td><span class="status-badge status-active">活跃</span></td>
+                        <td>2026-06-08</td>
+                    </tr>
+                    <tr>
+                        <td>Sarah Johnson</td>
+                        <td>sarah@example.com</td>
+                        <td><span class="status-badge status-pending">待跟进</span></td>
+                        <td>2026-06-07</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

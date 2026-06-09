@@ -3,882 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LinkedIn 自动化 - FORTUNE SCM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>命运 - LinkedIn</title>
     <style>
-        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* 导航栏 - 复用 */
+        .sidebar { width: 220px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .sidebar-logo-icon { width: 36px; height: 36px; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
+        .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title { font-size: 11px; color: #999; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: #666; margin-bottom: 2px; text-decoration: none; }
+        .nav-item:hover { background: #f9fafb; color: #333; }
+        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 500; border-left: 3px solid #fbbf24; }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+        .nav-user { padding: 16px 20px; border-top: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #1a1a1a; font-size: 14px; }
+        .nav-user-info { flex: 1; }
+        .nav-user-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+        .nav-user-role { font-size: 11px; color: #999; }
+        .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
+        .top-bar { background: white; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .page-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+        .top-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary { background: white; color: #1a1a1a; border: 1px solid #e5e5e5; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .content { padding: 24px 32px; flex: 1; }
+        /* Tab 导航 */
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; border-radius: 10px; padding: 4px; border: 1px solid #e5e5e5; width: fit-content; }
+        .tab { padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; color: #666; border: none; background: none; }
+        .tab.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
+        .tab:hover:not(.active) { background: #f9fafb; }
+        /* 统计 */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-mini { background: white; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
+        .stat-mini-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .stat-mini-icon.yellow { background: #fffbeb; }
+        .stat-mini-icon.green { background: #d1fae5; }
+        .stat-mini-icon.blue { background: #dbeafe; }
+        .stat-mini-icon.purple { background: #ede9fe; }
+        .stat-mini-info { flex: 1; }
+        .stat-mini-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .stat-mini-label { font-size: 12px; color: #999; }
+        /* 卡片 */
+        .card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; overflow: hidden; margin-bottom: 20px; }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+        .card-body { padding: 20px; }
+        /* 任务列表 */
+        .task-list { list-style: none; }
+        .task-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+        .task-item:last-child { border-bottom: none; }
+        .task-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .task-icon.add { background: #dbeafe; }
+        .task-icon.message { background: #fef3c7; }
+        .task-icon.post { background: #d1fae5; }
+        .task-info { flex: 1; }
+        .task-name { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+        .task-desc { font-size: 12px; color: #999; }
+        .task-status { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .task-status.running { background: #d1fae5; color: #065f46; }
+        .task-status.paused { background: #f3f4f6; color: #6b7280; }
+        .task-status.pending { background: #fef3c7; color: #92400e; }
+        .task-action { padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid #e5e5e5; background: white; }
+        .task-action:hover { background: #f9fafb; }
+        /* 搜索配置 */
+        .search-config { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .config-group { margin-bottom: 16px; }
+        .config-label { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 6px; display: block; }
+        .config-input { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; outline: none; }
+        .config-input:focus { border-color: #fbbf24; }
+        .config-select { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; outline: none; background: white; }
+        .config-hint { font-size: 11px; color: #999; margin-top: 4px; }
+        /* 活动日志 */
+        .log-list { list-style: none; }
+        .log-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+        .log-item:last-child { border-bottom: none; }
+        .log-time { color: #999; width: 60px; flex-shrink: 0; }
+        .log-icon { width: 20px; flex-shrink: 0; }
+        .log-text { color: #333; }
+        .log-text .highlight { color: #fbbf24; font-weight: 500; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="linkedinApp()">
-    <!-- 导航栏 -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
-                    <span class="ml-4 text-gray-500">LinkedIn 自动化</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900">首页</a>
-                    <button @click="logout()" class="text-gray-600 hover:text-gray-900">退出</button>
-                </div>
+<body>
+    <aside class="sidebar">
+        <a href="/dashboard" class="sidebar-logo">
+            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none"><path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="24" r="2" fill="#fbbf24"/><path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <div class="sidebar-logo-text"><span class="sidebar-brand">命运</span><span class="sidebar-brand-en">DESTINY</span></div>
+        </a>
+        <nav class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">主菜单</div>
+                <a href="/dashboard" class="nav-item"><span class="nav-icon">📊</span><span>控制面板</span></a>
+                <a href="/crm" class="nav-item"><span class="nav-icon">👥</span><span>客户管理</span><span class="nav-badge">128</span></a>
+                <a href="/linkedin" class="nav-item active"><span class="nav-icon">💼</span><span>LinkedIn</span></a>
+                <a href="/email" class="nav-item"><span class="nav-icon">✉️</span><span>邮件营销</span></a>
             </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 额度状态 -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">今日搜索</p>
-                        <p class="text-2xl font-bold text-gray-800">
-                            <span x-text="quota.search_count"></span> / <span x-text="quota.search_limit"></span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full transition-all" :style="`width: ${(quota.search_count/quota.search_limit)*100}%`"></div>
-                    </div>
-                </div>
+            <div class="nav-section">
+                <div class="nav-section-title">自动化</div>
+                <a href="/scheduler" class="nav-item"><span class="nav-icon">⏰</span><span>定时任务</span></a>
+                <a href="/materials" class="nav-item"><span class="nav-icon">📝</span><span>素材库</span></a>
             </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span><span>数据分析</span></a>
+                <a href="/ai_config" class="nav-item"><span class="nav-icon">🤖</span><span>AI 配置</span></a>
+                <a href="/settings" class="nav-item"><span class="nav-icon">⚙️</span><span>设置</span></a>
+            </div>
+        </nav>
+        <div class="nav-user"><div class="nav-avatar">A</div><div class="nav-user-info"><div class="nav-user-name">Admin</div><div class="nav-user-role">管理员</div></div></div>
+    </aside>
 
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">今日加好友</p>
-                        <p class="text-2xl font-bold text-gray-800">
-                            <span x-text="quota.connect_count"></span> / <span x-text="quota.connect_limit"></span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-green-600 h-2 rounded-full transition-all" :style="`width: ${(quota.connect_count/quota.connect_limit)*100}%`"></div>
-                    </div>
-                </div>
+    <main class="main-content">
+        <header class="top-bar">
+            <h1 class="page-title">LinkedIn 自动化</h1>
+            <div class="top-actions">
+                <button class="btn-secondary">📊 查看分析</button>
+                <button class="btn-primary">▶️ 运行任务</button>
+            </div>
+        </header>
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active">自动化任务</button>
+                <button class="tab">搜索配置</button>
+                <button class="tab">发帖管理</button>
+                <button class="tab">活动日志</button>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm text-gray-500">今日发消息</p>
-                        <p class="text-2xl font-bold text-gray-800">
-                            <span x-text="quota.message_count"></span> / <span x-text="quota.message_limit"></span>
-                        </p>
-                    </div>
-                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="mt-2">
-                    <div class="w-full bg-gray-200 rounded-full h-2">
-                        <div class="bg-purple-600 h-2 rounded-full transition-all" :style="`width: ${(quota.message_count/quota.message_limit)*100}%`"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 操作标签页 -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="border-b border-gray-200">
-                <nav class="flex -mb-px">
-                    <button @click="activeTab = 'search'" :class="activeTab === 'search' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        搜索客户
-                    </button>
-                    <button @click="activeTab = 'connect'" :class="activeTab === 'connect' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        加好友
-                    </button>
-                    <button @click="activeTab = 'message'" :class="activeTab === 'message' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        发消息
-                    </button>
-                    <button @click="activeTab = 'tasks'" :class="activeTab === 'tasks' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        任务记录
-                    </button>
-                    <button @click="activeTab = 'post'" :class="activeTab === 'post' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        发图文帖
-                    </button>
-                    <button @click="activeTab = 'ai-content'" :class="activeTab === 'ai-content' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'" class="py-4 px-6 border-b-2 font-medium text-sm">
-                        AI内容生成
-                    </button>
-                </nav>
+            <!-- 统计 -->
+            <div class="stats-row">
+                <div class="stat-mini"><div class="stat-mini-icon yellow">🤝</div><div class="stat-mini-info"><div class="stat-mini-value">156</div><div class="stat-mini-label">总加好友</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon green">✉️</div><div class="stat-mini-info"><div class="stat-mini-value">89</div><div class="stat-mini-label">已发消息</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon blue">📝</div><div class="stat-mini-info"><div class="stat-mini-value">23</div><div class="stat-mini-label">发帖数量</div></div></div>
+                <div class="stat-mini"><div class="stat-mini-icon purple">📈</div><div class="stat-mini-info"><div class="stat-mini-value">34.2%</div><div class="stat-mini-label">通过率</div></div></div>
             </div>
 
-            <!-- 搜索客户 -->
-            <div x-show="activeTab === 'search'" x-cloak class="p-6">
-                <form @submit.prevent="searchPeople()" class="space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">搜索关键词</label>
-                            <input type="text" x-model="searchForm.keywords" placeholder="公司名称、职位等" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">地理位置</label>
-                            <input type="text" x-model="searchForm.location" placeholder="如: United States" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">行业</label>
-                            <input type="text" x-model="searchForm.industry" placeholder="如: Logistics" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">公司规模</label>
-                            <input type="text" x-model="searchForm.company_size" placeholder="如: 51-200" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">最大结果数</label>
-                            <input type="number" x-model="searchForm.max_results" min="1" max="100" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                    <button type="submit" :disabled="loading" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50">
-                        <span x-show="!loading">开始搜索</span>
-                        <span x-show="loading" class="flex items-center">
-                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            搜索中...
-                        </span>
-                    </button>
-                </form>
-
-                <!-- 搜索结果 -->
-                <div x-show="searchResults.length > 0" class="mt-6">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">搜索结果 (<span x-text="searchResults.length"></span>)</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">姓名</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">职位</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">位置</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">连接状态</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                <template x-for="profile in searchResults" :key="profile.profile_url">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900" x-text="profile.name"></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500" x-text="profile.headline || '-'"></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500" x-text="profile.location || '-'"></div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span :class="profile.is_connected ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'" class="px-2 py-1 text-xs font-medium rounded-full" x-text="profile.is_connected ? '已连接' : profile.connection_degree + '度'"></span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a :href="profile.profile_url" target="_blank" class="text-blue-600 hover:text-blue-900 mr-3">查看</a>
-                                            <button @click="addToConnectList(profile.profile_url)" x-show="!profile.is_connected" class="text-green-600 hover:text-green-900">加好友</button>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 加好友 -->
-            <div x-show="activeTab === 'connect'" x-cloak class="p-6">
-                <form @submit.prevent="connectPeople()" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">目标个人主页URL</label>
-                        <textarea x-model="connectForm.profile_urls" rows="4" placeholder="每行一个LinkedIn个人主页URL" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                        <p class="text-sm text-gray-500 mt-1">剩余额度: <span x-text="quota.connect_remaining"></span></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">好友请求附言（可选）</label>
-                        <textarea x-model="connectForm.note" rows="3" maxlength="300" placeholder="个性化附言，提高通过率" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-                    <button type="submit" :disabled="loading" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50">
-                        <span x-show="!loading">批量加好友</span>
-                        <span x-show="loading">处理中...</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- 发消息 -->
-            <div x-show="activeTab === 'message'" x-cloak class="p-6">
-                <form @submit.prevent="sendMessages()" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">好友ID列表</label>
-                        <textarea x-model="messageForm.connection_ids" rows="4" placeholder="每行一个LinkedIn好友ID" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                        <p class="text-sm text-gray-500 mt-1">剩余额度: <span x-text="quota.message_remaining"></span></p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">消息内容</label>
-                        <textarea x-model="messageForm.message" rows="6" maxlength="2000" placeholder="输入要发送的消息内容" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-                    <button type="submit" :disabled="loading" class="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50">
-                        <span x-show="!loading">批量发送</span>
-                        <span x-show="loading">发送中...</span>
-                    </button>
-                </form>
-            </div>
-
-            <!-- 任务记录 -->
-            <div x-show="activeTab === 'tasks'" x-cloak class="p-6">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">任务ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">类型</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">创建时间</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">结果</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template x-for="task in tasks" :key="task.id">
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="task.id"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.action"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span :class="{
-                                            'bg-yellow-100 text-yellow-800': task.status === 'pending',
-                                            'bg-blue-100 text-blue-800': task.status === 'running',
-                                            'bg-green-100 text-green-800': task.status === 'completed',
-                                            'bg-red-100 text-red-800': task.status === 'failed'
-                                        }" class="px-2 py-1 text-xs font-medium rounded-full" x-text="task.status"></span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="new Date(task.created_at).toLocaleString()"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="task.result ? JSON.stringify(task.result) : '-'"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 发图文帖 -->
-            <div x-show="activeTab === 'post'" x-cloak class="p-6">
-                <form @submit.prevent="publishPost()" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">帖子内容</label>
-                        <textarea x-model="postForm.content" rows="8" maxlength="3000" placeholder="输入帖子内容...&#10;&#10;支持 {company} {name} 等变量" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                        <p class="text-sm text-gray-500 mt-1">字数: <span x-text="postForm.content.length"></span> / 3000</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">图片（可选）</label>
-                        <input type="file" @change="handleImageUpload($event)" accept="image/*" multiple class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                        <div x-show="postForm.image_paths.length > 0" class="mt-2 flex flex-wrap gap-2">
-                            <template x-for="(img, idx) in postForm.image_paths" :key="idx">
-                                <span class="inline-flex items-center px-2 py-1 bg-gray-100 rounded text-sm">
-                                    <span x-text="img.split('/').pop()"></span>
-                                    <button @click="removeImage(idx)" class="ml-1 text-red-500 hover:text-red-700">×</button>
-                                </span>
-                            </template>
-                        </div>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <button type="submit" :disabled="loading || !postForm.content" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md disabled:opacity-50">
-                            <span x-show="!loading">发布帖子</span>
-                            <span x-show="loading" class="flex items-center">
-                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                发布中...
-                            </span>
-                        </button>
-                        <button @click="loadPosts()" type="button" class="text-gray-600 hover:text-gray-800">刷新历史</button>
-                    </div>
-                </form>
-
-                <!-- 帖子历史 -->
-                <div class="mt-8">
-                    <h3 class="text-lg font-medium text-gray-800 mb-4">发布历史</h3>
-                    <div x-show="posts.length === 0" class="text-gray-500 text-sm">暂无发布记录</div>
-                    <div class="space-y-4">
-                        <template x-for="post in posts" :key="post.id">
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div class="flex-1">
-                                        <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="post.content.substring(0, 200) + (post.content.length > 200 ? '...' : '')"></p>
-                                        <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                                            <span :class="{
-                                                'bg-green-100 text-green-800': post.status === 'published',
-                                                'bg-yellow-100 text-yellow-800': post.status === 'draft',
-                                                'bg-red-100 text-red-800': post.status === 'failed'
-                                            }" class="px-2 py-1 rounded-full" x-text="post.status === 'published' ? '已发布' : post.status === 'draft' ? '草稿' : '失败'"></span>
-                                            <span x-text="new Date(post.created_at).toLocaleString()"></span>
-                                            <span x-show="post.likes_count > 0">👍 <span x-text="post.likes_count"></span></span>
-                                            <span x-show="post.comments_count > 0">💬 <span x-text="post.comments_count"></span></span>
-                                            <span x-show="post.views_count > 0">👁 <span x-text="post.views_count"></span></span>
-                                        </div>
-                                    </div>
-                                    <button @click="deletePost(post.id)" class="ml-4 text-red-500 hover:text-red-700 text-sm">删除</button>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AI内容生成 -->
-            <div x-show="activeTab === 'ai-content'" x-cloak class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- 生成帖子 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4">🤖 AI 生成 LinkedIn 帖子</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">主题（可选）</label>
-                                <input type="text" x-model="aiPostForm.topic" placeholder="如: ocean freight rates" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">风格</label>
-                                <select x-model="aiPostForm.style" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                    <option value="professional">专业</option>
-                                    <option value="thought_leadership">思想领导力</option>
-                                    <option value="tips">实用技巧</option>
-                                    <option value="story">故事型</option>
-                                </select>
-                            </div>
-                            <button @click="generateAIPost()" :disabled="aiLoading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md disabled:opacity-50">
-                                <span x-show="!aiLoading">生成帖子</span>
-                                <span x-show="aiLoading">生成中...</span>
-                            </button>
-                            <div x-show="aiGeneratedPost" class="mt-3 p-3 bg-gray-50 rounded">
-                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedPost"></p>
-                                <button @click="copyToClipboard(aiGeneratedPost)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 生成开发信 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4">📧 AI 生成开发信</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">目标公司</label>
-                                <input type="text" x-model="aiEmailForm.company_name" placeholder="如: Amazon" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">联系人职位</label>
-                                <input type="text" x-model="aiEmailForm.contact_title" placeholder="如: Supply Chain Manager" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">补充信息</label>
-                                <textarea x-model="aiEmailForm.context" rows="2" placeholder="如: 他们刚扩展了欧洲市场" class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
-                            </div>
-                            <button @click="generateAIEmail()" :disabled="aiLoading" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md disabled:opacity-50">
-                                <span x-show="!aiLoading">生成开发信</span>
-                                <span x-show="aiLoading">生成中...</span>
-                            </button>
-                            <div x-show="aiGeneratedEmail" class="mt-3 p-3 bg-gray-50 rounded">
-                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedEmail"></p>
-                                <button @click="copyToClipboard(aiGeneratedEmail)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 生成回复 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4">💬 AI 生成回复</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">客户消息</label>
-                                <textarea x-model="aiReplyForm.original_message" rows="3" placeholder="粘贴客户的消息..." class="w-full px-3 py-2 border border-gray-300 rounded-md"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">语气</label>
-                                <select x-model="aiReplyForm.tone" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                    <option value="professional">专业</option>
-                                    <option value="friendly">友好</option>
-                                    <option value="formal">正式</option>
-                                </select>
-                            </div>
-                            <button @click="generateAIReply()" :disabled="aiLoading" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-md disabled:opacity-50">
-                                <span x-show="!aiLoading">生成回复</span>
-                                <span x-show="aiLoading">生成中...</span>
-                            </button>
-                            <div x-show="aiGeneratedReply" class="mt-3 p-3 bg-gray-50 rounded">
-                                <p class="text-sm text-gray-800 whitespace-pre-wrap" x-text="aiGeneratedReply"></p>
-                                <button @click="copyToClipboard(aiGeneratedReply)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 生成连接请求 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-lg font-medium text-gray-800 mb-4">🤝 AI 生成连接请求</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">对方姓名</label>
-                                <input type="text" x-model="aiNoteForm.person_name" placeholder="John Smith" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">职位</label>
-                                <input type="text" x-model="aiNoteForm.person_title" placeholder="Logistics Director" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">公司</label>
-                                <input type="text" x-model="aiNoteForm.person_company" placeholder="DHL" class="w-full px-3 py-2 border border-gray-300 rounded-md">
-                            </div>
-                            <button @click="generateAINote()" :disabled="aiLoading" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md disabled:opacity-50">
-                                <span x-show="!aiLoading">生成连接请求</span>
-                                <span x-show="aiLoading">生成中...</span>
-                            </button>
-                            <div x-show="aiGeneratedNote" class="mt-3 p-3 bg-gray-50 rounded">
-                                <p class="text-sm text-gray-800" x-text="aiGeneratedNote"></p>
-                                <button @click="copyToClipboard(aiGeneratedNote)" class="mt-2 text-blue-600 hover:text-blue-800 text-sm">复制</button>
-                            </div>
-                        </div>
+            <div class="content-grid">
+                <!-- 自动化任务 -->
+                <div class="card">
+                    <div class="card-header"><span class="card-title">自动化任务</span></div>
+                    <div class="card-body">
+                        <ul class="task-list">
+                            <li class="task-item">
+                                <div class="task-icon add">🤝</div>
+                                <div class="task-info"><div class="task-name">自动加好友</div><div class="task-desc">每日随机 10-15 个，按目标时区上午执行</div></div>
+                                <span class="task-status running">运行中</span>
+                                <button class="task-action">暂停</button>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-icon message">✉️</div>
+                                <div class="task-info"><div class="task-name">自动发消息</div><div class="task-desc">通过好友后自动发送 AI 开发信</div></div>
+                                <span class="task-status running">运行中</span>
+                                <button class="task-action">暂停</button>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-icon post">📝</div>
+                                <div class="task-info"><div class="task-name">自动发帖</div><div class="task-desc">AI 生成内容，每日发布 1 篇</div></div>
+                                <span class="task-status paused">已暂停</span>
+                                <button class="task-action">启动</button>
+                            </li>
+                            <li class="task-item">
+                                <div class="task-icon add">🔍</div>
+                                <div class="task-info"><div class="task-name">自动搜索导入</div><div class="task-desc">搜索 buyer/importer/wholesaler 并导入 CRM</div></div>
+                                <span class="task-status pending">待执行</span>
+                                <button class="task-action">启动</button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- 每日内容计划 -->
-                <div class="mt-6 border border-gray-200 rounded-lg p-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-800">📅 AI 每日内容计划</h3>
-                        <button @click="generateDailyPlan()" :disabled="aiLoading" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md disabled:opacity-50">
-                            <span x-show="!aiLoading">生成今日计划</span>
-                            <span x-show="aiLoading">生成中...</span>
-                        </button>
-                    </div>
-                    <div x-show="dailyPlan" class="space-y-4">
-                        <div>
-                            <h4 class="font-medium text-gray-700">LinkedIn 帖子</h4>
-                            <p class="text-sm text-gray-600 whitespace-pre-wrap mt-1" x-text="dailyPlan.linkedin_post"></p>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-700">连接请求模板</h4>
-                            <ul class="list-disc list-inside text-sm text-gray-600 mt-1">
-                                <template x-for="note in dailyPlan.connection_notes">
-                                    <li x-text="note"></li>
-                                </template>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 class="font-medium text-gray-700">开发信模板</h4>
-                            <div class="space-y-2 mt-1">
-                                <template x-for="(email, idx) in dailyPlan.outreach_emails">
-                                    <div class="p-2 bg-gray-50 rounded text-sm">
-                                        <p class="font-medium">邮件 #<span x-text="idx + 1"></span></p>
-                                        <p class="text-gray-600 whitespace-pre-wrap" x-text="email"></p>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
+                <!-- 今日活动日志 -->
+                <div class="card">
+                    <div class="card-header"><span class="card-title">今日活动</span></div>
+                    <div class="card-body">
+                        <ul class="log-list">
+                            <li class="log-item"><span class="log-time">10:00</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">John Smith</span> 发送好友请求</span></li>
+                            <li class="log-item"><span class="log-time">10:02</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Sarah Johnson</span> 发送好友请求</span></li>
+                            <li class="log-item"><span class="log-time">10:05</span><span class="log-icon">✉️</span><span class="log-text">向 <span class="highlight">Michael Chen</span> 发送开发信</span></li>
+                            <li class="log-item"><span class="log-time">10:08</span><span class="log-icon">✅</span><span class="log-text"><span class="highlight">Emma Wilson</span> 通过了好友请求</span></li>
+                            <li class="log-item"><span class="log-time">10:10</span><span class="log-icon">✉️</span><span class="log-text">向 <span class="highlight">Emma Wilson</span> 发送开发信</span></li>
+                            <li class="log-item"><span class="log-time">11:30</span><span class="log-icon">📝</span><span class="log-text">AI 生成帖子《5 Tips for International Logistics》</span></li>
+                            <li class="log-item"><span class="log-time">14:00</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Ahmed Khan</span> 发送好友请求</span></li>
+                            <li class="log-item"><span class="log-time">14:03</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Lisa Rodriguez</span> 发送好友请求</span></li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-        <div x-show="error" x-cloak class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-            <span x-text="error"></span>
-            <button @click="error = null" class="ml-2 text-red-500 hover:text-red-700">×</button>
-        </div>
-    </div>
-
-    <script>
-        function linkedinApp() {
-            return {
-                activeTab: 'search',
-                loading: false,
-                error: null,
-                quota: {
-                    search_count: 0,
-                    search_limit: 100,
-                    connect_count: 0,
-                    connect_limit: 20,
-                    message_count: 0,
-                    message_limit: 50,
-                    search_remaining: 100,
-                    connect_remaining: 20,
-                    message_remaining: 50
-                },
-                searchForm: {
-                    keywords: '',
-                    location: '',
-                    industry: '',
-                    company_size: '',
-                    max_results: 50
-                },
-                connectForm: {
-                    profile_urls: '',
-                    note: '',
-                    max_daily: 20
-                },
-                messageForm: {
-                    connection_ids: '',
-                    message: '',
-                    max_daily: 50
-                },
-                postForm: {
-                    content: '',
-                    image_paths: []
-                },
-                aiPostForm: {
-                    topic: '',
-                    style: 'professional'
-                },
-                aiEmailForm: {
-                    company_name: '',
-                    contact_title: '',
-                    context: ''
-                },
-                aiReplyForm: {
-                    original_message: '',
-                    tone: 'professional'
-                },
-                aiNoteForm: {
-                    person_name: '',
-                    person_title: '',
-                    person_company: ''
-                },
-                aiLoading: false,
-                aiGeneratedPost: '',
-                aiGeneratedEmail: '',
-                aiGeneratedReply: '',
-                aiGeneratedNote: '',
-                dailyPlan: null,
-                searchResults: [],
-                tasks: [],
-                posts: [],
-
-                async init() {
-                    await this.loadQuota();
-                    await this.loadPosts();
-                },
-
-                async loadQuota() {
-                    try {
-                        const response = await fetch('/api/linkedin/quota', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            this.quota = await response.json();
-                        }
-                    } catch (e) {
-                        console.error('加载额度失败:', e);
-                    }
-                },
-
-                async searchPeople() {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const response = await fetch('/api/linkedin/search', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.searchForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.searchResults = data;
-                            await this.loadQuota();
-                        } else {
-                            this.error = data.detail || '搜索失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async connectPeople() {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const urls = this.connectForm.profile_urls.split('\n').filter(u => u.trim());
-                        const response = await fetch('/api/linkedin/connect', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify({
-                                ...this.connectForm,
-                                profile_urls: urls
-                            })
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            await this.loadQuota();
-                            alert(`成功: ${data.success.length}, 失败: ${data.failed.length}, 跳过: ${data.skipped.length}`);
-                        } else {
-                            this.error = data.detail || '加好友失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async sendMessages() {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const ids = this.messageForm.connection_ids.split('\n').filter(i => i.trim());
-                        const response = await fetch('/api/linkedin/message', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify({
-                                ...this.messageForm,
-                                connection_ids: ids
-                            })
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            await this.loadQuota();
-                            alert(`成功: ${data.success.length}, 失败: ${data.failed.length}, 跳过: ${data.skipped.length}`);
-                        } else {
-                            this.error = data.detail || '发送失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                addToConnectList(url) {
-                    if (!this.connectForm.profile_urls.includes(url)) {
-                        this.connectForm.profile_urls += (this.connectForm.profile_urls ? '\n' : '') + url;
-                        this.activeTab = 'connect';
-                    }
-                },
-
-                async publishPost() {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const response = await fetch('/api/linkedin/post', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.postForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok && data.success) {
-                            alert('帖子发布成功！');
-                            this.postForm = { content: '', image_paths: [] };
-                            await this.loadPosts();
-                        } else {
-                            this.error = data.message || '发布失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async loadPosts() {
-                    try {
-                        const response = await fetch('/api/linkedin/posts', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            const data = await response.json();
-                            this.posts = data.posts || [];
-                        }
-                    } catch (e) {
-                        console.error('加载帖子失败:', e);
-                    }
-                },
-
-                async deletePost(postId) {
-                    if (!confirm('确定删除这条帖子记录？')) return;
-                    try {
-                        const response = await fetch(`/api/linkedin/posts/${postId}`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            await this.loadPosts();
-                        }
-                    } catch (e) {
-                        this.error = '删除失败: ' + e.message;
-                    }
-                },
-
-                handleImageUpload(event) {
-                    const files = event.target.files;
-                    for (let i = 0; i < files.length; i++) {
-                        // Store file name for display (actual upload happens on server)
-                        this.postForm.image_paths.push(files[i].name);
-                    }
-                },
-
-                removeImage(index) {
-                    this.postForm.image_paths.splice(index, 1);
-                },
-
-                async generateAIPost() {
-                    this.aiLoading = true;
-                    this.aiGeneratedPost = '';
-                    try {
-                        const response = await fetch('/api/ai-content/generate-post', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.aiPostForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.aiGeneratedPost = data.content;
-                        } else {
-                            this.error = data.detail || 'AI生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
-
-                async generateAIEmail() {
-                    this.aiLoading = true;
-                    this.aiGeneratedEmail = '';
-                    try {
-                        const response = await fetch('/api/ai-content/generate-email', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.aiEmailForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.aiGeneratedEmail = data.content;
-                        } else {
-                            this.error = data.detail || 'AI生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
-
-                async generateAIReply() {
-                    this.aiLoading = true;
-                    this.aiGeneratedReply = '';
-                    try {
-                        const response = await fetch('/api/ai-content/generate-reply', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.aiReplyForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.aiGeneratedReply = data.content;
-                        } else {
-                            this.error = data.detail || 'AI生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
-
-                async generateAINote() {
-                    this.aiLoading = true;
-                    this.aiGeneratedNote = '';
-                    try {
-                        const response = await fetch('/api/ai-content/generate-note', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.aiNoteForm)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.aiGeneratedNote = data.content;
-                        } else {
-                            this.error = data.detail || 'AI生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
-
-                async generateDailyPlan() {
-                    this.aiLoading = true;
-                    this.dailyPlan = null;
-                    try {
-                        const response = await fetch('/api/ai-content/daily-plan', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            this.dailyPlan = data;
-                        } else {
-                            this.error = data.detail || 'AI生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.aiLoading = false;
-                    }
-                },
-
-                copyToClipboard(text) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        alert('已复制到剪贴板');
-                    }).catch(() => {
-                        // Fallback
-                        const textarea = document.createElement('textarea');
-                        textarea.value = text;
-                        document.body.appendChild(textarea);
-                        textarea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textarea);
-                        alert('已复制到剪贴板');
-                    });
-                },
-
-                logout() {
-                    localStorage.clear();
-                    window.location.href = '/login.html';
-                }
-            }
-        }
-    </script>
+    </main>
 </body>
 </html>

@@ -1,8 +1,8 @@
-name: Build Fortune SCM
+name: Build 命运 (DESTINY) Desktop App
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -10,389 +10,57 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: '3.12'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install pyinstaller
-          pip install fastapi uvicorn[standard] python-multipart httpx jinja2 python-dotenv apscheduler pywebview
-      
-      - name: Build with PyInstaller
-        shell: bash
+
+      - name: Build Windows app
+        run: python build.py
+
+      - name: Create zip package
+        shell: pwsh
         run: |
-          pyinstaller --onefile --name FortuneSCM \
-            --add-data "frontend;frontend" \
-            --add-data "backend;backend" \
-            --hidden-import=uvicorn \
-            --hidden-import=uvicorn.logging \
-            --hidden-import=uvicorn.loops \
-            --hidden-import=uvicorn.loops.auto \
-            --hidden-import=uvicorn.protocols \
-            --hidden-import=uvicorn.protocols.http \
-            --hidden-import=uvicorn.protocols.http.auto \
-            --hidden-import=uvicorn.protocols.http.h11_impl \
-            --hidden-import=uvicorn.protocols.http.httptools_impl \
-            --hidden-import=uvicorn.protocols.websockets \
-            --hidden-import=uvicorn.protocols.websockets.auto \
-            --hidden-import=uvicorn.lifespan \
-            --hidden-import=uvicorn.lifespan.on \
-            --hidden-import=uvicorn.lifespan.off \
-            --hidden-import=fastapi \
-            --hidden-import=fastapi.responses \
-            --hidden-import=fastapi.staticfiles \
-            --hidden-import=fastapi.middleware.cors \
-            --hidden-import=starlette \
-            --hidden-import=starlette.responses \
-            --hidden-import=starlette.staticfiles \
-            --hidden-import=starlette.middleware.cors \
-            --hidden-import=starlette.routing \
-            --hidden-import=h11 \
-            --hidden-import=httptools \
-            --hidden-import=click \
-            --hidden-import=anyio \
-            --hidden-import=sniffio \
-            --hidden-import=pydantic \
-            --hidden-import=multipart \
-            --hidden-import=webbrowser \
-            --hidden-import=jinja2 \
-            --hidden-import=apscheduler \
-            --hidden-import=webview \
-            --hidden-import=webview.platforms \
-            --hidden-import=webview.platforms.winforms \
-            --hidden-import=webview.platforms.cocoa \
-            --hidden-import=webview.platforms.gtk \
-            --hidden-import=clr_loader \
-            --hidden-import=pythonnet \
-            --hidden-import=httpx \
-            --hidden-import=httpx._client \
-            --hidden-import=httpx._models \
-            --hidden-import=httpx._auth \
-            --hidden-import=httpx._config \
-            --hidden-import=httpx._decoders \
-            --hidden-import=httpx._exceptions \
-            --hidden-import=httpx._multipart \
-            --hidden-import=httpx._status_codes \
-            --hidden-import=httpx._transports \
-            --hidden-import=httpx._transports.default \
-            --hidden-import=httpx._transports.mock \
-            --hidden-import=smtplib \
-            --hidden-import=email \
-            --hidden-import=email.mime \
-            --hidden-import=email.mime.text \
-            --hidden-import=email.mime.multipart \
-            --hidden-import=contextlib \
-            --hidden-import=typing \
-            --hidden-import=sqlite3 \
-            --hidden-import=_sqlite3 \
-            --hidden-import=json \
-            --hidden-import=datetime \
-            --hidden-import=logging \
-            --hidden-import=email \
-            --hidden-import=smtplib \
-            --hidden-import=socket \
-            --hidden-import=ssl \
-            --hidden-import=threading \
-            --hidden-import=asyncio \
-            --hidden-import=database \
-            --hidden-import=models \
-            --hidden-import=routes \
-            --hidden-import=routes.linkedin \
-            --hidden-import=routes.materials \
-            --hidden-import=routes.content \
-            --hidden-import=routes.email \
-            --hidden-import=routes.stats \
-            --hidden-import=routes.settings \
-            --hidden-import=services \
-            --hidden-import=services.ai_service \
-            --hidden-import=services.email_service \
-            --hidden-import=services.linkedin_service \
-            --exclude-module=playwright \
-            --exclude-module=tkinter \
-            --exclude-module=matplotlib \
-            --exclude-module=numpy \
-            start.py
-      
-      - name: Verify build
-        shell: bash
-        run: ls -la dist/FortuneSCM.exe
-      
-      - name: Upload artifact
+          if (Test-Path "dist/命运") {
+            Compress-Archive -Path "dist/命运/*" -DestinationPath "dist/Destiny-Windows.zip"
+          }
+
+      - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
-          name: FortuneSCM-Windows
-          path: dist/FortuneSCM.exe
+          name: Destiny-Windows
+          path: dist/Destiny-Windows.zip
+          if-no-files-found: warn
 
   build-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      
+          python-version: '3.12'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install pyinstaller
-          pip install fastapi "uvicorn[standard]" python-multipart httpx jinja2 python-dotenv apscheduler pywebview
-      
-      - name: Build with PyInstaller
-        run: |
-          pyinstaller --onefile --name FortuneSCM \
-            --add-data "frontend:frontend" \
-            --add-data "backend:backend" \
-            --hidden-import=uvicorn \
-            --hidden-import=uvicorn.logging \
-            --hidden-import=uvicorn.loops \
-            --hidden-import=uvicorn.loops.auto \
-            --hidden-import=uvicorn.protocols \
-            --hidden-import=uvicorn.protocols.http \
-            --hidden-import=uvicorn.protocols.http.auto \
-            --hidden-import=uvicorn.protocols.http.h11_impl \
-            --hidden-import=uvicorn.protocols.http.httptools_impl \
-            --hidden-import=uvicorn.protocols.websockets \
-            --hidden-import=uvicorn.protocols.websockets.auto \
-            --hidden-import=uvicorn.lifespan \
-            --hidden-import=uvicorn.lifespan.on \
-            --hidden-import=uvicorn.lifespan.off \
-            --hidden-import=fastapi \
-            --hidden-import=fastapi.responses \
-            --hidden-import=fastapi.staticfiles \
-            --hidden-import=fastapi.middleware.cors \
-            --hidden-import=starlette \
-            --hidden-import=starlette.responses \
-            --hidden-import=starlette.staticfiles \
-            --hidden-import=starlette.middleware.cors \
-            --hidden-import=starlette.routing \
-            --hidden-import=h11 \
-            --hidden-import=httptools \
-            --hidden-import=click \
-            --hidden-import=anyio \
-            --hidden-import=sniffio \
-            --hidden-import=pydantic \
-            --hidden-import=multipart \
-            --hidden-import=webbrowser \
-            --hidden-import=jinja2 \
-            --hidden-import=apscheduler \
-            --hidden-import=webview \
-            --hidden-import=webview.platforms \
-            --hidden-import=webview.platforms.winforms \
-            --hidden-import=webview.platforms.cocoa \
-            --hidden-import=webview.platforms.gtk \
-            --hidden-import=clr_loader \
-            --hidden-import=pythonnet \
-            --hidden-import=httpx \
-            --hidden-import=httpx._client \
-            --hidden-import=httpx._models \
-            --hidden-import=httpx._auth \
-            --hidden-import=httpx._config \
-            --hidden-import=httpx._decoders \
-            --hidden-import=httpx._exceptions \
-            --hidden-import=httpx._multipart \
-            --hidden-import=httpx._status_codes \
-            --hidden-import=httpx._transports \
-            --hidden-import=httpx._transports.default \
-            --hidden-import=httpx._transports.mock \
-            --hidden-import=smtplib \
-            --hidden-import=email \
-            --hidden-import=email.mime \
-            --hidden-import=email.mime.text \
-            --hidden-import=email.mime.multipart \
-            --hidden-import=contextlib \
-            --hidden-import=typing \
-            --hidden-import=sqlite3 \
-            --hidden-import=_sqlite3 \
-            --hidden-import=json \
-            --hidden-import=datetime \
-            --hidden-import=logging \
-            --hidden-import=email \
-            --hidden-import=smtplib \
-            --hidden-import=socket \
-            --hidden-import=ssl \
-            --hidden-import=threading \
-            --hidden-import=asyncio \
-            --hidden-import=database \
-            --hidden-import=models \
-            --hidden-import=routes \
-            --hidden-import=routes.linkedin \
-            --hidden-import=routes.materials \
-            --hidden-import=routes.content \
-            --hidden-import=routes.email \
-            --hidden-import=routes.stats \
-            --hidden-import=routes.settings \
-            --hidden-import=services \
-            --hidden-import=services.ai_service \
-            --hidden-import=services.email_service \
-            --hidden-import=services.linkedin_service \
-            --exclude-module=playwright \
-            --exclude-module=tkinter \
-            --exclude-module=matplotlib \
-            --exclude-module=numpy \
-            start.py
-      
-      - name: Upload artifact
+
+      - name: Build macOS app
+        run: python build.py
+
+      - name: Upload macOS build
         uses: actions/upload-artifact@v4
         with:
-          name: FortuneSCM-macOS
-          path: dist/FortuneSCM
-
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install fastapi "uvicorn[standard]" python-multipart httpx jinja2 python-dotenv apscheduler pywebview
-      
-      - name: Build with PyInstaller
-        run: |
-          pyinstaller --onefile --name FortuneSCM \
-            --add-data "frontend:frontend" \
-            --add-data "backend:backend" \
-            --hidden-import=uvicorn \
-            --hidden-import=uvicorn.logging \
-            --hidden-import=uvicorn.loops \
-            --hidden-import=uvicorn.loops.auto \
-            --hidden-import=uvicorn.protocols \
-            --hidden-import=uvicorn.protocols.http \
-            --hidden-import=uvicorn.protocols.http.auto \
-            --hidden-import=uvicorn.protocols.http.h11_impl \
-            --hidden-import=uvicorn.protocols.http.httptools_impl \
-            --hidden-import=uvicorn.protocols.websockets \
-            --hidden-import=uvicorn.protocols.websockets.auto \
-            --hidden-import=uvicorn.lifespan \
-            --hidden-import=uvicorn.lifespan.on \
-            --hidden-import=uvicorn.lifespan.off \
-            --hidden-import=fastapi \
-            --hidden-import=fastapi.responses \
-            --hidden-import=fastapi.staticfiles \
-            --hidden-import=fastapi.middleware.cors \
-            --hidden-import=starlette \
-            --hidden-import=starlette.responses \
-            --hidden-import=starlette.staticfiles \
-            --hidden-import=starlette.middleware.cors \
-            --hidden-import=starlette.routing \
-            --hidden-import=h11 \
-            --hidden-import=httptools \
-            --hidden-import=click \
-            --hidden-import=anyio \
-            --hidden-import=sniffio \
-            --hidden-import=pydantic \
-            --hidden-import=multipart \
-            --hidden-import=webbrowser \
-            --hidden-import=jinja2 \
-            --hidden-import=apscheduler \
-            --hidden-import=webview \
-            --hidden-import=webview.platforms \
-            --hidden-import=webview.platforms.winforms \
-            --hidden-import=webview.platforms.cocoa \
-            --hidden-import=webview.platforms.gtk \
-            --hidden-import=clr_loader \
-            --hidden-import=pythonnet \
-            --hidden-import=httpx \
-            --hidden-import=httpx._client \
-            --hidden-import=httpx._models \
-            --hidden-import=httpx._auth \
-            --hidden-import=httpx._config \
-            --hidden-import=httpx._decoders \
-            --hidden-import=httpx._exceptions \
-            --hidden-import=httpx._multipart \
-            --hidden-import=httpx._status_codes \
-            --hidden-import=httpx._transports \
-            --hidden-import=httpx._transports.default \
-            --hidden-import=httpx._transports.mock \
-            --hidden-import=smtplib \
-            --hidden-import=email \
-            --hidden-import=email.mime \
-            --hidden-import=email.mime.text \
-            --hidden-import=email.mime.multipart \
-            --hidden-import=contextlib \
-            --hidden-import=typing \
-            --hidden-import=sqlite3 \
-            --hidden-import=_sqlite3 \
-            --hidden-import=json \
-            --hidden-import=datetime \
-            --hidden-import=logging \
-            --hidden-import=email \
-            --hidden-import=smtplib \
-            --hidden-import=socket \
-            --hidden-import=ssl \
-            --hidden-import=threading \
-            --hidden-import=asyncio \
-            --hidden-import=database \
-            --hidden-import=models \
-            --hidden-import=routes \
-            --hidden-import=routes.linkedin \
-            --hidden-import=routes.materials \
-            --hidden-import=routes.content \
-            --hidden-import=routes.email \
-            --hidden-import=routes.stats \
-            --hidden-import=routes.settings \
-            --hidden-import=services \
-            --hidden-import=services.ai_service \
-            --hidden-import=services.email_service \
-            --hidden-import=services.linkedin_service \
-            --exclude-module=playwright \
-            --exclude-module=tkinter \
-            --exclude-module=matplotlib \
-            --exclude-module=numpy \
-            start.py
-      
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: FortuneSCM-Linux
-          path: dist/FortuneSCM
-
-  release:
-    needs: [build-windows, build-macos, build-linux]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    permissions:
-      contents: write
-    steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Prepare release assets
-        run: |
-          cd artifacts
-          zip -r ../FortuneSCM-Windows.zip FortuneSCM-Windows/
-          zip -r ../FortuneSCM-macOS.zip FortuneSCM-macOS/
-          zip -r ../FortuneSCM-Linux.zip FortuneSCM-Linux/
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Fortune SCM Build ${{ github.run_number }}
-          body: |
-            Fortune SCM App - 自动构建版本
-            
-            ## 下载
-            - **Windows**: 下载 `FortuneSCM-Windows.zip`，解压后运行 `FortuneSCM.exe`
-            - **macOS**: 下载 `FortuneSCM-macOS.zip`，解压后运行 `FortuneSCM`
-            - **Linux**: 下载 `FortuneSCM-Linux.zip`，解压后运行 `./FortuneSCM`
-          files: |
-            FortuneSCM-Windows.zip
-            FortuneSCM-macOS.zip
-            FortuneSCM-Linux.zip
-          draft: false
-          prerelease: false
+          name: Destiny-macOS
+          path: dist/Destiny-Installer.dmg
+          if-no-files-found: warn

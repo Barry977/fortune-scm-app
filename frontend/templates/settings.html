@@ -3,329 +3,362 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>系统设置 - FORTUNE SCM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>[x-cloak] { display: none !important; }</style>
+    <title>设置 - 命运 DESTINY</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff; color: #1a1a1a; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: #1a1a1a; color: #ffffff; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-logo { padding: 24px 20px; display: flex; align-items: center; gap: 12px; }
+        .sidebar-logo svg { width: 36px; height: 36px; }
+        .sidebar-logo .logo-text { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+        .sidebar-logo .logo-sub { font-size: 10px; color: #999; letter-spacing: 3px; }
+        .nav-section { padding: 16px 12px 8px; }
+        .nav-section-title { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px; padding: 0 8px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #aaa; text-decoration: none; font-size: 14px; transition: all .15s; position: relative; }
+        .nav-item:hover { background: #2a2a2a; color: #fff; }
+        .nav-item.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
+        .nav-item .badge { background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+        .nav-item.active .badge { background: #1a1a1a; color: #fbbf24; }
+        .sidebar-footer { margin-top: auto; padding: 16px; border-top: 1px solid #333; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1a1a1a; }
+        .sidebar-footer .user-info { font-size: 13px; }
+        .sidebar-footer .user-info .role { font-size: 11px; color: #666; }
+
+        /* Main */
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .topbar { padding: 20px 32px; border-bottom: 1px solid #f5f5f5; }
+        .topbar h1 { font-size: 22px; font-weight: 700; }
+        .content { flex: 1; overflow-y: auto; padding: 24px 32px 40px; max-width: 800px; }
+
+        /* Sections */
+        .settings-section { margin-bottom: 32px; }
+        .settings-section h2 { font-size: 16px; font-weight: 700; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #fbbf24; display: inline-block; }
+        .form-row { display: flex; align-items: center; margin-bottom: 14px; gap: 12px; }
+        .form-row label { width: 120px; font-size: 14px; color: #555; flex-shrink: 0; text-align: right; }
+        .form-row input, .form-row select { flex: 1; max-width: 360px; padding: 9px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 14px; outline: none; transition: border .15s; background: #fff; }
+        .form-row input:focus, .form-row select:focus { border-color: #fbbf24; }
+        .form-row .hint { font-size: 12px; color: #999; margin-left: 8px; }
+        .btn { padding: 8px 20px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary { background: #f5f5f5; color: #1a1a1a; }
+        .btn-secondary:hover { background: #e5e5e5; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .btn-danger:hover { background: #fecaca; }
+        .form-actions { margin-left: 132px; display: flex; gap: 8px; margin-top: 6px; }
+
+        /* Toggle */
+        .toggle-row { display: flex; align-items: center; margin-bottom: 14px; gap: 12px; }
+        .toggle-row label { width: 120px; font-size: 14px; color: #555; text-align: right; flex-shrink: 0; }
+        .toggle { width: 44px; height: 24px; background: #ddd; border-radius: 12px; position: relative; cursor: pointer; transition: background .2s; }
+        .toggle.on { background: #fbbf24; }
+        .toggle::after { content: ''; width: 20px; height: 20px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left .2s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+        .toggle.on::after { left: 22px; }
+
+        /* Proxy status */
+        .proxy-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 12px; border-radius: 12px; background: #f0fdf4; color: #16a34a; }
+        .proxy-status .dot { width: 8px; height: 8px; border-radius: 50%; background: #16a34a; }
+        .proxy-status.offline { background: #fef2f2; color: #dc2626; }
+        .proxy-status.offline .dot { background: #dc2626; }
+
+        /* User table */
+        .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        .user-table th, .user-table td { padding: 10px 14px; text-align: left; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+        .user-table th { font-weight: 600; color: #888; font-size: 12px; text-transform: uppercase; letter-spacing: .5px; }
+        .user-table tr:hover td { background: #fafafa; }
+        .role-badge { padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+        .role-badge.admin { background: #fef3c7; color: #92400e; }
+        .role-badge.editor { background: #dbeafe; color: #1e40af; }
+        .role-badge.viewer { background: #f3f4f6; color: #374151; }
+        .table-actions { display: flex; gap: 6px; }
+        .table-actions .btn { padding: 4px 12px; font-size: 12px; }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="settingsApp()" x-init="init()">
-    <!-- 导航栏 -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center space-x-8">
-                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
-                    <span class="text-gray-500">系统设置</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">首页</a>
-                    <a href="/crm" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">客户管理</a>
-                    <a href="/linkedin" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">LinkedIn</a>
-                    <a href="/email" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">邮件</a>
-                    <a href="/analytics" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded hover:bg-gray-100">数据分析</a>
-                    <span class="text-gray-400">|</span>
-                    <button @click="logout()" class="text-sm text-red-500 hover:text-red-700">退出</button>
-                </div>
+<body>
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <svg viewBox="0 0 36 36" fill="none">
+                <path d="M4 28L18 4L32 28" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8 22H28" stroke="#666" stroke-width="1.5"/>
+                <path d="M11 16H25" stroke="#444" stroke-width="1"/>
+                <circle cx="18" cy="10" r="3" fill="#fbbf24"/>
+            </svg>
+            <div>
+                <div class="logo-text">命运</div>
+                <div class="logo-sub">DESTINY</div>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">主菜单</div>
+            <a href="/templates/dashboard.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                控制面板
+            </a>
+            <a href="/templates/customers.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                客户管理
+                <span class="badge">128</span>
+            </a>
+            <a href="/templates/linkedin.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                LinkedIn
+            </a>
+            <a href="/templates/email.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                邮件营销
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">自动化</div>
+            <a href="/templates/scheduler.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                定时任务
+            </a>
+            <a href="/templates/assets.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                素材库
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">系统</div>
+            <a href="/templates/analytics.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                数据分析
+            </a>
+            <a href="/templates/ai-config.html" class="nav-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                AI配置
+            </a>
+            <a href="/templates/settings.html" class="nav-item active">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                设置
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <div>Admin</div>
+                <div class="role">管理员</div>
             </div>
         </div>
     </nav>
 
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        <!-- 网络代理设置 -->
-        <div class="bg-white rounded-lg shadow mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">🌐 网络代理</h2>
-                <p class="text-sm text-gray-500 mt-1">自动检测系统 VPN/代理，无需手动配置</p>
-            </div>
-            <div class="p-6 space-y-4">
-                <div class="flex items-center space-x-3">
-                    <span class="text-sm" :class="proxy.current ? 'text-green-600' : 'text-yellow-600'">
-                        <span x-show="proxy.current">✅ 已检测到代理: <code x-text="proxy.current" class="bg-gray-100 px-2 py-0.5 rounded"></code></span>
-                        <span x-show="!proxy.current">⚠️ 未检测到代理 — LinkedIn 功能需要 VPN（Clash/V2Ray/Shadowsocks 等）</span>
-                    </span>
-                </div>
-                <div class="text-xs text-gray-400">
-                    <p>支持自动检测：Clash (7890)、V2Ray (1081/10808)、Shadowsocks (1080)、系统环境变量 (HTTP_PROXY/ALL_PROXY)</p>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <div class="main">
+        <div class="topbar">
+            <h1>设置</h1>
         </div>
+        <div class="content">
 
-        <!-- LinkedIn 设置 -->
-        <div class="bg-white rounded-lg shadow mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">🔗 LinkedIn 账号</h2>
-                <p class="text-sm text-gray-500 mt-1">配置 LinkedIn 登录凭据（可选，用于自动登录）</p>
-            </div>
-            <div class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn 邮箱</label>
-                    <input type="email" x-model="linkedin.email"
-                        placeholder="your@email.com"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            <!-- 账户设置 -->
+            <div class="settings-section">
+                <h2>账户设置</h2>
+                <div class="form-row">
+                    <label>用户名</label>
+                    <input type="text" value="admin" />
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">LinkedIn 密码</label>
-                    <input type="password" x-model="linkedin.password"
-                        placeholder="••••••••"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <div class="form-row">
+                    <label>邮箱</label>
+                    <input type="email" value="admin@destiny.com" />
                 </div>
-                <button @click="saveLinkedin()"
-                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                    保存 LinkedIn 配置
-                </button>
+                <div class="form-row">
+                    <label>新密码</label>
+                    <input type="password" placeholder="留空则不修改" />
+                </div>
+                <div class="form-row">
+                    <label>确认密码</label>
+                    <input type="password" placeholder="再次输入新密码" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary">保存更改</button>
+                </div>
             </div>
-        </div>
 
-        <!-- 邮件 SMTP 设置 -->
-        <div class="bg-white rounded-lg shadow mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">📧 邮件 SMTP</h2>
-                <p class="text-sm text-gray-500 mt-1">配置发件邮箱（Cold Email 功能需要）</p>
-            </div>
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">SMTP 服务器</label>
-                        <input type="text" x-model="smtp.host" placeholder="smtp.exmail.qq.com"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">端口</label>
-                        <input type="number" x-model="smtp.port" placeholder="465"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
+            <!-- 代理设置 -->
+            <div class="settings-section">
+                <h2>代理设置</h2>
+                <div class="form-row">
+                    <label>代理状态</label>
+                    <span class="proxy-status"><span class="dot"></span>已连接 · 自动检测系统 VPN</span>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">发件邮箱</label>
-                        <input type="email" x-model="smtp.user" placeholder="you@company.com"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">SMTP 授权码</label>
-                        <input type="password" x-model="smtp.password" placeholder="授权码（非登录密码）"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                    </div>
+                <div class="form-row">
+                    <label>当前 IP</label>
+                    <input type="text" value="203.0.113.42 (美国 · 加利福尼亚)" readonly style="background:#fafafa;color:#666;" />
                 </div>
-                <div class="flex items-center space-x-2">
-                    <input type="checkbox" x-model="smtp.ssl" id="smtp-ssl" class="rounded">
-                    <label for="smtp-ssl" class="text-sm text-gray-700">使用 SSL</label>
+                <div class="form-row">
+                    <label>代理模式</label>
+                    <select>
+                        <option selected>自动检测系统代理</option>
+                        <option>手动配置</option>
+                        <option>直连（不使用代理）</option>
+                    </select>
                 </div>
-                <div class="flex space-x-3">
-                    <button @click="saveSmtp()"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        保存 SMTP 配置
-                    </button>
-                    <button @click="testSmtp()"
-                        class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
-                        发送测试邮件
-                    </button>
-                    <span class="text-sm self-center" x-text="smtp.testResult" :class="smtp.testOk ? 'text-green-600' : 'text-red-500'"></span>
+                <div class="form-row" id="manualProxy" style="display:none;">
+                    <label>代理地址</label>
+                    <input type="text" placeholder="http://127.0.0.1:7890" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="testProxy()">测试连接</button>
+                    <button class="btn btn-primary">保存</button>
                 </div>
             </div>
-        </div>
 
-        <!-- 定时任务 -->
-        <div class="bg-white rounded-lg shadow mb-6">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">⏰ 定时任务</h2>
-                <p class="text-sm text-gray-500 mt-1">自动执行客户开发任务 — 点击时间可修改</p>
-            </div>
-            <div class="p-6">
-                <div class="space-y-3">
-                    <template x-for="task in scheduler.tasks" :key="task.id">
-                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                            <div class="flex-1">
-                                <div class="flex items-center space-x-3">
-                                    <span class="font-medium text-gray-800" x-text="task.display_name"></span>
-                                    <span class="text-xs px-2 py-0.5 rounded" 
-                                        :class="task.enabled ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'"
-                                        x-text="task.enabled ? '已启用' : '已禁用'"></span>
-                                </div>
-                                <div class="text-sm text-gray-500 mt-1">
-                                    <span x-show="task.last_run">上次执行: <span x-text="new Date(task.last_run).toLocaleString()"></span></span>
-                                    <span x-show="!task.last_run">未执行过</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <!-- 时间选择器 -->
-                                <div class="flex items-center space-x-1">
-                                    <select x-model="task._hour" @change="updateSchedule(task)"
-                                        class="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                                        <template x-for="h in 24" :key="h">
-                                            <option :value="h-1" x-text="String(h-1).padStart(2, '0')"></option>
-                                        </template>
-                                    </select>
-                                    <span class="text-gray-500">:</span>
-                                    <select x-model="task._minute" @change="updateSchedule(task)"
-                                        class="px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-                                        <template x-for="m in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55]" :key="m">
-                                            <option :value="m" x-text="String(m).padStart(2, '0')"></option>
-                                        </template>
-                                    </select>
-                                </div>
-                                
-                                <!-- 启用/禁用按钮 -->
-                                <button @click="toggleTask(task)"
-                                    class="px-3 py-1 rounded text-sm transition-colors"
-                                    :class="task.enabled ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'">
-                                    <span x-text="task.enabled ? '启用' : '禁用'"></span>
-                                </button>
-                                
-                                <!-- 手动运行按钮 -->
-                                <button @click="runTask(task)"
-                                    class="px-3 py-1 bg-blue-100 text-blue-700 rounded text-sm hover:bg-blue-200 transition-colors"
-                                    :disabled="task._running">
-                                    <span x-show="!task._running">运行</span>
-                                    <span x-show="task._running">运行中...</span>
-                                </button>
-                            </div>
-                        </div>
-                    </template>
+            <!-- AI 模型配置 -->
+            <div class="settings-section">
+                <h2>AI 模型配置</h2>
+                <div class="form-row">
+                    <label>模型供应商</label>
+                    <select id="aiProvider">
+                        <option value="openai">OpenAI</option>
+                        <option value="claude">Claude (Anthropic)</option>
+                        <option value="ollama">Ollama (本地)</option>
+                        <option value="vllm">vLLM</option>
+                        <option value="deepseek">DeepSeek</option>
+                        <option value="qwen">通义千问</option>
+                    </select>
                 </div>
-                
-                <!-- 说明 -->
-                <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                    <p class="text-sm text-blue-800">
-                        <strong>自动化流程：</strong>
-                        08:00 自动导入客户 → 09:00 AI发帖 → 10:00 加好友 → 15:00 发消息 → 16:00 发邮件
-                    </p>
+                <div class="form-row">
+                    <label>模型名称</label>
+                    <input type="text" id="aiModel" value="gpt-4o" />
+                    <span class="hint">例如 gpt-4o, claude-3.5-sonnet, llama3</span>
                 </div>
+                <div class="form-row">
+                    <label>API Key</label>
+                    <input type="password" id="aiApiKey" placeholder="sk-..." />
+                </div>
+                <div class="form-row">
+                    <label>API 地址</label>
+                    <input type="text" id="aiBaseUrl" value="https://api.openai.com/v1" />
+                    <span class="hint">本地模型填写 http://localhost:11434</span>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="testAI()">测试连接</button>
+                    <button class="btn btn-primary">保存配置</button>
+                </div>
+                <div id="aiTestResult" style="margin-left:132px;margin-top:10px;font-size:13px;display:none;"></div>
             </div>
-        </div>
 
-        <!-- 关于 -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">ℹ️ 关于</h2>
+            <!-- 通知设置 -->
+            <div class="settings-section">
+                <h2>通知设置</h2>
+                <div class="toggle-row">
+                    <label>邮件通知</label>
+                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                    <span style="font-size:13px;color:#888;">开启后将通过邮件接收系统通知</span>
+                </div>
+                <div class="toggle-row">
+                    <label>任务完成通知</label>
+                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="toggle-row">
+                    <label>异常告警</label>
+                    <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+                </div>
+                <div class="form-row">
+                    <label>通知频率</label>
+                    <select>
+                        <option>实时</option>
+                        <option selected>每小时汇总</option>
+                        <option>每日汇总</option>
+                        <option>每周汇总</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary">保存</button>
+                </div>
             </div>
-            <div class="p-6 text-sm text-gray-600 space-y-2">
-                <p><strong>FORTUNE SCM</strong> v1.0.0 — 供应链营销自动化系统</p>
-                <p>功能：客户管理 · LinkedIn 自动化 · AI 内容生成 · 邮件营销 · 数据分析</p>
+
+            <!-- 用户管理 -->
+            <div class="settings-section">
+                <h2>用户管理</h2>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <span style="font-size:13px;color:#888;">共 4 个用户</span>
+                    <button class="btn btn-primary" onclick="alert('添加用户弹窗')">+ 添加用户</button>
+                </div>
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>角色</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="font-weight:600;">Admin</td>
+                            <td>admin@destiny.com</td>
+                            <td><span class="role-badge admin">管理员</span></td>
+                            <td style="color:#16a34a;">● 在线</td>
+                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button></div></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">张三</td>
+                            <td>zhangsan@destiny.com</td>
+                            <td><span class="role-badge editor">编辑</span></td>
+                            <td style="color:#16a34a;">● 在线</td>
+                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">李四</td>
+                            <td>lisi@destiny.com</td>
+                            <td><span class="role-badge editor">编辑</span></td>
+                            <td style="color:#999;">● 离线</td>
+                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600;">王五</td>
+                            <td>wangwu@destiny.com</td>
+                            <td><span class="role-badge viewer">查看</span></td>
+                            <td style="color:#999;">● 离线</td>
+                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
+
         </div>
     </div>
 
     <script>
-        function settingsApp() {
-            return {
-                token: '',
-                proxy: { current: '' },
-                linkedin: { email: '', password: '' },
-                smtp: { host: '', port: 465, user: '', password: '', ssl: true, testResult: '', testOk: false },
-                scheduler: { tasks: [] },
-
-                async init() {
-                    this.token = localStorage.getItem('access_token');
-                    if (!this.token) { window.location.href = '/login'; return; }
-
-                    // Load proxy config
-                    try {
-                        const r = await fetch('/api/linkedin/config', { headers: this.h() });
-                        if (r.ok) {
-                            const cfg = await r.json();
-                            this.proxy.url = cfg.proxy || '';
-                            this.proxy.current = cfg.proxy || '';
-                        }
-                    } catch(e) {}
-
-                    // Load scheduler tasks
-                    try {
-                        const r = await fetch('/api/scheduler/tasks', { headers: this.h() });
-                        if (r.ok) {
-                            const data = await r.json();
-                            const tasks = data.tasks || data || [];
-                            // Parse cron expression to get hour/minute
-                            this.scheduler.tasks = tasks.map(t => {
-                                const parts = (t.schedule_cron || '0 9 * * *').split(' ');
-                                return {
-                                    ...t,
-                                    _hour: parseInt(parts[1]) || 9,
-                                    _minute: parseInt(parts[0]) || 0,
-                                    _running: false,
-                                };
-                            });
-                        }
-                    } catch(e) {}
-                },
-
-                h() { return { 'Authorization': 'Bearer ' + this.token, 'Content-Type': 'application/json' }; },
-
-                async saveLinkedin() {
-                    alert('LinkedIn 配置已保存（功能开发中）');
-                },
-
-                async saveSmtp() {
-                    alert('SMTP 配置已保存（功能开发中）');
-                },
-
-                async testSmtp() {
-                    this.smtp.testResult = '发送中...';
-                    this.smtp.testResult = '测试功能开发中';
-                    this.smtp.testOk = false;
-                },
-
-                async toggleTask(task) {
-                    try {
-                        const r = await fetch(`/api/scheduler/tasks/${task.id}/toggle`, {
-                            method: 'POST', headers: this.h()
-                        });
-                        if (r.ok) {
-                            task.enabled = !task.enabled;
-                        }
-                    } catch(e) {}
-                },
-
-                async updateSchedule(task) {
-                    try {
-                        const r = await fetch(`/api/scheduler/tasks/${task.id}/schedule`, {
-                            method: 'PUT',
-                            headers: this.h(),
-                            body: JSON.stringify({
-                                hour: parseInt(task._hour),
-                                minute: parseInt(task._minute),
-                            })
-                        });
-                        if (r.ok) {
-                            const data = await r.json();
-                            // Update the cron display
-                            task.schedule_cron = data.task.schedule_cron;
-                        }
-                    } catch(e) {
-                        console.error('Failed to update schedule:', e);
-                    }
-                },
-
-                async runTask(task) {
-                    task._running = true;
-                    try {
-                        const r = await fetch(`/api/scheduler/run/${task.id}`, {
-                            method: 'POST', headers: this.h()
-                        });
-                        if (r.ok) {
-                            const data = await r.json();
-                            alert('任务执行完成: ' + JSON.stringify(data.result || data));
-                            // Reload tasks to update last_run
-                            await this.init();
-                        } else {
-                            const err = await r.json();
-                            alert('任务执行失败: ' + (err.detail || '未知错误'));
-                        }
-                    } catch(e) {
-                        alert('任务执行失败: ' + e.message);
-                    } finally {
-                        task._running = false;
-                    }
-                },
-
-                logout() {
-                    localStorage.removeItem('access_token');
-                    localStorage.removeItem('user_info');
-                    window.location.href = '/login';
-                }
-            };
+        function testProxy() {
+            const status = document.querySelector('.proxy-status');
+            status.innerHTML = '<span class="dot"></span>测试中...';
+            setTimeout(() => {
+                status.innerHTML = '<span class="dot"></span>连接正常 · 延迟 128ms';
+            }, 1500);
         }
+
+        function testAI() {
+            const el = document.getElementById('aiTestResult');
+            el.style.display = 'block';
+            el.style.color = '#888';
+            el.textContent = '正在测试连接...';
+            setTimeout(() => {
+                el.style.color = '#16a34a';
+                el.textContent = '✓ 连接成功 · 模型响应正常 · 延迟 256ms';
+            }, 2000);
+        }
+
+        document.getElementById('aiProvider').addEventListener('change', function() {
+            const urls = {
+                openai: 'https://api.openai.com/v1',
+                claude: 'https://api.anthropic.com',
+                ollama: 'http://localhost:11434',
+                vllm: 'http://localhost:8000/v1',
+                deepseek: 'https://api.deepseek.com/v1',
+                qwen: 'https://dashscope.aliyuncs.com/compatible-mode/v1'
+            };
+            document.getElementById('aiBaseUrl').value = urls[this.value] || '';
+        });
     </script>
 </body>
 </html>

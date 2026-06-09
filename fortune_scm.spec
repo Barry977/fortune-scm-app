@@ -1,6 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 """
-PyInstaller spec file for Fortune SCM Desktop App
+PyInstaller spec file for 命运 (DESTINY) Desktop App
 """
 
 import os
@@ -17,6 +17,7 @@ datas = [
     (str(PROJECT_DIR / 'frontend'), 'frontend'),
     (str(PROJECT_DIR / 'data'), 'data'),
     (str(PROJECT_DIR / 'backend'), 'backend'),
+    (str(PROJECT_DIR / 'templates'), 'templates'),
 ]
 
 # Add hidden imports for backend modules
@@ -105,7 +106,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Fortune SCM',
+    name='命运',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -127,19 +128,19 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='Fortune SCM',
+    name='命运',
 )
 
 # For macOS .app bundle
 if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
-        name='Fortune SCM.app',
+        name='命运.app',
         icon='frontend/static/icon.ico' if os.path.exists('frontend/static/icon.ico') else None,
-        bundle_identifier='com.fortunescm.app',
+        bundle_identifier='com.destiny.app',
         info_plist={
-            'CFBundleName': 'Fortune SCM',
-            'CFBundleDisplayName': 'Fortune SCM',
+            'CFBundleName': '命运',
+            'CFBundleDisplayName': '命运 (DESTINY)',
             'CFBundleVersion': '1.0.0',
             'CFBundleShortVersionString': '1.0.0',
             'NSHighResolutionCapable': True,

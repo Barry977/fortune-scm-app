@@ -47,10 +47,10 @@ def build_app():
 
 def create_data_dir():
     """Ensure data directory exists in the dist."""
-    dist_path = os.path.join('dist', 'Fortune SCM')
+    dist_path = os.path.join('dist', '命运')
     if platform.system() == 'Darwin':
         # macOS .app bundle
-        dist_path = os.path.join('dist', 'Fortune SCM.app', 'Contents', 'MacOS')
+        dist_path = os.path.join('dist', '命运.app', 'Contents', 'MacOS')
     
     data_dir = os.path.join(dist_path, 'data')
     os.makedirs(data_dir, exist_ok=True)
@@ -75,8 +75,8 @@ def create_macos_dmg():
     """Create macOS DMG installer."""
     print("Creating macOS DMG...")
     
-    dmg_name = 'FortuneSCM-Installer.dmg'
-    app_path = os.path.join('dist', 'Fortune SCM.app')
+    dmg_name = 'Destiny-Installer.dmg'
+    app_path = os.path.join('dist', '命运.app')
     
     if not os.path.exists(app_path):
         print(f"App not found at {app_path}")
@@ -85,7 +85,7 @@ def create_macos_dmg():
     # Create DMG using hdiutil
     cmd = [
         'hdiutil', 'create',
-        '-volname', 'Fortune SCM',
+        '-volname', '命运 (DESTINY)',
         '-srcfolder', app_path,
         '-ov', '-format', 'UDZO',
         os.path.join('dist', dmg_name)
@@ -112,20 +112,20 @@ def print_summary():
     
     if system == 'Darwin':
         print("\nmacOS Application:")
-        print(f"  - App Bundle: dist/Fortune SCM.app")
-        print(f"  - DMG Installer: dist/FortuneSCM-Installer.dmg")
+        print(f"  - App Bundle: dist/命运.app")
+        print(f"  - DMG Installer: dist/Destiny-Installer.dmg")
         print("\nTo distribute:")
         print("  1. Share the .app bundle (drag to Applications)")
         print("  2. Or share the .dmg file")
     elif system == 'Windows':
         print("\nWindows Application:")
-        print(f"  - Executable: dist/Fortune SCM/Fortune SCM.exe")
+        print(f"  - Executable: dist/命运/命运.exe")
         print("\nTo distribute:")
-        print("  1. Zip the 'dist/Fortune SCM' folder")
+        print("  1. Zip the 'dist/命运' folder")
         print("  2. Share the zip file")
     else:
         print(f"\nLinux Application:")
-        print(f"  - Executable: dist/Fortune SCM/Fortune SCM")
+        print(f"  - Executable: dist/命运/命运")
     
     print("\n" + "=" * 60)
 

@@ -21,11 +21,11 @@ else:
 HOST = "127.0.0.1"
 PORT = 8765
 URL = f"http://{HOST}:{PORT}"
-APP_TITLE = "FORTUNE SCM - 供应链营销自动化"
+APP_TITLE = "命运 (DESTINY) - 智能客户开发系统"
 APP_ICON = str(PROJECT_DIR / "frontend" / "assets" / "icon.png") if (PROJECT_DIR / "frontend" / "assets" / "icon.png").exists() else None
 
 
-class FortuneSCMApp:
+class DestinyApp:
     """桌面应用主类"""
     
     def __init__(self):
@@ -162,7 +162,7 @@ class FortuneSCMApp:
         """显示关于对话框"""
         if self.window:
             self.window.evaluate_js("""
-                alert('FORTUNE SCM v1.0.0\\n\\n供应链营销自动化系统\\n\\n支持功能：\\n- 客户管理\\n- LinkedIn自动化\\n- AI内容生成\\n- 邮件营销\\n- 数据分析');
+                alert('命运 (DESTINY) v1.0.0\\n\\n智能客户开发系统\\n\\n支持功能：\\n- 客户管理\\n- LinkedIn自动化\\n- AI内容生成\\n- 邮件营销\\n- 数据分析');
             """)
     
     def check_update(self):
@@ -303,7 +303,7 @@ class FortuneSCMApp:
 
 
 def main():
-    app = FortuneSCMApp()
+    app = DestinyApp()
     app.run()
 
 

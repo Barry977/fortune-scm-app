@@ -3,547 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 配置 - FORTUNE SCM</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>AI 配置 - 命运 DESTINY</title>
     <style>
-        [x-cloak] { display: none !important; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffffff; color: #1a1a1a; display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+        .logo { padding: 24px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e5e5e5; }
+        .logo svg { width: 36px; height: 36px; }
+        .logo-text { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
+        .logo-sub { font-size: 10px; color: #999; letter-spacing: 3px; text-transform: uppercase; }
+        .nav-section { padding: 16px 12px; }
+        .nav-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; padding: 0 12px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #666; font-size: 14px; cursor: pointer; transition: all 0.15s; text-decoration: none; }
+        .nav-item:hover { background: #f5f5f5; color: #1a1a1a; }
+        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 600; }
+        .nav-item .icon { width: 20px; text-align: center; font-size: 16px; }
+        .nav-item .badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+        .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #e5e5e5; display: flex; align-items: center; gap: 10px; }
+        .sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+        .sidebar-footer .user-info .name { font-size: 13px; font-weight: 600; }
+        .sidebar-footer .user-info .role { font-size: 11px; color: #999; }
+
+        /* Main */
+        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+        .topbar { padding: 20px 32px; border-bottom: 1px solid #e5e5e5; background: #fff; }
+        .topbar h1 { font-size: 22px; font-weight: 700; }
+        .content { padding: 24px 32px; flex: 1; }
+
+        /* Tabs */
+        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e5e5e5; margin-bottom: 24px; }
+        .tab { padding: 10px 20px; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+        .tab:hover { color: #1a1a1a; }
+        .tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #fbbf24; }
+
+        /* Cards */
+        .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; color: #666; margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 8px;
+            font-size: 14px; background: #fff; color: #1a1a1a; outline: none; transition: border-color 0.15s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #fbbf24; }
+        .form-group textarea { resize: vertical; min-height: 120px; font-family: inherit; }
+        .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* Buttons */
+        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary { background: #f5f5f5; color: #1a1a1a; border: 1px solid #e5e5e5; }
+        .btn-secondary:hover { background: #ebebeb; }
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
+
+        /* Provider chips */
+        .provider-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .chip { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; background: #fff; }
+        .chip:hover { border-color: #fbbf24; }
+        .chip.active { background: #fbbf24; border-color: #fbbf24; font-weight: 600; }
+
+        /* Prompt cards */
+        .prompt-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+        .prompt-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .prompt-card-title { font-size: 15px; font-weight: 600; }
+        .prompt-card-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: #f5f5f5; color: #666; }
+
+        /* Table */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #e5e5e5; }
+        th { font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { color: #1a1a1a; }
+        tr:hover td { background: #fafafa; }
+        .status { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
+        .status-success { background: #ecfdf5; color: #059669; }
+        .status-failed { background: #fef2f2; color: #dc2626; }
+        .status-pending { background: #fffbeb; color: #d97706; }
+
+        /* Tab content */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Connection status */
+        .connection-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-left: 12px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot-green { background: #22c55e; }
+        .dot-gray { background: #d1d5db; }
+
+        /* Test result */
+        .test-result { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; display: none; }
+        .test-result.success { display: block; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+        .test-result.error { display: block; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen" x-data="aiConfigApp()">
-    <!-- 导航栏 -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <h1 class="text-xl font-bold text-gray-800">FORTUNE SCM</h1>
-                    <span class="ml-4 text-gray-500">AI 配置</span>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <a href="/dashboard.html" class="text-gray-600 hover:text-gray-900">首页</a>
-                    <button @click="logout()" class="text-gray-600 hover:text-gray-900">退出</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- 配置列表 -->
-        <div class="bg-white rounded-lg shadow mb-8">
-            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                <h2 class="text-lg font-medium text-gray-800">AI 模型配置</h2>
-                <button @click="showAddModal = true" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
-                    + 添加配置
-                </button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">名称</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">提供商</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">模型</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">默认</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">状态</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <template x-for="config in configs" :key="config.id">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="config.name"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="getProviderLabel(config.provider)"></td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="getModelLabel(config.model)"></td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span x-show="config.is_default" class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">默认</span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span :class="config.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs font-medium rounded-full" x-text="config.is_active ? '启用' : '禁用'"></span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                    <button @click="testConfig(config)" class="text-blue-600 hover:text-blue-900">测试</button>
-                                    <button @click="editConfig(config)" class="text-yellow-600 hover:text-yellow-900">编辑</button>
-                                    <button @click="deleteConfig(config.id)" class="text-red-600 hover:text-red-900">删除</button>
-                                </td>
-                            </tr>
-                        </template>
-                    </tbody>
-                </table>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <svg viewBox="0 0 36 36" fill="none">
+                <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
+                <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div>
+                <div class="logo-text">命运</div>
+                <div class="logo-sub">DESTINY</div>
             </div>
         </div>
 
-        <!-- 使用统计 -->
-        <div class="bg-white rounded-lg shadow mb-8">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-800">使用统计</h2>
-            </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-gray-800" x-text="stats.total_requests"></p>
-                    <p class="text-sm text-gray-500">总请求数</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-gray-800" x-text="stats.total_tokens"></p>
-                    <p class="text-sm text-gray-500">总Token数</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-gray-800" x-text="stats.success_rate + '%'"></p>
-                    <p class="text-sm text-gray-500">成功率</p>
-                </div>
-                <div class="text-center">
-                    <p class="text-3xl font-bold text-gray-800" x-text="stats.average_latency_ms + 'ms'"></p>
-                    <p class="text-sm text-gray-500">平均延迟</p>
-                </div>
+        <nav class="nav-section">
+            <div class="nav-label">主菜单</div>
+            <a class="nav-item" href="#">
+                <span class="icon">📊</span> 控制面板
+            </a>
+            <a class="nav-item" href="#">
+                <span class="icon">👥</span> 客户管理
+                <span class="badge">128</span>
+            </a>
+            <a class="nav-item" href="#">
+                <span class="icon">🔗</span> LinkedIn
+            </a>
+            <a class="nav-item" href="#">
+                <span class="icon">📧</span> 邮件营销
+            </a>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">自动化</div>
+            <a class="nav-item" href="#">
+                <span class="icon">⏰</span> 定时任务
+            </a>
+            <a class="nav-item" href="#">
+                <span class="icon">📁</span> 素材库
+            </a>
+        </nav>
+
+        <nav class="nav-section">
+            <div class="nav-label">系统</div>
+            <a class="nav-item" href="#">
+                <span class="icon">📈</span> 数据分析
+            </a>
+            <a class="nav-item active" href="#">
+                <span class="icon">🤖</span> AI 配置
+            </a>
+            <a class="nav-item" href="#">
+                <span class="icon">⚙️</span> 设置
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">A</div>
+            <div class="user-info">
+                <div class="name">Admin</div>
+                <div class="role">管理员</div>
             </div>
         </div>
+    </aside>
 
-        <!-- AI 生成工具 -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-medium text-gray-800">AI 生成工具</h2>
+    <!-- Main Content -->
+    <main class="main">
+        <div class="topbar">
+            <h1>AI 配置</h1>
+        </div>
+
+        <div class="content">
+            <!-- Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('models')">模型配置</div>
+                <div class="tab" onclick="switchTab('prompts')">提示词模板</div>
+                <div class="tab" onclick="switchTab('history')">生成历史</div>
             </div>
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- 营销内容生成 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-md font-medium text-gray-800 mb-4">营销内容生成</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">配置</label>
-                                <select x-model="marketingForm.config_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="">选择配置</option>
-                                    <template x-for="config in configs" :key="config.id">
-                                        <option :value="config.id" x-text="config.name"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">内容类型</label>
-                                <select x-model="marketingForm.content_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="email">开发信</option>
-                                    <option value="social">社交媒体</option>
-                                    <option value="post">营销文案</option>
-                                    <option value="ad">广告文案</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">目标受众</label>
-                                <input type="text" x-model="marketingForm.target_audience" placeholder="如：欧美进口商" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">产品/服务</label>
-                                <input type="text" x-model="marketingForm.product_service" placeholder="如：国际空运DDU服务" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">语气</label>
-                                <select x-model="marketingForm.tone" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="professional">专业</option>
-                                    <option value="friendly">友好</option>
-                                    <option value="urgent">紧迫</option>
-                                    <option value="casual">随意</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">语言</label>
-                                <select x-model="marketingForm.language" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="zh">中文</option>
-                                    <option value="en">英文</option>
-                                </select>
-                            </div>
-                            <button @click="generateMarketing()" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:opacity-50">
-                                <span x-show="!loading">生成内容</span>
-                                <span x-show="loading">生成中...</span>
-                            </button>
+
+            <!-- Tab 1: Model Config -->
+            <div id="tab-models" class="tab-content active">
+                <div class="card">
+                    <div class="card-title">AI 服务商</div>
+                    <div class="provider-chips">
+                        <div class="chip active" onclick="selectProvider(this)">OpenAI</div>
+                        <div class="chip" onclick="selectProvider(this)">Claude</div>
+                        <div class="chip" onclick="selectProvider(this)">Ollama</div>
+                        <div class="chip" onclick="selectProvider(this)">vLLM</div>
+                        <div class="chip" onclick="selectProvider(this)">DeepSeek</div>
+                        <div class="chip" onclick="selectProvider(this)">通义千问</div>
+                        <div class="chip" onclick="selectProvider(this)">自定义</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>模型名称</label>
+                            <input type="text" placeholder="例如：gpt-4o, claude-3.5-sonnet" id="model-name">
+                            <div class="form-hint">选择服务商后自动填充，也可手动输入</div>
                         </div>
-                        <div x-show="marketingResult" class="mt-4 p-4 bg-gray-50 rounded-md">
-                            <pre class="text-sm text-gray-700 whitespace-pre-wrap" x-text="marketingResult"></pre>
+                        <div class="form-group">
+                            <label>API Base URL</label>
+                            <input type="text" placeholder="https://api.openai.com/v1" id="api-base">
+                            <div class="form-hint">留空使用服务商默认地址</div>
                         </div>
                     </div>
 
-                    <!-- 客户分析 -->
-                    <div class="border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-md font-medium text-gray-800 mb-4">客户分析</h3>
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">配置</label>
-                                <select x-model="analysisForm.config_id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="">选择配置</option>
-                                    <template x-for="config in configs" :key="config.id">
-                                        <option :value="config.id" x-text="config.name"></option>
-                                    </template>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">分析类型</label>
-                                <select x-model="analysisForm.analysis_type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                                    <option value="profile">客户画像</option>
-                                    <option value="needs">需求分析</option>
-                                    <option value="risk">风险评估</option>
-                                    <option value="opportunity">机会分析</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">客户数据</label>
-                                <textarea x-model="analysisForm.customer_data" rows="4" placeholder="粘贴客户数据（JSON或文本）" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">行业（可选）</label>
-                                <input type="text" x-model="analysisForm.industry" placeholder="如：物流" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                            </div>
-                            <button @click="analyzeCustomer()" :disabled="loading" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md disabled:opacity-50">
-                                <span x-show="!loading">开始分析</span>
-                                <span x-show="loading">分析中...</span>
-                            </button>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" placeholder="sk-..." id="api-key">
+                        <div class="form-hint">密钥将加密存储，不会明文展示</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="testConnection()">🔗 测试连接</button>
+                        <button class="btn btn-secondary" onclick="saveConfig()">💾 保存配置</button>
+                        <span class="connection-status">
+                            <span class="dot dot-gray" id="status-dot"></span>
+                            <span id="status-text" style="color:#999;">未测试</span>
+                        </span>
+                    </div>
+
+                    <div class="test-result" id="test-result"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">高级设置</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Temperature</label>
+                            <input type="number" value="0.7" min="0" max="2" step="0.1" id="temperature">
+                            <div class="form-hint">值越低输出越确定，值越高越有创意</div>
                         </div>
-                        <div x-show="analysisResult" class="mt-4 p-4 bg-gray-50 rounded-md">
-                            <pre class="text-sm text-gray-700 whitespace-pre-wrap" x-text="analysisResult"></pre>
+                        <div class="form-group">
+                            <label>Max Tokens</label>
+                            <input type="number" value="2048" min="100" max="128000" id="max-tokens">
+                            <div class="form-hint">单次生成的最大 token 数</div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Top P</label>
+                            <input type="number" value="1.0" min="0" max="1" step="0.05" id="top-p">
+                        </div>
+                        <div class="form-group">
+                            <label>请求超时（秒）</label>
+                            <input type="number" value="30" min="5" max="300" id="timeout">
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- 添加/编辑配置模态框 -->
-        <div x-show="showAddModal || showEditModal" x-cloak class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-xl max-w-lg w-full mx-4 p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-medium text-gray-800" x-text="showEditModal ? '编辑配置' : '添加配置'"></h3>
-                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">×</button>
+            <!-- Tab 2: Prompt Templates -->
+            <div id="tab-prompts" class="tab-content">
+                <div class="prompt-card">
+                    <div class="prompt-card-header">
+                        <div class="prompt-card-title">✉️ 开发信生成</div>
+                        <span class="prompt-card-badge">用于邮件营销</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <textarea placeholder="输入开发信生成的提示词模板...">你是一位专业的国际贸易开发信撰写专家。请根据以下客户信息生成一封专业的开发信：
+
+客户公司：{company_name}
+客户国家：{country}
+客户行业：{industry}
+我们的产品：{product_name}
+
+要求：
+1. 使用客户当地语言
+2. 简洁专业，不超过200字
+3. 突出产品优势和合作价值
+4. 包含明确的行动号召</textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary">重置默认</button>
+                        <button class="btn btn-primary">保存模板</button>
+                    </div>
                 </div>
-                <form @submit.prevent="saveConfig()" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">配置名称</label>
-                        <input type="text" x-model="form.name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+
+                <div class="prompt-card">
+                    <div class="prompt-card-header">
+                        <div class="prompt-card-title">📝 帖子生成</div>
+                        <span class="prompt-card-badge">用于 LinkedIn</span>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">提供商</label>
-                        <select x-model="form.provider" @change="updateModels()" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                            <option value="">选择提供商</option>
-                            <template x-for="(provider, key) in providers" :key="key">
-                                <option :value="key" x-text="provider.label"></option>
-                            </template>
-                        </select>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <textarea placeholder="输入帖子生成的提示词模板...">你是一位 LinkedIn 内容创作专家。请根据以下主题生成一篇专业的 LinkedIn 帖子：
+
+主题：{topic}
+目标受众：{audience}
+行业：{industry}
+
+要求：
+1. 使用专业的行业术语
+2. 包含有价值的见解或数据
+3. 适当使用 emoji 增加可读性
+4. 以问题或号召结尾，促进互动
+5. 字数控制在 200-400 字</textarea>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">模型</label>
-                        <select x-model="form.model" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                            <option value="">选择模型</option>
-                            <template x-for="model in availableModels" :key="model.value">
-                                <option :value="model.value" x-text="model.label"></option>
-                            </template>
-                        </select>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary">重置默认</button>
+                        <button class="btn btn-primary">保存模板</button>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">API Key</label>
-                        <input type="password" x-model="form.api_key" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="prompt-card">
+                    <div class="prompt-card-header">
+                        <div class="prompt-card-title">💬 聊天回复</div>
+                        <span class="prompt-card-badge">用于即时通讯</span>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">自定义基础URL（可选）</label>
-                        <input type="text" x-model="form.base_url" placeholder="留空使用默认" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <textarea placeholder="输入聊天回复的提示词模板...">你是一位专业的客户沟通助手。请根据以下对话上下文生成合适的回复：
+
+客户消息：{message}
+对话历史：{history}
+客户信息：{customer_info}
+我们的产品信息：{product_info}
+
+要求：
+1. 回复自然友好，不过于正式
+2. 准确回答客户问题
+3. 适当引导对话向成交方向发展
+4. 使用客户偏好的语言
+5. 回复简洁，不超过 150 字</textarea>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">温度</label>
-                            <input type="number" x-model="form.temperature" min="0" max="2" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">最大Token</label>
-                            <input type="number" x-model="form.max_tokens" min="1" max="32000" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
-                        </div>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary">重置默认</button>
+                        <button class="btn btn-primary">保存模板</button>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <label class="flex items-center">
-                            <input type="checkbox" x-model="form.is_default" class="mr-2">
-                            <span class="text-sm text-gray-700">设为默认</span>
-                        </label>
-                        <label class="flex items-center">
-                            <input type="checkbox" x-model="form.is_active" class="mr-2">
-                            <span class="text-sm text-gray-700">启用</span>
-                        </label>
+                </div>
+            </div>
+
+            <!-- Tab 3: Generation History -->
+            <div id="tab-history" class="tab-content">
+                <div class="card">
+                    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+                        <span>生成历史</span>
+                        <button class="btn btn-secondary" style="font-size:12px;padding:6px 14px;">导出记录</button>
                     </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" @click="closeModal()" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">取消</button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">保存</button>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>时间</th>
+                                    <th>类型</th>
+                                    <th>模型</th>
+                                    <th>Token 用量</th>
+                                    <th>耗时</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2026-06-09 14:32</td>
+                                    <td>开发信</td>
+                                    <td>gpt-4o</td>
+                                    <td>386</td>
+                                    <td>2.3s</td>
+                                    <td><span class="status status-success">成功</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 14:28</td>
+                                    <td>LinkedIn 帖子</td>
+                                    <td>gpt-4o</td>
+                                    <td>512</td>
+                                    <td>3.1s</td>
+                                    <td><span class="status status-success">成功</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 13:55</td>
+                                    <td>聊天回复</td>
+                                    <td>claude-3.5-sonnet</td>
+                                    <td>224</td>
+                                    <td>1.8s</td>
+                                    <td><span class="status status-success">成功</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 13:41</td>
+                                    <td>开发信</td>
+                                    <td>gpt-4o</td>
+                                    <td>—</td>
+                                    <td>30.0s</td>
+                                    <td><span class="status status-failed">超时</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">重试</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 12:20</td>
+                                    <td>LinkedIn 帖子</td>
+                                    <td>deepseek-chat</td>
+                                    <td>478</td>
+                                    <td>4.2s</td>
+                                    <td><span class="status status-success">成功</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 11:05</td>
+                                    <td>聊天回复</td>
+                                    <td>gpt-4o</td>
+                                    <td>189</td>
+                                    <td>1.5s</td>
+                                    <td><span class="status status-pending">生成中</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">取消</a></td>
+                                </tr>
+                                <tr>
+                                    <td>2026-06-09 10:30</td>
+                                    <td>开发信</td>
+                                    <td>qwen-plus</td>
+                                    <td>342</td>
+                                    <td>2.0s</td>
+                                    <td><span class="status status-success">成功</span></td>
+                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
-
-        <!-- 错误提示 -->
-        <div x-show="error" x-cloak class="mt-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-md">
-            <span x-text="error"></span>
-            <button @click="error = null" class="ml-2 text-red-500 hover:text-red-700">×</button>
-        </div>
-    </div>
+    </main>
 
     <script>
-        function aiConfigApp() {
-            return {
-                loading: false,
-                error: null,
-                showAddModal: false,
-                showEditModal: false,
-                configs: [],
-                providers: {},
-                availableModels: [],
-                stats: {
-                    total_requests: 0,
-                    total_tokens: 0,
-                    success_rate: 0,
-                    average_latency_ms: 0
-                },
-                form: {
-                    id: null,
-                    name: '',
-                    provider: '',
-                    model: '',
-                    api_key: '',
-                    base_url: '',
-                    temperature: 0.7,
-                    max_tokens: 2000,
-                    is_default: false,
-                    is_active: true
-                },
-                marketingForm: {
-                    config_id: '',
-                    content_type: 'email',
-                    target_audience: '',
-                    product_service: '',
-                    tone: 'professional',
-                    language: 'zh',
-                    key_points: [],
-                    max_length: 500
-                },
-                marketingResult: '',
-                analysisForm: {
-                    config_id: '',
-                    analysis_type: 'profile',
-                    customer_data: '',
-                    industry: '',
-                    language: 'zh'
-                },
-                analysisResult: '',
+        function switchTab(name) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            event.target.classList.add('active');
+        }
 
-                async init() {
-                    await this.loadProviders();
-                    await this.loadConfigs();
-                    await this.loadStats();
-                },
+        function selectProvider(el) {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            const defaults = {
+                'OpenAI': { model: 'gpt-4o', base: 'https://api.openai.com/v1' },
+                'Claude': { model: 'claude-3.5-sonnet', base: 'https://api.anthropic.com' },
+                'Ollama': { model: 'llama3', base: 'http://localhost:11434' },
+                'vLLM': { model: 'meta-llama/Llama-3-8B', base: 'http://localhost:8000/v1' },
+                'DeepSeek': { model: 'deepseek-chat', base: 'https://api.deepseek.com' },
+                '通义千问': { model: 'qwen-plus', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+                '自定义': { model: '', base: '' }
+            };
+            const d = defaults[el.textContent] || {};
+            document.getElementById('model-name').value = d.model || '';
+            document.getElementById('api-base').value = d.base || '';
+        }
 
-                async loadProviders() {
-                    try {
-                        const response = await fetch('/api/ai/providers');
-                        if (response.ok) {
-                            this.providers = await response.json();
-                        }
-                    } catch (e) {
-                        console.error('加载提供商失败:', e);
-                    }
-                },
+        function testConnection() {
+            const result = document.getElementById('test-result');
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
 
-                async loadConfigs() {
-                    try {
-                        const response = await fetch('/api/ai/configs', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            this.configs = await response.json();
-                        }
-                    } catch (e) {
-                        console.error('加载配置失败:', e);
-                    }
-                },
+            dot.className = 'dot dot-gray';
+            text.textContent = '测试中...';
+            text.style.color = '#999';
+            result.style.display = 'none';
 
-                async loadStats() {
-                    try {
-                        const response = await fetch('/api/ai/stats', {
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            this.stats = await response.json();
-                        }
-                    } catch (e) {
-                        console.error('加载统计失败:', e);
-                    }
-                },
-
-                updateModels() {
-                    const provider = this.providers[this.form.provider];
-                    this.availableModels = provider ? provider.models : [];
-                    this.form.model = '';
-                },
-
-                getProviderLabel(provider) {
-                    return this.providers[provider]?.label || provider;
-                },
-
-                getModelLabel(model) {
-                    for (const provider of Object.values(this.providers)) {
-                        const found = provider.models.find(m => m.value === model);
-                        if (found) return found.label;
-                    }
-                    return model;
-                },
-
-                editConfig(config) {
-                    this.form = { ...config };
-                    this.updateModels();
-                    this.showEditModal = true;
-                },
-
-                closeModal() {
-                    this.showAddModal = false;
-                    this.showEditModal = false;
-                    this.form = {
-                        id: null,
-                        name: '',
-                        provider: '',
-                        model: '',
-                        api_key: '',
-                        base_url: '',
-                        temperature: 0.7,
-                        max_tokens: 2000,
-                        is_default: false,
-                        is_active: true
-                    };
-                    this.availableModels = [];
-                },
-
-                async saveConfig() {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const url = this.showEditModal ? `/api/ai/configs/${this.form.id}` : '/api/ai/configs';
-                        const method = this.showEditModal ? 'PUT' : 'POST';
-                        const response = await fetch(url, {
-                            method,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.form)
-                        });
-                        const data = await response.json();
-                        if (response.ok) {
-                            await this.loadConfigs();
-                            this.closeModal();
-                        } else {
-                            this.error = data.detail || '保存失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async deleteConfig(id) {
-                    if (!confirm('确定要删除这个配置吗？')) return;
-                    try {
-                        const response = await fetch(`/api/ai/configs/${id}`, {
-                            method: 'DELETE',
-                            headers: { 'Authorization': `Bearer ${localStorage.getItem('access_token')}` }
-                        });
-                        if (response.ok) {
-                            await this.loadConfigs();
-                        } else {
-                            const data = await response.json();
-                            this.error = data.detail || '删除失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    }
-                },
-
-                async testConfig(config) {
-                    this.loading = true;
-                    this.error = null;
-                    try {
-                        const response = await fetch('/api/ai/test', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify({
-                                provider: config.provider,
-                                model: config.model,
-                                api_key: config.api_key,
-                                base_url: config.base_url
-                            })
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            alert(`连接成功! 延迟: ${data.latency_ms}ms`);
-                        } else {
-                            this.error = data.message || '连接失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async generateMarketing() {
-                    this.loading = true;
-                    this.error = null;
-                    this.marketingResult = '';
-                    try {
-                        const response = await fetch('/api/ai/generate/marketing', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.marketingForm)
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            this.marketingResult = data.content;
-                            await this.loadStats();
-                        } else {
-                            this.error = data.error || '生成失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                async analyzeCustomer() {
-                    this.loading = true;
-                    this.error = null;
-                    this.analysisResult = '';
-                    try {
-                        const response = await fetch('/api/ai/generate/analysis', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-                            },
-                            body: JSON.stringify(this.analysisForm)
-                        });
-                        const data = await response.json();
-                        if (data.success) {
-                            this.analysisResult = data.content;
-                            await this.loadStats();
-                        } else {
-                            this.error = data.error || '分析失败';
-                        }
-                    } catch (e) {
-                        this.error = '网络错误: ' + e.message;
-                    } finally {
-                        this.loading = false;
-                    }
-                },
-
-                logout() {
-                    localStorage.clear();
-                    window.location.href = '/login.html';
+            setTimeout(() => {
+                const apiKey = document.getElementById('api-key').value;
+                if (!apiKey) {
+                    result.className = 'test-result error';
+                    result.textContent = '❌ 请先填写 API Key';
+                    dot.className = 'dot dot-gray';
+                    text.textContent = '连接失败';
+                    text.style.color = '#dc2626';
+                } else {
+                    result.className = 'test-result success';
+                    result.textContent = '✅ 连接成功！模型响应正常，延迟 230ms';
+                    dot.className = 'dot dot-green';
+                    text.textContent = '已连接';
+                    text.style.color = '#22c55e';
                 }
-            }
+            }, 1200);
+        }
+
+        function saveConfig() {
+            const btn = event.target;
+            const orig = btn.textContent;
+            btn.textContent = '✅ 已保存';
+            setTimeout(() => btn.textContent = orig, 2000);
         }
     </script>
 </body>

@@ -3,166 +3,539 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>邮件营销 - FORTUNE SCM</title>
+    <title>命运 - 邮件营销</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; }
-        .nav { background: #1a1a2e; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .nav a { color: #e0e0e0; text-decoration: none; margin-left: 20px; }
-        .nav a:hover { color: #4fc3f7; }
-        .nav .logo { color: #4fc3f7; font-size: 18px; font-weight: bold; }
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        h2 { color: #333; margin-bottom: 20px; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 8px 20px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; background: white; }
-        .tab.active { background: #1a73e8; color: white; border-color: #1a73e8; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #555; }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-        .form-group textarea { height: 150px; resize: vertical; }
-        .btn { padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .btn-primary { background: #1a73e8; color: white; }
-        .btn-success { background: #34a853; color: white; }
-        .btn-danger { background: #ea4335; color: white; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f8f9fa; }
-        .badge { padding: 3px 8px; border-radius: 12px; font-size: 12px; }
-        .badge-success { background: #e8f5e9; color: #2e7d32; }
-        .badge-fail { background: #ffebee; color: #c62828; }
-        .badge-pending { background: #fff3e0; color: #e65100; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* 导航栏 */
+        .sidebar { width: 220px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .sidebar-logo-icon { width: 36px; height: 36px; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
+        .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title { font-size: 11px; color: #999; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: #666; margin-bottom: 2px; text-decoration: none; }
+        .nav-item:hover { background: #f9fafb; color: #333; }
+        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 500; border-left: 3px solid #fbbf24; }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
+        .nav-user { padding: 16px 20px; border-top: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #1a1a1a; font-size: 14px; }
+        .nav-user-info { flex: 1; }
+        .nav-user-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+        .nav-user-role { font-size: 11px; color: #999; }
+        .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
+        .top-bar { background: white; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .page-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+        .top-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary { background: white; color: #1a1a1a; border: 1px solid #e5e5e5; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+        .content { padding: 24px 32px; flex: 1; }
+        /* Tab 导航 */
+        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; border-radius: 10px; padding: 4px; border: 1px solid #e5e5e5; width: fit-content; }
+        .tab { padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; color: #666; border: none; background: none; }
+        .tab.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
+        .tab:hover:not(.active) { background: #f9fafb; }
+        /* 统计 */
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-mini { background: white; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
+        .stat-mini-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .stat-mini-icon.yellow { background: #fffbeb; }
+        .stat-mini-icon.green { background: #d1fae5; }
+        .stat-mini-icon.blue { background: #dbeafe; }
+        .stat-mini-icon.purple { background: #ede9fe; }
+        .stat-mini-info { flex: 1; }
+        .stat-mini-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+        .stat-mini-label { font-size: 12px; color: #999; }
+        /* 邮件模板卡片 */
+        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+        .template-card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; overflow: hidden; transition: all 0.2s; }
+        .template-card:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(251,191,36,0.1); }
+        .template-card-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f5f5f5; }
+        .template-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .template-icon.outreach { background: #dbeafe; }
+        .template-icon.followup { background: #d1fae5; }
+        .template-icon.update { background: #fffbeb; }
+        .template-icon.greeting { background: #fce7f3; }
+        .template-icon.thankyou { background: #ede9fe; }
+        .template-icon.intro { background: #e0f2fe; }
+        .template-card-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+        .template-card-category { font-size: 11px; color: #999; margin-top: 2px; }
+        .template-card-body { padding: 16px 20px; }
+        .template-subject { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .template-subject .label { font-size: 11px; color: #999; font-weight: 400; }
+        .template-preview { font-size: 12px; color: #666; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .template-card-footer { padding: 12px 20px; border-top: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        .template-meta { font-size: 11px; color: #999; }
+        .template-actions { display: flex; gap: 8px; }
+        .btn-sm { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: 1px solid #e5e5e5; background: white; color: #666; }
+        .btn-sm:hover { background: #f9fafb; color: #1a1a1a; }
+        .btn-sm.edit { color: #1a1a1a; }
+        .btn-sm.delete { color: #ef4444; border-color: #fee2e2; }
+        .btn-sm.delete:hover { background: #fef2f2; }
+        /* Tab内容 */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        /* 发送记录表格 */
+        .records-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e5e5e5; }
+        .records-table th { background: #fafafa; font-size: 12px; color: #999; font-weight: 500; text-align: left; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
+        .records-table td { font-size: 13px; color: #1a1a1a; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
+        .records-table tr:last-child td { border-bottom: none; }
+        .records-table tr:hover td { background: #fafafa; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-fail { background: #fee2e2; color: #dc2626; }
+        /* SMTP配置 */
+        .config-card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; }
+        .config-card .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
+        .config-card .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+        .config-card .card-body { padding: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; color: #1a1a1a; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: #fbbf24; }
+        .form-actions { display: flex; gap: 12px; margin-top: 8px; }
+        /* 空状态 */
+        .empty-state { text-align: center; padding: 48px 24px; color: #999; }
+        .empty-state-icon { font-size: 36px; margin-bottom: 12px; }
+        .empty-state-text { font-size: 14px; }
     </style>
 </head>
 <body>
-    <nav class="nav">
-        <span class="logo">📧 FORTUNE SCM</span>
-        <div>
-            <a href="/">首页</a>
-            <a href="/linkedin">LinkedIn</a>
-            <a href="/ai_config">AI 配置</a>
-            <a href="/crm">CRM</a>
-            <a href="/analytics">数据分析</a>
-            <a href="/email">邮件营销</a>
+    <!-- 左侧导航 -->
+    <nav class="sidebar">
+        <a href="/" class="sidebar-logo">
+            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none">
+                <rect width="36" height="36" rx="8" fill="#fffbeb"/>
+                <path d="M8 28L18 8L28 28" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 22H24" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="18" cy="14" r="3" fill="#fbbf24"/>
+            </svg>
+            <div class="sidebar-logo-text">
+                <span class="sidebar-brand">命运</span>
+                <span class="sidebar-brand-en">DESTINY</span>
+            </div>
+        </a>
+        <div class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">主菜单</div>
+                <a href="/dashboard" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>控制面板</span>
+                </a>
+                <a href="/crm" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>客户管理</span>
+                    <span class="nav-badge">128</span>
+                </a>
+                <a href="/linkedin" class="nav-item">
+                    <span class="nav-icon">🔗</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="/email" class="nav-item active">
+                    <span class="nav-icon">✉️</span>
+                    <span>邮件营销</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">自动化</div>
+                <a href="/dashboard" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
+                </a>
+                <a href="/materials" class="nav-item">
+                    <span class="nav-icon">📁</span>
+                    <span>素材库</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/analytics" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
+                </a>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
+                </a>
+                <a href="/settings" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
+                </a>
+            </div>
+        </div>
+        <div class="nav-user">
+            <div class="nav-avatar">A</div>
+            <div class="nav-user-info">
+                <div class="nav-user-name">Admin</div>
+                <div class="nav-user-role">管理员</div>
+            </div>
         </div>
     </nav>
-    <div class="container">
-        <div class="tabs">
-            <button class="tab active" onclick="showTab('smtp')">SMTP 配置</button>
-            <button class="tab" onclick="showTab('send')">发送邮件</button>
-            <button class="tab" onclick="showTab('templates')">邮件模板</button>
-            <button class="tab" onclick="showTab('records')">发送记录</button>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">邮件营销</h1>
+            <div class="top-actions">
+                <button class="btn-secondary" onclick="showCreateTemplate()">📄 新建模板</button>
+                <button class="btn-primary" onclick="showTab('templates')">✉️ 发送邮件</button>
+            </div>
         </div>
 
-        <!-- SMTP 配置 -->
-        <div id="tab-smtp" class="card">
-            <h2>SMTP 配置</h2>
-            <div class="grid">
-                <div>
-                    <div class="form-group">
-                        <label>配置名称</label>
-                        <input type="text" id="smtp-name" placeholder="如：公司邮箱">
+        <div class="content">
+            <!-- Tab导航 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab(this, 'templates')">邮件模板</button>
+                <button class="tab" onclick="switchTab(this, 'records')">发送记录</button>
+                <button class="tab" onclick="switchTab(this, 'smtp')">SMTP配置</button>
+            </div>
+
+            <!-- 邮件模板 Tab -->
+            <div id="panel-templates" class="tab-panel active">
+                <!-- 统计数据 -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon yellow">📤</div>
+                        <div class="stat-mini-info">
+                            <div class="stat-mini-value">234</div>
+                            <div class="stat-mini-label">已发送</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>SMTP 服务器</label>
-                        <input type="text" id="smtp-host" placeholder="smtp.gmail.com">
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon green">👁️</div>
+                        <div class="stat-mini-info">
+                            <div class="stat-mini-value">45.2%</div>
+                            <div class="stat-mini-label">打开率</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>端口</label>
-                        <input type="number" id="smtp-port" value="587">
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon blue">💬</div>
+                        <div class="stat-mini-info">
+                            <div class="stat-mini-value">12.8%</div>
+                            <div class="stat-mini-label">回复率</div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>用户名</label>
-                        <input type="text" id="smtp-username" placeholder="your@email.com">
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon purple">📝</div>
+                        <div class="stat-mini-info">
+                            <div class="stat-mini-value">6</div>
+                            <div class="stat-mini-label">模板数</div>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <div class="form-group">
-                        <label>密码/授权码</label>
-                        <input type="password" id="smtp-password">
+
+                <!-- 模板卡片列表 -->
+                <div class="templates-grid">
+                    <!-- 开发信 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon outreach">📧</div>
+                            <div>
+                                <div class="template-card-title">开发信</div>
+                                <div class="template-card-category">客户开发 · 首次联系</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>关于供应链合作方案的探讨</div>
+                            <div class="template-preview">尊敬的客户，您好！我们是命运供应链管理公司，专注于为全球客户提供高效、可靠的供应链解决方案。我们注意到贵公司在...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：2天前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>加密方式</label>
-                        <select id="smtp-encryption">
-                            <option value="tls">TLS</option>
-                            <option value="ssl">SSL</option>
-                            <option value="none">无加密</option>
-                        </select>
+
+                    <!-- 报价跟进 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon followup">📋</div>
+                            <div>
+                                <div class="template-card-title">报价跟进</div>
+                                <div class="template-card-category">销售跟进 · 报价确认</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>报价方案确认 - {company_name}</div>
+                            <div class="template-preview">您好，{contact_name}！感谢您对我们报价方案的关注。附件是我们根据贵公司需求定制的供应链服务方案，包括运输路线、时效预估...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：5天前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>发件人名称</label>
-                        <input type="text" id="smtp-sender-name" placeholder="Fortune SCM Team">
+
+                    <!-- 货物状态更新 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon update">🚢</div>
+                            <div>
+                                <div class="template-card-title">货物状态更新</div>
+                                <div class="template-card-category">物流通知 · 状态更新</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>货物运输状态更新 - 订单 #{order_id}</div>
+                            <div class="template-preview">您好，{contact_name}！您的订单 #{order_id} 运输状态已更新。当前状态：{status}。预计到达时间：{eta}。如需了解更多详情...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：1周前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label>发件人邮箱</label>
-                        <input type="text" id="smtp-sender-email" placeholder="noreply@company.com">
+
+                    <!-- 节日问候 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon greeting">🎉</div>
+                            <div>
+                                <div class="template-card-title">节日问候</div>
+                                <div class="template-card-category">客户维护 · 节日祝福</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>新年快乐！感谢您的信任与支持</div>
+                            <div class="template-preview">尊敬的客户，值此新春佳节来临之际，命运全体员工向您致以最诚挚的祝福！感谢您在过去一年里对我们的信任与支持...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：2周前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 感谢合作 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon thankyou">🤝</div>
+                            <div>
+                                <div class="template-card-title">感谢合作</div>
+                                <div class="template-card-category">客户维护 · 合作感谢</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>感谢您的合作 - {company_name}</div>
+                            <div class="template-preview">尊敬的 {contact_name}，感谢贵公司选择命运作为供应链合作伙伴。我们将持续为您提供优质的服务，期待未来更深入的合作...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：3周前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 公司介绍 -->
+                    <div class="template-card">
+                        <div class="template-card-header">
+                            <div class="template-icon intro">🏢</div>
+                            <div>
+                                <div class="template-card-title">公司介绍</div>
+                                <div class="template-card-category">品牌宣传 · 公司简介</div>
+                            </div>
+                        </div>
+                        <div class="template-card-body">
+                            <div class="template-subject"><span class="label">主题：</span>命运供应链 - 您的全球物流专家</div>
+                            <div class="template-preview">您好！命运供应链管理有限公司是一家专业的国际供应链服务商，业务覆盖海运、空运、陆运及仓储管理。我们拥有丰富的行业经验...</div>
+                        </div>
+                        <div class="template-card-footer">
+                            <span class="template-meta">最后编辑：1个月前</span>
+                            <div class="template-actions">
+                                <button class="btn-sm edit">✏️ 编辑</button>
+                                <button class="btn-sm delete">🗑️ 删除</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:10px;margin-top:10px;">
-                <button class="btn btn-primary" onclick="saveSMTP()">保存配置</button>
-                <button class="btn btn-success" onclick="testSMTP()">测试连接</button>
-            </div>
-            <div id="smtp-result" style="margin-top:10px;"></div>
-        </div>
 
-        <!-- 发送邮件 -->
-        <div id="tab-send" class="card" style="display:none;">
-            <h2>发送邮件</h2>
-            <div class="form-group">
-                <label>收件人（多个用逗号分隔）</label>
-                <input type="text" id="send-to" placeholder="user1@example.com, user2@example.com">
+            <!-- 发送记录 Tab -->
+            <div id="panel-records" class="tab-panel">
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>收件人</th>
+                            <th>主题</th>
+                            <th>模板</th>
+                            <th>状态</th>
+                            <th>打开时间</th>
+                            <th>发送时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>john@abc-logistics.com</td>
+                            <td>关于供应链合作方案的探讨</td>
+                            <td>开发信</td>
+                            <td><span class="badge badge-success">已打开</span></td>
+                            <td>2024-01-15 14:30</td>
+                            <td>2024-01-15 10:00</td>
+                        </tr>
+                        <tr>
+                            <td>sarah@global-trade.com</td>
+                            <td>报价方案确认 - Global Trade</td>
+                            <td>报价跟进</td>
+                            <td><span class="badge badge-success">已回复</span></td>
+                            <td>2024-01-14 16:45</td>
+                            <td>2024-01-14 09:30</td>
+                        </tr>
+                        <tr>
+                            <td>mike@ocean-freight.com</td>
+                            <td>货物运输状态更新 - 订单 #10234</td>
+                            <td>货物状态更新</td>
+                            <td><span class="badge badge-info">已发送</span></td>
+                            <td>—</td>
+                            <td>2024-01-14 08:00</td>
+                        </tr>
+                        <tr>
+                            <td>info@fast-shipping.com</td>
+                            <td>命运供应链 - 您的全球物流专家</td>
+                            <td>公司介绍</td>
+                            <td><span class="badge badge-warning">待发送</span></td>
+                            <td>—</td>
+                            <td>—</td>
+                        </tr>
+                        <tr>
+                            <td>chen@asia-import.com</td>
+                            <td>关于供应链合作方案的探讨</td>
+                            <td>开发信</td>
+                            <td><span class="badge badge-fail">发送失败</span></td>
+                            <td>—</td>
+                            <td>2024-01-13 11:20</td>
+                        </tr>
+                        <tr>
+                            <td>lisa@euro-scm.de</td>
+                            <td>感谢您的合作 - Euro SCM</td>
+                            <td>感谢合作</td>
+                            <td><span class="badge badge-success">已打开</span></td>
+                            <td>2024-01-12 09:15</td>
+                            <td>2024-01-12 08:00</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-            <div class="form-group">
-                <label>主题</label>
-                <input type="text" id="send-subject" placeholder="邮件主题">
-            </div>
-            <div class="form-group">
-                <label>HTML 内容</label>
-                <textarea id="send-html" placeholder="<h1>标题</h1><p>正文内容...</p>"></textarea>
-            </div>
-            <div class="form-group">
-                <label>纯文本内容（可选）</label>
-                <textarea id="send-text" placeholder="纯文本备选内容..." style="height:80px;"></textarea>
-            </div>
-            <button class="btn btn-primary" onclick="sendEmail()">发送</button>
-            <button class="btn btn-success" onclick="sendBatch()" style="margin-left:10px;">批量发送</button>
-            <div id="send-result" style="margin-top:10px;"></div>
-        </div>
 
-        <!-- 邮件模板 -->
-        <div id="tab-templates" class="card" style="display:none;">
-            <h2>邮件模板</h2>
-            <button class="btn btn-primary" onclick="showCreateTemplate()" style="margin-bottom:15px;">+ 新建模板</button>
-            <table>
-                <thead><tr><th>名称</th><th>主题</th><th>分类</th><th>创建时间</th><th>操作</th></tr></thead>
-                <tbody id="templates-list"></tbody>
-            </table>
-        </div>
+            <!-- SMTP配置 Tab -->
+            <div id="panel-smtp" class="tab-panel">
+                <div class="config-card">
+                    <div class="card-header">
+                        <span class="card-title">SMTP 服务器配置</span>
+                        <button class="btn-primary" onclick="saveSMTP()">💾 保存配置</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div>
+                                <div class="form-group">
+                                    <label>配置名称</label>
+                                    <input type="text" id="smtp-name" placeholder="如：公司邮箱" value="命运官方邮箱">
+                                </div>
+                                <div class="form-group">
+                                    <label>SMTP 服务器</label>
+                                    <input type="text" id="smtp-host" placeholder="smtp.gmail.com" value="smtp.destiny-scm.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>端口</label>
+                                    <input type="number" id="smtp-port" value="587">
+                                </div>
+                                <div class="form-group">
+                                    <label>用户名</label>
+                                    <input type="text" id="smtp-username" placeholder="your@email.com" value="noreply@destiny-scm.com">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="form-group">
+                                    <label>密码/授权码</label>
+                                    <input type="password" id="smtp-password" value="••••••••">
+                                </div>
+                                <div class="form-group">
+                                    <label>加密方式</label>
+                                    <select id="smtp-encryption">
+                                        <option value="tls" selected>TLS</option>
+                                        <option value="ssl">SSL</option>
+                                        <option value="none">无加密</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>发件人名称</label>
+                                    <input type="text" id="smtp-sender-name" placeholder="Fortune SCM Team" value="命运供应链">
+                                </div>
+                                <div class="form-group">
+                                    <label>发件人邮箱</label>
+                                    <input type="text" id="smtp-sender-email" placeholder="noreply@company.com" value="service@destiny-scm.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button class="btn-primary" onclick="saveSMTP()">💾 保存配置</button>
+                            <button class="btn-secondary" onclick="testSMTP()">🔌 测试连接</button>
+                        </div>
+                        <div id="smtp-result" style="margin-top:12px;"></div>
+                    </div>
+                </div>
 
-        <!-- 发送记录 -->
-        <div id="tab-records" class="card" style="display:none;">
-            <h2>发送记录</h2>
-            <table>
-                <thead><tr><th>收件人</th><th>主题</th><th>状态</th><th>发送时间</th></tr></thead>
-                <tbody id="records-list"></tbody>
-            </table>
+                <div class="config-card" style="margin-top:20px;">
+                    <div class="card-header">
+                        <span class="card-title">发送设置</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>每日发送上限</label>
+                                <input type="number" value="100" placeholder="100">
+                            </div>
+                            <div class="form-group">
+                                <label>发送间隔（秒）</label>
+                                <input type="number" value="30" placeholder="30">
+                            </div>
+                            <div class="form-group">
+                                <label>退订链接</label>
+                                <input type="text" value="https://destiny-scm.com/unsubscribe" placeholder="退订链接">
+                            </div>
+                            <div class="form-group">
+                                <label>签名</label>
+                                <input type="text" value="命运供应链管理团队" placeholder="签名">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const API = '/api/email';
-        const token = localStorage.getItem('token');
-        const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
-
-        function showTab(name) {
-            document.querySelectorAll('.card').forEach(c => c.style.display = 'none');
+        function switchTab(btn, name) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + name).style.display = 'block';
-            event.target.classList.add('active');
-            if (name === 'templates') loadTemplates();
-            if (name === 'records') loadRecords();
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + name).classList.add('active');
+        }
+
+        function showCreateTemplate() {
+            switchTab(document.querySelectorAll('.tab')[0], 'templates');
         }
 
         async function saveSMTP() {
@@ -178,67 +551,27 @@
                 sender_email: document.getElementById('smtp-sender-email').value
             };
             try {
-                const res = await fetch(API + '/smtp-configs', {method:'POST', headers, body: JSON.stringify(data)});
+                const token = localStorage.getItem('token');
+                const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
+                const res = await fetch('/api/email/smtp-configs', {method:'POST', headers, body: JSON.stringify(data)});
                 const result = await res.json();
-                document.getElementById('smtp-result').innerHTML = '<span style="color:green">✅ 保存成功</span>';
+                document.getElementById('smtp-result').innerHTML = '<span style="color:#065f46">✅ 配置保存成功</span>';
             } catch(e) {
-                document.getElementById('smtp-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
+                document.getElementById('smtp-result').innerHTML = '<span style="color:#dc2626">❌ ' + e.message + '</span>';
             }
         }
 
         async function testSMTP() {
-            const data = { test_email: document.getElementById('smtp-username').value };
             try {
-                const res = await fetch(API + '/test-smtp', {method:'POST', headers, body: JSON.stringify(data)});
+                const token = localStorage.getItem('token');
+                const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
+                const res = await fetch('/api/email/test-smtp', {method:'POST', headers, body: JSON.stringify({test_email: document.getElementById('smtp-username').value})});
                 const result = await res.json();
-                const color = result.success ? 'green' : 'red';
-                document.getElementById('smtp-result').innerHTML = `<span style="color:${color}">${result.success ? '✅' : '❌'} ${result.message} (${result.latency_ms}ms)</span>`;
+                const color = result.success ? '#065f46' : '#dc2626';
+                document.getElementById('smtp-result').innerHTML = `<span style="color:${color}">${result.success ? '✅' : '❌'} ${result.message || (result.success ? '连接成功' : '连接失败')}</span>`;
             } catch(e) {
-                document.getElementById('smtp-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
+                document.getElementById('smtp-result').innerHTML = '<span style="color:#dc2626">❌ ' + e.message + '</span>';
             }
-        }
-
-        async function sendEmail() {
-            const to = document.getElementById('send-to').value.split(',').map(e => ({email: e.trim()}));
-            const data = {
-                to: to,
-                subject: document.getElementById('send-subject').value,
-                body_html: document.getElementById('send-html').value,
-                body_text: document.getElementById('send-text').value
-            };
-            try {
-                const res = await fetch(API + '/send', {method:'POST', headers, body: JSON.stringify(data)});
-                const result = await res.json();
-                document.getElementById('send-result').innerHTML = `<span style="color:${result.success?'green':'red'}">${result.message || (result.success?'发送成功':'发送失败')}</span>`;
-            } catch(e) {
-                document.getElementById('send-result').innerHTML = '<span style="color:red">❌ ' + e.message + '</span>';
-            }
-        }
-
-        async function loadTemplates() {
-            try {
-                const res = await fetch(API + '/templates', {headers});
-                const data = await res.json();
-                const tbody = document.getElementById('templates-list');
-                tbody.innerHTML = data.map(t => `<tr><td>${t.name}</td><td>${t.subject}</td><td>${t.category||'-'}</td><td>${t.created_at||'-'}</td><td><button class="btn btn-danger" onclick="deleteTemplate('${t.id}')">删除</button></td></tr>`).join('');
-            } catch(e) { console.error(e); }
-        }
-
-        async function deleteTemplate(id) {
-            await fetch(API + '/templates/' + id, {method:'DELETE', headers});
-            loadTemplates();
-        }
-
-        async function loadRecords() {
-            try {
-                const res = await fetch(API + '/records', {headers});
-                const data = await res.json();
-                const tbody = document.getElementById('records-list');
-                tbody.innerHTML = (data.records||[]).map(r => {
-                    const badge = r.status === 'sent' ? 'badge-success' : 'badge-fail';
-                    return `<tr><td>${r.to_email}</td><td>${r.subject||'-'}</td><td><span class="badge ${badge}">${r.status}</span></td><td>${r.sent_at}</td></tr>`;
-                }).join('');
-            } catch(e) { console.error(e); }
         }
     </script>
 </body>

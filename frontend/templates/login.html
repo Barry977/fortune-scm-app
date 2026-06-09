@@ -3,211 +3,287 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORTUNE SCM - 登录</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>命运 - 登录</title>
     <style>
-        /* 自定义动画 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
+        .login-container {
+            display: flex;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            overflow: hidden;
+            width: 900px;
+            max-width: 90vw;
         }
-        .animate-shake {
-            animation: shake 0.3s ease-in-out;
+        .login-left {
+            flex: 1;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+        }
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+        .logo-english {
+            font-size: 18px;
+            color: #666;
+            letter-spacing: 6px;
+        }
+        .slogan {
+            font-size: 14px;
+            color: #999;
+            margin-top: 30px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .login-right {
+            flex: 1;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .login-subtitle {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 40px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-input:focus {
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251,191,36,0.1);
+        }
+        .form-input::placeholder {
+            color: #ccc;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #fbbf24;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .login-btn:hover {
+            background: #f59e0b;
+        }
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+        }
+        .remember-me input {
+            accent-color: #fbbf24;
+        }
+        .forgot-password {
+            font-size: 13px;
+            color: #fbbf24;
+            text-decoration: none;
+        }
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 14px;
+            color: #999;
+        }
+        .register-link a {
+            color: #fbbf24;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .success-message {
+            background: #d1fae5;
+            color: #059669;
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="w-full max-w-md p-8">
-        <!-- 登录卡片 -->
-        <div class="bg-white rounded-lg shadow-lg p-8 animate-fade-in">
-            <!-- Logo/标题 -->
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">FORTUNE SCM</h1>
-                <p class="text-gray-500 text-sm">物流管理系统</p>
+<body>
+    <div class="login-container">
+        <div class="login-left">
+            <div class="logo-section">
+                <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- 方案二：抽象飞机线条 -->
+                    <path d="M20 55 L50 20 L80 55" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M30 48 L50 28 L70 48" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="50" cy="60" r="5" fill="#fbbf24"/>
+                    <path d="M43 68 L50 60 L57 68" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- 曙光黄光晕 -->
+                    <circle cx="50" cy="60" r="25" fill="#fbbf24" opacity="0.12"/>
+                </svg>
+                <div class="logo-text">命运</div>
+                <div class="logo-english">DESTINY</div>
             </div>
-
-            <!-- 错误提示区域 -->
-            <div id="error-message" class="hidden mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm animate-shake"></div>
-
-            <!-- 登录表单 -->
-            <form id="login-form" class="space-y-6">
-                <!-- 用户名输入框 -->
-                <div>
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
-                        用户名
-                    </label>
-                    <input
-                        type="text"
-                        id="username"
-                        name="username"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        placeholder="请输入用户名"
-                        autocomplete="username"
-                    >
-                </div>
-
-                <!-- 密码输入框 -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
-                        密码
-                    </label>
-                    <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                        placeholder="请输入密码"
-                        autocomplete="current-password"
-                    >
-                </div>
-
-                <!-- 登录按钮 -->
-                <button
-                    type="submit"
-                    id="login-btn"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <span id="btn-text">登录</span>
-                    <span id="btn-loading" class="hidden">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        登录中...
-                    </span>
-                </button>
-            </form>
-
-            <!-- 提示信息 -->
-            <div class="mt-6 text-center text-sm text-gray-500">
-                <p>默认管理员账号: <span class="font-medium text-gray-700">admin / admin123</span></p>
+            <div class="slogan">
+                智能客户开发系统<br>
+                让每一次连接都充满可能
             </div>
         </div>
-
-        <!-- 页脚 -->
-        <div class="mt-8 text-center text-xs text-gray-400">
-            <p> FORTUNE SCM. All rights reserved.</p>
+        <div class="login-right">
+            <div class="login-title">欢迎回来</div>
+            <div class="login-subtitle">请登录您的账户</div>
+            
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+            
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">用户名</label>
+                    <input type="text" class="form-input" id="username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">密码</label>
+                    <input type="password" class="form-input" id="password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="login-btn">登录</button>
+            </form>
+            
+            <div class="form-footer">
+                <label class="remember-me">
+                    <input type="checkbox"> 记住我
+                </label>
+                <a href="#" class="forgot-password">忘记密码？</a>
+            </div>
+            
+            <div class="register-link">
+                还没有账户？<a href="#" onclick="showRegister()">立即注册</a>
+            </div>
         </div>
     </div>
 
     <script>
-        // 获取DOM元素
-        const loginForm = document.getElementById('login-form');
-        const errorMessage = document.getElementById('error-message');
-        const loginBtn = document.getElementById('login-btn');
-        const btnText = document.getElementById('btn-text');
-        const btnLoading = document.getElementById('btn-loading');
-
-        // API基础URL - 使用当前页面的host（自动适配端口）
-        const API_BASE_URL = window.location.origin;
-
-        // 显示错误信息
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.classList.remove('hidden');
-            // 触发重绘以重新播放动画
-            errorMessage.style.animation = 'none';
-            errorMessage.offsetHeight; // 触发重绘
-            errorMessage.style.animation = '';
-        }
-
-        // 隐藏错误信息
-        function hideError() {
-            errorMessage.classList.add('hidden');
-        }
-
-        // 设置按钮加载状态
-        function setLoading(isLoading) {
-            loginBtn.disabled = isLoading;
-            if (isLoading) {
-                btnText.classList.add('hidden');
-                btnLoading.classList.remove('hidden');
-            } else {
-                btnText.classList.remove('hidden');
-                btnLoading.classList.add('hidden');
-            }
-        }
-
-        // 处理登录表单提交
-        loginForm.addEventListener('submit', async (e) => {
+        const API_BASE = window.location.origin;
+        
+        async function handleLogin(e) {
             e.preventDefault();
-            hideError();
-
-            const username = document.getElementById('username').value.trim();
+            const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-
-            // 前端验证
-            if (!username) {
-                showError('请输入用户名');
-                return;
-            }
-            if (!password) {
-                showError('请输入密码');
-                return;
-            }
-
-            setLoading(true);
-
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
             try {
-                // 使用FormData格式提交，符合OAuth2PasswordRequestForm要求
                 const formData = new URLSearchParams();
                 formData.append('username', username);
                 formData.append('password', password);
-
-                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: formData
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
                 });
-
+                
                 const data = await response.json();
-
+                
                 if (response.ok) {
-                    // 登录成功，保存token到localStorage
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('token_expires', Date.now() + data.expires_in * 1000);
-                    localStorage.setItem('user_info', JSON.stringify(data.user));
-
-                    // 跳转到主页
-                    window.location.href = '/dashboard.html';
+                    localStorage.setItem('token', data.access_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    successDiv.textContent = '登录成功，正在跳转...';
+                    successDiv.style.display = 'block';
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1000);
                 } else {
-                    // 登录失败
-                    showError(data.detail || '登录失败，请检查用户名和密码');
+                    errorDiv.textContent = data.detail || '登录失败';
+                    errorDiv.style.display = 'block';
                 }
-            } catch (error) {
-                console.error('登录请求失败:', error);
-                showError('网络错误，请检查后端服务是否运行');
-            } finally {
-                setLoading(false);
+            } catch (err) {
+                errorDiv.textContent = '网络错误，请稍后重试';
+                errorDiv.style.display = 'block';
             }
-        });
-
-        // 输入框获得焦点时隐藏错误信息
-        document.getElementById('username').addEventListener('focus', hideError);
-        document.getElementById('password').addEventListener('focus', hideError);
-
-        // 页面加载时检查是否已登录
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('access_token');
-            const expires = localStorage.getItem('token_expires');
-            
-            if (token && expires && Date.now() < parseInt(expires)) {
-                // 已登录且token未过期，直接跳转
-                window.location.href = '/dashboard.html';
-            }
-        });
+        }
+        
+        function showRegister() {
+            // 跳转到注册页面或显示注册表单
+            alert('注册功能开发中');
+        }
     </script>
 </body>
 </html>

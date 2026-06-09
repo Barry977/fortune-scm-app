@@ -34,7 +34,7 @@ from backend.import_export_routes import router as import_export_router
 from backend.linkedin_analytics_routes import router as linkedin_analytics_router
 from backend.auto_import_routes import router as auto_import_router
 
-app = FastAPI(title="FORTUNE SCM", version="1.0.0")
+app = FastAPI(title="命运 (DESTINY)", version="1.0.0")
 
 # 注册路由
 app.include_router(linkedin_router)
@@ -255,6 +255,11 @@ async def settings_page(request: Request):
 @app.get("/materials.html", response_class=HTMLResponse)
 async def materials_page(request: Request):
     return _render("materials.html", request)
+
+@app.get("/scheduler", response_class=HTMLResponse)
+@app.get("/scheduler.html", response_class=HTMLResponse)
+async def scheduler_page(request: Request):
+    return _render("scheduler.html", request)
 
 
 if __name__ == "__main__":
