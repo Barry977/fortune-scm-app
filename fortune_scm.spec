@@ -24,8 +24,13 @@ for src, dst in [
     p = PROJECT_DIR / src
     if p.exists():
         datas.append((str(p), dst))
-# Ensure data dir exists at runtime (created by app)
-# assets already included via frontend/
+
+# Collect bcrypt's native extension
+from PyInstaller.utils.hooks import collect_all as _collect_all
+_bd, _bi, _hi = _collect_all('bcrypt')
+datas += _bd
+binaries_extra = _bi
+hiddenimports_extra = _hi
 
 # Add hidden imports for backend modules
 hiddenimports = [
@@ -86,9 +91,9 @@ hiddenimports = [
 a = Analysis(
     ['start.py'],
     pathex=[str(PROJECT_DIR)],
-    binaries=[],
+    binaries=binaries_extra,
     datas=datas,
-    hiddenimports=hiddenimports,
+    hiddenimports=hiddenimports + hiddenimports_extra,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
