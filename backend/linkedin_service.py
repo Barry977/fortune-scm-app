@@ -13,6 +13,13 @@ import time
 from datetime import datetime, date
 from typing import Optional, List, Dict, Any
 
+# Playwright is optional — LinkedIn automation only works when installed
+try:
+    HAS_PLAYWRIGHT = True
+except ImportError:
+    async_playwright = None
+    HAS_PLAYWRIGHT = False
+
 from backend.database import get_db_ctx
 
 logger = logging.getLogger(__name__)
@@ -194,7 +201,6 @@ async def _get_page(headless: bool = True):
             # page dead, re-create
             _page = None
 
-    from playwright.async_api import async_playwright
 
     if _browser_ctx:
         try:
