@@ -37,308 +37,610 @@
         .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
         .nav-section { margin-bottom: 8px; }
         .nav-section-title {
-            font-size: 11px; color: #999; padding: 8px 12px 4px;
-            text-transform: uppercase; letter-spacing: 1px;
+            font-size: 11px;
+            color: #999;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .nav-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 12px; border-radius: 6px; cursor: pointer;
-            transition: all 0.15s; font-size: 14px; color: #666; margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+            text-decoration: none;
         }
-        .nav-item:hover { background: #f5f5f5; color: #1a1a1a; }
-        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 600; }
-        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-        .nav-badge {
-            margin-left: auto; background: #fbbf24; color: #1a1a1a;
-            font-size: 11px; font-weight: 600; padding: 1px 7px;
-            border-radius: 10px;
+        .nav-item:hover { background: #f9fafb; color: #333; }
+        .nav-item.active {
+            background: #fffbeb;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left: 3px solid #fbbf24;
         }
-        .sidebar-user {
-            padding: 16px 20px; border-top: 1px solid #f5f5f5;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .user-avatar {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: #fbbf24; display: flex; align-items: center;
-            justify-content: center; font-size: 14px; font-weight: 600; color: #1a1a1a;
-        }
-        .user-info { display: flex; flex-direction: column; }
-        .user-name { font-size: 13px; font-weight: 600; color: #1a1a1a; }
-        .user-role { font-size: 11px; color: #999; }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
 
-        /* 主内容 */
-        .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; }
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+        }
+
+        /* 顶部栏 */
         .top-bar {
-            background: white; border-bottom: 1px solid #e5e5e5;
-            padding: 20px 32px; display: flex;
-            align-items: center; justify-content: space-between;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
         }
-        .top-bar h1 { font-size: 22px; font-weight: 700; color: #1a1a1a; }
-        .btn-primary {
-            background: #1a1a1a; color: white; border: none;
-            padding: 10px 20px; border-radius: 8px; font-size: 14px;
-            font-weight: 600; cursor: pointer; transition: background 0.15s;
-        }
-        .btn-primary:hover { background: #333; }
-        .content { padding: 24px 32px; flex: 1; }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
 
-        /* 统计行 */
-        .stats-row {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 16px; margin-bottom: 24px;
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary { background: white; color: #666; border: 1px solid #e5e5e5; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-sm:hover { border-color: #ccc; color: #1a1a1a; }
+        .btn-sm.run { background: #fbbf24; border-color: #fbbf24; color: #1a1a1a; font-weight: 500; }
+        .btn-sm.run:hover { background: #f59e0b; }
+        .btn-sm.danger { background: #fee2e2; border-color: #fee2e2; color: #dc2626; }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
         }
         .stat-card {
-            background: white; border: 1px solid #e5e5e5;
-            border-radius: 10px; padding: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .stat-label { font-size: 13px; color: #999; margin-bottom: 8px; }
-        .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
-        .stat-value.green { color: #22c55e; }
+        .stat-card-label { font-size: 13px; color: #999; margin-bottom: 8px; }
+        .stat-card-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .stat-card-value.green { color: #22c55e; }
+        .stat-card-value.amber { color: #f59e0b; }
+        .stat-card-value.gray { color: #9ca3af; }
 
-        /* 任务卡片 */
-        .task-list { display: flex; flex-direction: column; gap: 16px; }
+        /* 任务列表 */
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+
         .task-card {
-            background: white; border: 1px solid #e5e5e5;
-            border-radius: 10px; padding: 24px;
-            display: flex; align-items: center; gap: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
             transition: box-shadow 0.15s;
         }
-        .task-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        .task-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+
         .task-icon {
-            width: 48px; height: 48px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
             flex-shrink: 0;
         }
         .task-icon.linkedin { background: #e8f4fd; }
         .task-icon.email { background: #fef3c7; }
         .task-icon.ai { background: #f3e8ff; }
-        .task-icon svg { width: 24px; height: 24px; }
-        .task-info { flex: 1; }
-        .task-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .task-name { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+        .task-icon.default { background: #f3f4f6; }
+
+        .task-info { flex: 1; min-width: 0; }
+        .task-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+        .task-name { font-size: 15px; font-weight: 600; color: #1a1a1a; }
+
         .task-badge {
-            font-size: 11px; font-weight: 600; padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
             border-radius: 12px;
         }
-        .task-badge.running { background: #dcfce7; color: #16a34a; }
-        .task-badge.paused { background: #f3f4f6; color: #6b7280; }
+        .task-badge.enabled { background: #d1fae5; color: #065f46; }
+        .task-badge.disabled { background: #f3f4f6; color: #6b7280; }
+
         .task-meta {
-            display: flex; gap: 24px; font-size: 13px; color: #666;
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .task-meta-item { display: flex; align-items: center; gap: 4px; }
+        .task-meta-item code {
+            background: #f5f5f5;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .task-description { font-size: 12px; color: #999; margin-top: 4px; }
+
+        .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+        /* 开关 */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            cursor: pointer;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #d1d5db;
+            border-radius: 24px;
+            transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        .toggle-switch input:checked + .toggle-slider { background: #fbbf24; }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 480px;
+            padding: 24px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            width: 32px; height: 32px;
+            border: none; background: #f3f4f6;
+            border-radius: 6px; cursor: pointer;
+            font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-close:hover { background: #e5e7eb; }
+
+        /* 表单 */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
             margin-bottom: 6px;
         }
-        .task-meta span { display: flex; align-items: center; gap: 4px; }
-        .task-meta code {
-            background: #f5f5f5; padding: 1px 6px; border-radius: 4px;
-            font-size: 12px; color: #999;
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
         }
-        .task-stats { font-size: 13px; color: #fbbf24; font-weight: 500; }
-        .task-actions { display: flex; gap: 8px; flex-shrink: 0; }
-        .btn-sm {
-            padding: 7px 14px; border-radius: 6px; font-size: 12px;
-            font-weight: 500; cursor: pointer; transition: all 0.15s;
-            border: 1px solid #e5e5e5; background: white; color: #666;
+        .form-input:focus { outline: none; border-color: #fbbf24; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
-        .btn-sm:hover { border-color: #ccc; color: #1a1a1a; }
-        .btn-sm.active { background: #fbbf24; border-color: #fbbf24; color: #1a1a1a; }
+        .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+
+        /* 加载状态 */
+        .loading { text-align: center; padding: 40px; color: #999; }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 16px; margin-bottom: 8px; }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #d1fae5; color: #065f46; }
+        .toast-error { background: #fee2e2; color: #991b1b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
         <div class="sidebar-logo">
-            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none">
-                <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
-                <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
             <div class="sidebar-logo-text">
                 <span class="sidebar-brand">命运</span>
                 <span class="sidebar-brand-en">DESTINY</span>
             </div>
         </div>
-        <nav class="nav-menu">
+        <div class="nav-menu">
             <div class="nav-section">
-                <div class="nav-section-title">主菜单</div>
+                <div class="nav-section-title">概览</div>
                 <a href="/dashboard" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                    控制面板
-                </a>
-                <a href="/crm" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    客户管理
-                    <span class="nav-badge">128</span>
-                </a>
-                <a href="/linkedin" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-                    LinkedIn
-                </a>
-                <a href="/email" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
-                    邮件营销
+                    <span class="nav-icon">📊</span>
+                    <span>控制面板</span>
                 </a>
             </div>
             <div class="nav-section">
-                <div class="nav-section-title">自动化</div>
-                <a href="/scheduler" class="nav-item active">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    定时任务
+                <div class="nav-section-title">业务</div>
+                <a href="/crm" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>客户管理</span>
+                </a>
+                <a href="/linkedin" class="nav-item">
+                    <span class="nav-icon">🔗</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="/email" class="nav-item">
+                    <span class="nav-icon">📧</span>
+                    <span>邮件营销</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
                 </a>
                 <a href="/materials" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    素材库
+                    <span class="nav-icon">📁</span>
+                    <span>素材库</span>
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
                 </a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">系统</div>
-                <a href="/analytics" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    数据分析
-                </a>
-                <a href="/ai-config" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v1h2a2 2 0 0 1 2 2v2a4 4 0 0 1-2.5 3.7V15a3 3 0 0 1-3 3h-3a3 3 0 0 1-3-3v-2.3A4 4 0 0 1 6 9V7a2 2 0 0 1 2-2h2V4a4 4 0 0 1 4-2z"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/></svg>
-                    AI 配置
+                <a href="/scheduler" class="nav-item active">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
                 </a>
                 <a href="/settings" class="nav-item">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    设置
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
                 </a>
             </div>
-        </nav>
-        <div class="sidebar-user">
-            <div class="user-avatar">A</div>
-            <div class="user-info">
-                <span class="user-name">Admin</span>
-                <span class="user-role">管理员</span>
-            </div>
         </div>
-    </aside>
+    </nav>
 
-    <main class="main">
+    <!-- 主内容区 -->
+    <main class="main-content">
         <div class="top-bar">
-            <h1>定时任务</h1>
-            <button class="btn-primary">+ 新建任务</button>
+            <h1 class="page-title">⏰ 定时任务</h1>
+            <button class="btn btn-primary" onclick="loadTasks()">🔄 刷新</button>
         </div>
-        <div class="content">
-            <!-- 统计行 -->
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-label">总任务</div>
-                    <div class="stat-value">4</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">运行中</div>
-                    <div class="stat-value green">3</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">已暂停</div>
-                    <div class="stat-value">1</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">今日执行</div>
-                    <div class="stat-value">12</div>
-                </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-card-label">总任务</div>
+                <div class="stat-card-value" id="statTotal">-</div>
             </div>
-
-            <!-- 任务列表 -->
-            <div class="task-list">
-                <!-- 任务1 -->
-                <div class="task-card">
-                    <div class="task-icon linkedin">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#0a66c2" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-                    </div>
-                    <div class="task-info">
-                        <div class="task-header">
-                            <span class="task-name">LinkedIn 自动加好友</span>
-                            <span class="task-badge running">运行中</span>
-                        </div>
-                        <div class="task-meta">
-                            <span>Cron: <code>0 10 * * *</code></span>
-                            <span>每日 10:00</span>
-                            <span>上次运行: 今天 10:00</span>
-                            <span>下次运行: 明天 10:00</span>
-                        </div>
-                        <div class="task-stats">今日 12/15</div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-sm">立即执行</button>
-                        <button class="btn-sm">暂停</button>
-                        <button class="btn-sm">编辑</button>
-                    </div>
-                </div>
-
-                <!-- 任务2 -->
-                <div class="task-card">
-                    <div class="task-icon linkedin">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#0a66c2" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                    </div>
-                    <div class="task-info">
-                        <div class="task-header">
-                            <span class="task-name">LinkedIn 自动发消息</span>
-                            <span class="task-badge running">运行中</span>
-                        </div>
-                        <div class="task-meta">
-                            <span>Cron: <code>0 11 * * *</code></span>
-                            <span>每日 11:00</span>
-                            <span>上次运行: 今天 11:00</span>
-                            <span>下次运行: 明天 11:00</span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-sm">立即执行</button>
-                        <button class="btn-sm">暂停</button>
-                        <button class="btn-sm">编辑</button>
-                    </div>
-                </div>
-
-                <!-- 任务3 -->
-                <div class="task-card">
-                    <div class="task-icon email">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
-                    </div>
-                    <div class="task-info">
-                        <div class="task-header">
-                            <span class="task-name">邮件营销</span>
-                            <span class="task-badge running">运行中</span>
-                        </div>
-                        <div class="task-meta">
-                            <span>Cron: <code>0 14 * * *</code></span>
-                            <span>每日 14:00</span>
-                            <span>上次运行: 今天 14:00</span>
-                            <span>下次运行: 明天 14:00</span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-sm">立即执行</button>
-                        <button class="btn-sm">暂停</button>
-                        <button class="btn-sm">编辑</button>
-                    </div>
-                </div>
-
-                <!-- 任务4 -->
-                <div class="task-card">
-                    <div class="task-icon ai">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v1h2a2 2 0 0 1 2 2v2a4 4 0 0 1-2.5 3.7V15a3 3 0 0 1-3 3h-3a3 3 0 0 1-3-3v-2.3A4 4 0 0 1 6 9V7a2 2 0 0 1 2-2h2V4a4 4 0 0 1 4-2z"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/></svg>
-                    </div>
-                    <div class="task-info">
-                        <div class="task-header">
-                            <span class="task-name">AI 内容生成</span>
-                            <span class="task-badge paused">已暂停</span>
-                        </div>
-                        <div class="task-meta">
-                            <span>Cron: <code>0 9 * * 1</code></span>
-                            <span>每周一 09:00</span>
-                            <span>上次运行: 上周一 09:00</span>
-                            <span>下次运行: —</span>
-                        </div>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-sm">立即执行</button>
-                        <button class="btn-sm active">启动</button>
-                        <button class="btn-sm">编辑</button>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-card-label">已启用</div>
+                <div class="stat-card-value green" id="statEnabled">-</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-card-label">已禁用</div>
+                <div class="stat-card-value gray" id="statDisabled">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">今日已执行</div>
+                <div class="stat-card-value amber" id="statTodayRuns">-</div>
+            </div>
+        </div>
+
+        <!-- 任务列表 -->
+        <div id="taskListContainer">
+            <div class="loading">加载中...</div>
         </div>
     </main>
+
+    <!-- 编辑时间模态框 -->
+    <div class="modal" id="scheduleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">编辑执行时间</h2>
+                <button class="modal-close" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            <form onsubmit="saveSchedule(event)">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label class="form-label">任务名称</label>
+                    <input type="text" class="form-input" id="editTaskName" disabled>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">小时 (0-23)</label>
+                        <input type="number" class="form-input" id="editHour" min="0" max="23" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">分钟 (0-59)</label>
+                        <input type="number" class="form-input" id="editMinute" min="0" max="59" required>
+                    </div>
+                </div>
+                <div class="form-hint" style="margin-bottom:16px">修改后将按新的时间自动执行任务</div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button type="button" class="btn btn-secondary" onclick="closeScheduleModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_PREFIX = '/api/scheduler';
+
+        function getToken() {
+            return localStorage.getItem('token') || '';
+        }
+
+        function headers(method) {
+            const h = {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            };
+            return h;
+        }
+
+        async function apiFetch(url, method = 'GET', body = null) {
+            const opts = { method, headers: headers(method) };
+            if (body) opts.body = JSON.stringify(body);
+            const resp = await fetch(url, opts);
+            if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error(`HTTP ${resp.status}: ${text}`);
+            }
+            return resp.json();
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        function getTaskIcon(name) {
+            const n = (name || '').toLowerCase();
+            if (n.includes('linkedin') || n.includes('加好友') || n.includes('connect')) return { icon: '🔗', cls: 'linkedin' };
+            if (n.includes('邮件') || n.includes('email') || n.includes('营销')) return { icon: '📧', cls: 'email' };
+            if (n.includes('ai') || n.includes('内容') || n.includes('生成')) return { icon: '🤖', cls: 'ai' };
+            return { icon: '⚙️', cls: 'default' };
+        }
+
+        // ── 加载任务列表 ──
+        async function loadTasks() {
+            const container = document.getElementById('taskListContainer');
+            container.innerHTML = '<div class="loading">加载中...</div>';
+
+            try {
+                const data = await apiFetch(`${API_PREFIX}/tasks`);
+                const tasks = data.tasks || [];
+
+                // 更新统计
+                const enabled = tasks.filter(t => t.enabled !== false).length;
+                const disabled = tasks.length - enabled;
+                document.getElementById('statTotal').textContent = tasks.length;
+                document.getElementById('statEnabled').textContent = enabled;
+                document.getElementById('statDisabled').textContent = disabled;
+
+                // 计算今日已执行数（从 last_run 信息中统计）
+                let todayRuns = 0;
+                const today = new Date().toISOString().slice(0, 10);
+                tasks.forEach(t => {
+                    if (t.last_run && t.last_run.includes(today)) todayRuns++;
+                });
+                document.getElementById('statTodayRuns').textContent = todayRuns || tasks.filter(t => t.last_run).length || 0;
+
+                if (tasks.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">⏰</div>
+                            <div class="empty-state-text">暂无定时任务</div>
+                        </div>`;
+                    return;
+                }
+
+                let html = '<div class="task-list">';
+                tasks.forEach(task => {
+                    const { icon, cls } = getTaskIcon(task.name);
+                    const isEnabled = task.enabled !== false;
+                    const statusBadge = isEnabled
+                        ? '<span class="task-badge enabled">已启用</span>'
+                        : '<span class="task-badge disabled">已禁用</span>';
+
+                    const schedule = task.schedule || task.cron || '';
+                    const lastRun = task.last_run || task.last_run_time || '从未执行';
+                    const nextRun = task.next_run || task.next_run_time || '-';
+                    const desc = task.description || '';
+
+                    html += `
+                    <div class="task-card" id="task-${task.id}">
+                        <div class="task-icon ${cls}">${icon}</div>
+                        <div class="task-info">
+                            <div class="task-header">
+                                <span class="task-name">${task.name || '未命名任务'}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="task-meta">
+                                ${schedule ? `<span class="task-meta-item">🕐 计划: <code>${schedule}</code></span>` : ''}
+                                ${task.hour !== undefined ? `<span class="task-meta-item">🕐 每日 ${String(task.hour).padStart(2,'0')}:${String(task.minute || 0).padStart(2,'0')}</span>` : ''}
+                                <span class="task-meta-item">上次: ${lastRun}</span>
+                                <span class="task-meta-item">下次: ${nextRun}</span>
+                            </div>
+                            ${desc ? `<div class="task-description">${desc}</div>` : ''}
+                        </div>
+                        <div class="task-actions">
+                            <label class="toggle-switch" title="${isEnabled ? '点击禁用' : '点击启用'}">
+                                <input type="checkbox" ${isEnabled ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                                <span class="toggle-slider"></span>
+                            </label>
+                            <button class="btn-sm run" onclick="runTask(${task.id})" title="立即执行">▶ 执行</button>
+                            <button class="btn-sm" onclick="openScheduleModal(${task.id}, '${task.name || ''}', ${task.hour || 8}, ${task.minute || 0})" title="编辑时间">✏️ 编辑</button>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (e) {
+                console.error('loadTasks error:', e);
+                container.innerHTML = `<div class="empty-state">
+                    <div class="empty-state-icon">❌</div>
+                    <div class="empty-state-text">加载失败</div>
+                    <div style="color:#bbb;font-size:13px">${e.message}</div>
+                    <button class="btn btn-primary" style="margin-top:16px" onclick="loadTasks()">重试</button>
+                </div>`;
+            }
+        }
+
+        // ── 切换启用/禁用 ──
+        async function toggleTask(taskId) {
+            try {
+                const data = await apiFetch(`${API_PREFIX}/tasks/${taskId}/toggle`, 'POST');
+                const task = data.task;
+                const state = task.enabled !== false ? '已启用' : '已禁用';
+                showToast(`任务${state}`);
+                loadTasks();
+            } catch (e) {
+                console.error('toggleTask error:', e);
+                showToast('切换失败: ' + e.message, 'error');
+                loadTasks(); // 恢复正确状态
+            }
+        }
+
+        // ── 立即执行 ──
+        async function runTask(taskId) {
+            const btn = event.target;
+            const origText = btn.textContent;
+            btn.textContent = '执行中...';
+            btn.disabled = true;
+
+            try {
+                const data = await apiFetch(`${API_PREFIX}/run/${taskId}`, 'POST');
+                showToast('任务已执行: ' + (data.message || '成功'));
+            } catch (e) {
+                console.error('runTask error:', e);
+                showToast('执行失败: ' + e.message, 'error');
+            } finally {
+                btn.textContent = origText;
+                btn.disabled = false;
+                loadTasks();
+            }
+        }
+
+        // ── 编辑时间模态框 ──
+        function openScheduleModal(taskId, name, hour, minute) {
+            document.getElementById('editTaskId').value = taskId;
+            document.getElementById('editTaskName').value = name;
+            document.getElementById('editHour').value = hour;
+            document.getElementById('editMinute').value = minute;
+            document.getElementById('scheduleModal').classList.add('active');
+        }
+
+        function closeScheduleModal() {
+            document.getElementById('scheduleModal').classList.remove('active');
+        }
+
+        // ── 保存时间 ──
+        async function saveSchedule(e) {
+            e.preventDefault();
+            const taskId = document.getElementById('editTaskId').value;
+            const hour = parseInt(document.getElementById('editHour').value);
+            const minute = parseInt(document.getElementById('editMinute').value);
+
+            try {
+                await apiFetch(`${API_PREFIX}/tasks/${taskId}/schedule`, 'PUT', { hour, minute });
+                showToast('执行时间已更新');
+                closeScheduleModal();
+                loadTasks();
+            } catch (e) {
+                console.error('saveSchedule error:', e);
+                showToast('更新失败: ' + e.message, 'error');
+            }
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('scheduleModal').addEventListener('click', function(e) {
+            if (e.target === this) closeScheduleModal();
+        });
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', loadTasks);
+    </script>
 </body>
 </html>

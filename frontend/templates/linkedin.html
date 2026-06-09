@@ -12,196 +12,1048 @@
             display: flex;
             min-height: 100vh;
         }
-        /* 导航栏 - 复用 */
-        .sidebar { width: 220px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; height: 100vh; }
-        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         .sidebar-logo-icon { width: 36px; height: 36px; }
         .sidebar-logo-text { display: flex; flex-direction: column; }
         .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
         .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
         .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
         .nav-section { margin-bottom: 8px; }
-        .nav-section-title { font-size: 11px; color: #999; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: #666; margin-bottom: 2px; text-decoration: none; }
+        .nav-section-title {
+            font-size: 11px;
+            color: #999;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+            text-decoration: none;
+        }
         .nav-item:hover { background: #f9fafb; color: #333; }
-        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 500; border-left: 3px solid #fbbf24; }
+        .nav-item.active {
+            background: #fffbeb;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left: 3px solid #fbbf24;
+        }
         .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
-        .nav-user { padding: 16px 20px; border-top: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; }
-        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #1a1a1a; font-size: 14px; }
-        .nav-user-info { flex: 1; }
-        .nav-user-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
-        .nav-user-role { font-size: 11px; color: #999; }
-        .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
-        .top-bar { background: white; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .page-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
-        .top-actions { display: flex; align-items: center; gap: 12px; }
-        .btn-primary { background: #fbbf24; color: #1a1a1a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+        }
+
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary { background: #fbbf24; color: #1a1a1a; }
         .btn-primary:hover { background: #f59e0b; }
-        .btn-secondary { background: white; color: #1a1a1a; border: 1px solid #e5e5e5; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-        .content { padding: 24px 32px; flex: 1; }
+        .btn-secondary { background: white; color: #666; border: 1px solid #e5e5e5; }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-success { background: #d1fae5; color: #065f46; }
+        .btn-success:hover { background: #a7f3d0; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-sm:hover { border-color: #ccc; color: #1a1a1a; }
+        .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; }
+
         /* Tab 导航 */
-        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; border-radius: 10px; padding: 4px; border: 1px solid #e5e5e5; width: fit-content; }
-        .tab { padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; color: #666; border: none; background: none; }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 10px;
+            padding: 4px;
+            border: 1px solid #e5e5e5;
+            width: fit-content;
+        }
+        .tab {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #666;
+            border: none;
+            background: none;
+            font-weight: 500;
+        }
         .tab.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
         .tab:hover:not(.active) { background: #f9fafb; }
-        /* 统计 */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-mini { background: white; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
-        .stat-mini-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .stat-mini-icon.yellow { background: #fffbeb; }
-        .stat-mini-icon.green { background: #d1fae5; }
-        .stat-mini-icon.blue { background: #dbeafe; }
-        .stat-mini-icon.purple { background: #ede9fe; }
-        .stat-mini-info { flex: 1; }
-        .stat-mini-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .stat-mini-label { font-size: 12px; color: #999; }
-        /* 卡片 */
-        .card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; overflow: hidden; margin-bottom: 20px; }
-        .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
-        .card-body { padding: 20px; }
-        /* 任务列表 */
-        .task-list { list-style: none; }
-        .task-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
-        .task-item:last-child { border-bottom: none; }
-        .task-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .task-icon.add { background: #dbeafe; }
-        .task-icon.message { background: #fef3c7; }
-        .task-icon.post { background: #d1fae5; }
-        .task-info { flex: 1; }
-        .task-name { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
-        .task-desc { font-size: 12px; color: #999; }
-        .task-status { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
-        .task-status.running { background: #d1fae5; color: #065f46; }
-        .task-status.paused { background: #f3f4f6; color: #6b7280; }
-        .task-status.pending { background: #fef3c7; color: #92400e; }
-        .task-action { padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; border: 1px solid #e5e5e5; background: white; }
-        .task-action:hover { background: #f9fafb; }
-        /* 搜索配置 */
-        .search-config { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .config-group { margin-bottom: 16px; }
-        .config-label { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 6px; display: block; }
-        .config-input { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; outline: none; }
-        .config-input:focus { border-color: #fbbf24; }
-        .config-select { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; outline: none; background: white; }
-        .config-hint { font-size: 11px; color: #999; margin-top: 4px; }
-        /* 活动日志 */
-        .log-list { list-style: none; }
-        .log-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
-        .log-item:last-child { border-bottom: none; }
-        .log-time { color: #999; width: 60px; flex-shrink: 0; }
-        .log-icon { width: 20px; flex-shrink: 0; }
-        .log-text { color: #333; }
-        .log-text .highlight { color: #fbbf24; font-weight: 500; }
-        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .stat-icon.yellow { background: #fffbeb; }
+        .stat-icon.green { background: #d1fae5; }
+        .stat-icon.blue { background: #dbeafe; }
+        .stat-icon.purple { background: #ede9fe; }
+        .stat-info { flex: 1; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+        .stat-label { font-size: 12px; color: #999; }
+
+        /* 面板 */
+        .panel {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .panel-title { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+        .panel-body { padding: 20px; }
+
+        /* 连接状态 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .status-connected { background: #d1fae5; color: #065f46; }
+        .status-connected .status-dot { background: #22c55e; }
+        .status-disconnected { background: #fee2e2; color: #991b1b; }
+        .status-disconnected .status-dot { background: #ef4444; }
+
+        /* 表单 */
+        .form-group { margin-bottom: 16px; }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #fbbf24; }
+        .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-textarea:focus { outline: none; border-color: #fbbf24; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .form-hint { font-size: 11px; color: #999; margin-top: 4px; }
+
+        /* 搜索结果 */
+        .search-results { display: flex; flex-direction: column; gap: 12px; }
+        .result-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .result-card:hover { background: #f9fafb; }
+        .result-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #dbeafe;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d4ed8;
+            flex-shrink: 0;
+        }
+        .result-info { flex: 1; min-width: 0; }
+        .result-name { font-size: 14px; font-weight: 600; color: #1a1a1a; }
+        .result-detail { font-size: 12px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* 配额进度条 */
+        .quota-section { display: flex; flex-direction: column; gap: 14px; }
+        .quota-item { display: flex; flex-direction: column; gap: 6px; }
+        .quota-header { display: flex; justify-content: space-between; font-size: 13px; }
+        .quota-name { color: #666; font-weight: 500; }
+        .quota-count { color: #1a1a1a; font-weight: 600; }
+        .quota-bar-bg { height: 8px; background: #f3f4f6; border-radius: 4px; overflow: hidden; }
+        .quota-bar-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+        /* 帖子列表 */
+        .posts-list { display: flex; flex-direction: column; gap: 12px; }
+        .post-card {
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            transition: background 0.15s;
+        }
+        .post-card:hover { background: #f9fafb; }
+        .post-content { font-size: 14px; color: #333; margin-bottom: 10px; line-height: 1.5; }
+        .post-meta { display: flex; justify-content: space-between; align-items: center; }
+        .post-time { font-size: 12px; color: #999; }
+        .post-stats { display: flex; gap: 16px; font-size: 12px; color: #666; }
+        .post-actions { display: flex; gap: 8px; }
+
+        /* Tab 面板 */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* 加载状态 */
+        .loading { text-align: center; padding: 40px; color: #999; }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+        .empty-state-text { font-size: 14px; }
+
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #d1fae5; color: #065f46; }
+        .toast-error { background: #fee2e2; color: #991b1b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Grid layouts */
+        .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .two-col { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <aside class="sidebar">
-        <a href="/dashboard" class="sidebar-logo">
-            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none"><path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="18" cy="24" r="2" fill="#fbbf24"/><path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/></svg>
-            <div class="sidebar-logo-text"><span class="sidebar-brand">命运</span><span class="sidebar-brand-en">DESTINY</span></div>
-        </a>
-        <nav class="nav-menu">
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
+            <div class="sidebar-logo-text">
+                <span class="sidebar-brand">命运</span>
+                <span class="sidebar-brand-en">DESTINY</span>
+            </div>
+        </div>
+        <div class="nav-menu">
             <div class="nav-section">
-                <div class="nav-section-title">主菜单</div>
-                <a href="/dashboard" class="nav-item"><span class="nav-icon">📊</span><span>控制面板</span></a>
-                <a href="/crm" class="nav-item"><span class="nav-icon">👥</span><span>客户管理</span><span class="nav-badge">128</span></a>
-                <a href="/linkedin" class="nav-item active"><span class="nav-icon">💼</span><span>LinkedIn</span></a>
-                <a href="/email" class="nav-item"><span class="nav-icon">✉️</span><span>邮件营销</span></a>
+                <div class="nav-section-title">概览</div>
+                <a href="/dashboard" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>控制面板</span>
+                </a>
             </div>
             <div class="nav-section">
-                <div class="nav-section-title">自动化</div>
-                <a href="/scheduler" class="nav-item"><span class="nav-icon">⏰</span><span>定时任务</span></a>
-                <a href="/materials" class="nav-item"><span class="nav-icon">📝</span><span>素材库</span></a>
+                <div class="nav-section-title">业务</div>
+                <a href="/crm" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>客户管理</span>
+                </a>
+                <a href="/linkedin" class="nav-item active">
+                    <span class="nav-icon">🔗</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="/email" class="nav-item">
+                    <span class="nav-icon">📧</span>
+                    <span>邮件营销</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
+                </a>
+                <a href="/materials" class="nav-item">
+                    <span class="nav-icon">📁</span>
+                    <span>素材库</span>
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
+                </a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">系统</div>
-                <a href="/analytics" class="nav-item"><span class="nav-icon">📈</span><span>数据分析</span></a>
-                <a href="/ai_config" class="nav-item"><span class="nav-icon">🤖</span><span>AI 配置</span></a>
-                <a href="/settings" class="nav-item"><span class="nav-icon">⚙️</span><span>设置</span></a>
+                <a href="/scheduler" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
+                </a>
+                <a href="/settings" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
+                </a>
             </div>
-        </nav>
-        <div class="nav-user"><div class="nav-avatar">A</div><div class="nav-user-info"><div class="nav-user-name">Admin</div><div class="nav-user-role">管理员</div></div></div>
-    </aside>
+        </div>
+    </nav>
 
+    <!-- 主内容区 -->
     <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">LinkedIn 自动化</h1>
-            <div class="top-actions">
-                <button class="btn-secondary">📊 查看分析</button>
-                <button class="btn-primary">▶️ 运行任务</button>
+        <div class="top-bar">
+            <h1 class="page-title">🔗 LinkedIn 自动化</h1>
+            <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary" onclick="loadAll()">🔄 刷新</button>
+                <button class="btn btn-danger" onclick="stopAutomation()" id="stopBtn">⏹ 停止</button>
+                <button class="btn btn-primary" onclick="loginLinkedIn()" id="loginBtn">▶ 登录LinkedIn</button>
             </div>
-        </header>
-        <div class="content">
-            <div class="tabs">
-                <button class="tab active">自动化任务</button>
-                <button class="tab">搜索配置</button>
-                <button class="tab">发帖管理</button>
-                <button class="tab">活动日志</button>
+        </div>
+
+        <!-- 连接状态 -->
+        <div id="statusBar" style="margin-bottom:20px"></div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon yellow">🤝</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statTotal">-</div>
+                    <div class="stat-label">总客户</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">✉️</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statQuotaUsed">-</div>
+                    <div class="stat-label">今日已用</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">🔍</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statQuotaRemaining">-</div>
+                    <div class="stat-label">剩余配额</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">📝</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="statPosts">-</div>
+                    <div class="stat-label">已发帖子</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab 导航 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('search')">🔍 搜索</button>
+            <button class="tab" onclick="switchTab('connect')">🤝 连接/消息</button>
+            <button class="tab" onclick="switchTab('posts')">📝 发帖管理</button>
+            <button class="tab" onclick="switchTab('config')">⚙️ 配置</button>
+        </div>
+
+        <!-- Tab: 搜索 -->
+        <div class="tab-panel active" id="tab-search">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">LinkedIn 人员搜索</span>
+                </div>
+                <div class="panel-body">
+                    <form onsubmit="searchLinkedIn(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">搜索关键词</label>
+                                <input type="text" class="form-input" id="searchKeywords" placeholder="如: buyer, importer, wholesaler" required>
+                                <div class="form-hint">输入公司名、职位、行业等关键词</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">目标市场</label>
+                                <select class="form-select" id="searchMarket">
+                                    <option value="US">美国</option>
+                                    <option value="EU">欧洲</option>
+                                    <option value="ME">中东</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">最大结果数</label>
+                                <input type="number" class="form-input" id="searchMaxResults" value="50" min="1" max="100">
+                            </div>
+                            <div class="form-group" style="display:flex;align-items:flex-end">
+                                <button type="submit" class="btn btn-primary" style="width:100%" id="searchBtn">🔍 搜索</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <!-- 统计 -->
-            <div class="stats-row">
-                <div class="stat-mini"><div class="stat-mini-icon yellow">🤝</div><div class="stat-mini-info"><div class="stat-mini-value">156</div><div class="stat-mini-label">总加好友</div></div></div>
-                <div class="stat-mini"><div class="stat-mini-icon green">✉️</div><div class="stat-mini-info"><div class="stat-mini-value">89</div><div class="stat-mini-label">已发消息</div></div></div>
-                <div class="stat-mini"><div class="stat-mini-icon blue">📝</div><div class="stat-mini-info"><div class="stat-mini-value">23</div><div class="stat-mini-label">发帖数量</div></div></div>
-                <div class="stat-mini"><div class="stat-mini-icon purple">📈</div><div class="stat-mini-info"><div class="stat-mini-value">34.2%</div><div class="stat-mini-label">通过率</div></div></div>
+            <!-- 搜索结果 -->
+            <div class="panel" id="searchResultsPanel" style="display:none">
+                <div class="panel-header">
+                    <span class="panel-title">搜索结果</span>
+                    <span id="searchResultCount" style="font-size:13px;color:#999"></span>
+                </div>
+                <div class="panel-body" id="searchResults">
+                </div>
             </div>
+        </div>
 
-            <div class="content-grid">
-                <!-- 自动化任务 -->
-                <div class="card">
-                    <div class="card-header"><span class="card-title">自动化任务</span></div>
-                    <div class="card-body">
-                        <ul class="task-list">
-                            <li class="task-item">
-                                <div class="task-icon add">🤝</div>
-                                <div class="task-info"><div class="task-name">自动加好友</div><div class="task-desc">每日随机 10-15 个，按目标时区上午执行</div></div>
-                                <span class="task-status running">运行中</span>
-                                <button class="task-action">暂停</button>
-                            </li>
-                            <li class="task-item">
-                                <div class="task-icon message">✉️</div>
-                                <div class="task-info"><div class="task-name">自动发消息</div><div class="task-desc">通过好友后自动发送 AI 开发信</div></div>
-                                <span class="task-status running">运行中</span>
-                                <button class="task-action">暂停</button>
-                            </li>
-                            <li class="task-item">
-                                <div class="task-icon post">📝</div>
-                                <div class="task-info"><div class="task-name">自动发帖</div><div class="task-desc">AI 生成内容，每日发布 1 篇</div></div>
-                                <span class="task-status paused">已暂停</span>
-                                <button class="task-action">启动</button>
-                            </li>
-                            <li class="task-item">
-                                <div class="task-icon add">🔍</div>
-                                <div class="task-info"><div class="task-name">自动搜索导入</div><div class="task-desc">搜索 buyer/importer/wholesaler 并导入 CRM</div></div>
-                                <span class="task-status pending">待执行</span>
-                                <button class="task-action">启动</button>
-                            </li>
-                        </ul>
+        <!-- Tab: 连接/消息 -->
+        <div class="tab-panel" id="tab-connect">
+            <div class="two-col">
+                <!-- 发送连接请求 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">发送连接请求</span>
+                    </div>
+                    <div class="panel-body">
+                        <form onsubmit="sendConnections(event)">
+                            <div class="form-group">
+                                <label class="form-label">数量</label>
+                                <input type="number" class="form-input" id="connectCount" value="5" min="1" max="20">
+                                <div class="form-hint">每次最多发送20个请求</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">目标市场</label>
+                                <select class="form-select" id="connectMarket">
+                                    <option value="US">美国</option>
+                                    <option value="EU">欧洲</option>
+                                    <option value="ME">中东</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">附言 (可选)</label>
+                                <textarea class="form-textarea" id="connectNote" placeholder="Hi {name}, I'd like to connect..." style="min-height:80px"></textarea>
+                                <div class="form-hint">最多300字符，可用 {name} 占位符</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%" id="connectBtn">🤝 发送连接请求</button>
+                        </form>
                     </div>
                 </div>
 
-                <!-- 今日活动日志 -->
-                <div class="card">
-                    <div class="card-header"><span class="card-title">今日活动</span></div>
-                    <div class="card-body">
-                        <ul class="log-list">
-                            <li class="log-item"><span class="log-time">10:00</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">John Smith</span> 发送好友请求</span></li>
-                            <li class="log-item"><span class="log-time">10:02</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Sarah Johnson</span> 发送好友请求</span></li>
-                            <li class="log-item"><span class="log-time">10:05</span><span class="log-icon">✉️</span><span class="log-text">向 <span class="highlight">Michael Chen</span> 发送开发信</span></li>
-                            <li class="log-item"><span class="log-time">10:08</span><span class="log-icon">✅</span><span class="log-text"><span class="highlight">Emma Wilson</span> 通过了好友请求</span></li>
-                            <li class="log-item"><span class="log-time">10:10</span><span class="log-icon">✉️</span><span class="log-text">向 <span class="highlight">Emma Wilson</span> 发送开发信</span></li>
-                            <li class="log-item"><span class="log-time">11:30</span><span class="log-icon">📝</span><span class="log-text">AI 生成帖子《5 Tips for International Logistics》</span></li>
-                            <li class="log-item"><span class="log-time">14:00</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Ahmed Khan</span> 发送好友请求</span></li>
-                            <li class="log-item"><span class="log-time">14:03</span><span class="log-icon">🤝</span><span class="log-text">向 <span class="highlight">Lisa Rodriguez</span> 发送好友请求</span></li>
-                        </ul>
+                <!-- 发送消息 -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">发送消息</span>
                     </div>
+                    <div class="panel-body">
+                        <form onsubmit="sendMessages(event)">
+                            <div class="form-group">
+                                <label class="form-label">数量</label>
+                                <input type="number" class="form-input" id="messageCount" value="5" min="1" max="20">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">消息内容 (可选)</label>
+                                <textarea class="form-textarea" id="messageContent" placeholder="使用默认AI模板或输入自定义消息..."></textarea>
+                                <div class="form-hint">留空使用AI默认模板，可用 {name} 占位符</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width:100%" id="messageBtn">✉️ 发送消息</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 配额显示 -->
+            <div class="panel" style="margin-top:24px">
+                <div class="panel-header">
+                    <span class="panel-title">今日配额使用情况</span>
+                </div>
+                <div class="panel-body" id="quotaDisplay">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: 发帖管理 -->
+        <div class="tab-panel" id="tab-posts">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">发布新帖子</span>
+                </div>
+                <div class="panel-body">
+                    <form onsubmit="publishPost(event)">
+                        <div class="form-group">
+                            <label class="form-label">帖子内容</label>
+                            <textarea class="form-textarea" id="postContent" placeholder="分享您的行业见解..." style="min-height:120px" required></textarea>
+                            <div class="form-hint">最多3000字符</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">图片路径 (可选，逗号分隔)</label>
+                            <input type="text" class="form-input" id="postImages" placeholder="/path/to/img1.jpg, /path/to/img2.jpg">
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="publishBtn">📝 发布帖子</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 帖子列表 -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">已发布帖子</span>
+                    <button class="btn btn-secondary btn-sm" onclick="loadPosts()">🔄 刷新</button>
+                </div>
+                <div class="panel-body" id="postsList">
+                    <div class="loading">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: 配置 -->
+        <div class="tab-panel" id="tab-config">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">代理配置</span>
+                </div>
+                <div class="panel-body">
+                    <form onsubmit="saveProxy(event)">
+                        <div class="form-group">
+                            <label class="form-label">代理地址</label>
+                            <input type="text" class="form-input" id="proxyUrl" placeholder="socks5://127.0.0.1:1081 或 http://proxy:port">
+                            <div class="form-hint">留空禁用代理。支持 socks5:// 和 http:// 格式</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">💾 保存代理配置</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">当前配置</span>
+                </div>
+                <div class="panel-body" id="configDisplay">
+                    <div class="loading">加载中...</div>
                 </div>
             </div>
         </div>
     </main>
+
+    <script>
+        const API_PREFIX = '/api/linkedin';
+
+        function getToken() {
+            return localStorage.getItem('token') || '';
+        }
+
+        function headers() {
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+            };
+        }
+
+        async function apiFetch(url, method = 'GET', body = null) {
+            const opts = { method, headers: headers() };
+            if (body) opts.body = JSON.stringify(body);
+            const resp = await fetch(url, opts);
+            if (!resp.ok) {
+                const text = await resp.text();
+                throw new Error(`HTTP ${resp.status}: ${text}`);
+            }
+            return resp.json();
+        }
+
+        function showToast(msg, type = 'success') {
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // ── Tab 切换 ──
+        function switchTab(name) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(`tab-${name}`).classList.add('active');
+
+            // 懒加载数据
+            if (name === 'connect') loadQuota();
+            if (name === 'posts') loadPosts();
+            if (name === 'config') loadConfig();
+        }
+
+        // ── 加载状态 ──
+        async function loadStatus() {
+            try {
+                const data = await apiFetch(`${API_PREFIX}/status`);
+                const bar = document.getElementById('statusBar');
+                if (data.is_logged_in) {
+                    bar.innerHTML = '<div class="status-indicator status-connected"><span class="status-dot"></span>LinkedIn 已连接</div>';
+                } else {
+                    bar.innerHTML = '<div class="status-indicator status-disconnected"><span class="status-dot"></span>LinkedIn 未连接 — 请先登录</div>';
+                }
+
+                // 更新统计
+                const stats = data.customer_stats || {};
+                document.getElementById('statTotal').textContent = stats.total_customers || 0;
+            } catch (e) {
+                console.error('loadStatus error:', e);
+                document.getElementById('statusBar').innerHTML = '<div class="status-indicator status-disconnected"><span class="status-dot"></span>状态获取失败</div>';
+            }
+        }
+
+        // ── 加载配额 ──
+        async function loadQuota() {
+            try {
+                const data = await apiFetch(`${API_PREFIX}/quota`);
+                const container = document.getElementById('quotaDisplay');
+
+                // 更新顶部统计
+                let totalUsed = 0;
+                let totalRemaining = 0;
+
+                const quotas = data.quotas || data;
+                let html = '<div class="quota-section">';
+
+                const entries = Array.isArray(quotas) ? quotas : Object.entries(quotas);
+                if (Array.isArray(quotas)) {
+                    quotas.forEach(q => {
+                        const used = q.used || q.count || 0;
+                        const limit = q.limit || q.max || q.total || 100;
+                        const remaining = Math.max(limit - used, 0);
+                        const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+                        const color = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#22c55e';
+                        totalUsed += used;
+                        totalRemaining += remaining;
+
+                        html += `<div class="quota-item">
+                            <div class="quota-header">
+                                <span class="quota-name">${q.name || q.type || q.action || '未知'}</span>
+                                <span class="quota-count">${used} / ${limit}</span>
+                            </div>
+                            <div class="quota-bar-bg">
+                                <div class="quota-bar-fill" style="width:${pct}%;background:${color}"></div>
+                            </div>
+                        </div>`;
+                    });
+                } else {
+                    for (const [key, val] of Object.entries(quotas)) {
+                        if (typeof val === 'object') {
+                            const used = val.used || val.count || 0;
+                            const limit = val.limit || val.max || 100;
+                            const remaining = Math.max(limit - used, 0);
+                            const pct = limit > 0 ? Math.min((used / limit) * 100, 100) : 0;
+                            const color = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#22c55e';
+                            totalUsed += used;
+                            totalRemaining += remaining;
+
+                            html += `<div class="quota-item">
+                                <div class="quota-header">
+                                    <span class="quota-name">${key}</span>
+                                    <span class="quota-count">${used} / ${limit}</span>
+                                </div>
+                                <div class="quota-bar-bg">
+                                    <div class="quota-bar-fill" style="width:${pct}%;background:${color}"></div>
+                                </div>
+                            </div>`;
+                        }
+                    }
+                }
+                html += '</div>';
+                container.innerHTML = html;
+
+                document.getElementById('statQuotaUsed').textContent = totalUsed || data.used || data.daily_used || '-';
+                document.getElementById('statQuotaRemaining').textContent = totalRemaining || data.remaining || data.daily_remaining || '-';
+            } catch (e) {
+                console.error('loadQuota error:', e);
+                document.getElementById('quotaDisplay').innerHTML = '<div class="empty-state"><div class="empty-state-text">配额加载失败</div></div>';
+            }
+        }
+
+        // ── 登录 LinkedIn ──
+        async function loginLinkedIn() {
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 登录中...';
+
+            try {
+                const data = await apiFetch(`${API_PREFIX}/login`, 'POST', {});
+                if (data.success) {
+                    showToast('LinkedIn 登录成功！');
+                    loadStatus();
+                } else {
+                    showToast(data.message || '登录失败', 'error');
+                }
+            } catch (e) {
+                console.error('loginLinkedIn error:', e);
+                showToast('登录失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '▶ 登录LinkedIn';
+            }
+        }
+
+        // ── 停止自动化 ──
+        async function stopAutomation() {
+            if (!confirm('确定要停止浏览器自动化吗？')) return;
+
+            try {
+                await apiFetch(`${API_PREFIX}/stop`, 'POST');
+                showToast('浏览器已关闭');
+                loadStatus();
+            } catch (e) {
+                console.error('stopAutomation error:', e);
+                showToast('停止失败: ' + e.message, 'error');
+            }
+        }
+
+        // ── 搜索 ──
+        async function searchLinkedIn(e) {
+            e.preventDefault();
+            const btn = document.getElementById('searchBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 搜索中...';
+
+            try {
+                const body = {
+                    keywords: document.getElementById('searchKeywords').value,
+                    market: document.getElementById('searchMarket').value,
+                    max_results: parseInt(document.getElementById('searchMaxResults').value)
+                };
+
+                const data = await apiFetch(`${API_PREFIX}/search`, 'POST', body);
+                const results = data.results || [];
+                const panel = document.getElementById('searchResultsPanel');
+                const container = document.getElementById('searchResults');
+
+                panel.style.display = 'block';
+                document.getElementById('searchResultCount').textContent = `找到 ${data.count || results.length} 个结果`;
+
+                if (results.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">未找到匹配的结果</div></div>';
+                    return;
+                }
+
+                let html = '<div class="search-results">';
+                results.forEach(r => {
+                    const name = r.name || r.full_name || '未知';
+                    const title = r.title || r.headline || r.position || '';
+                    const company = r.company || r.organization || '';
+                    const location = r.location || r.area || '';
+                    const initial = name.charAt(0).toUpperCase();
+
+                    html += `<div class="result-card">
+                        <div class="result-avatar">${initial}</div>
+                        <div class="result-info">
+                            <div class="result-name">${name}</div>
+                            <div class="result-detail">${[title, company, location].filter(Boolean).join(' · ')}</div>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+                showToast(`找到 ${results.length} 个结果`);
+            } catch (e) {
+                console.error('searchLinkedIn error:', e);
+                showToast('搜索失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔍 搜索';
+            }
+        }
+
+        // ── 发送连接请求 ──
+        async function sendConnections(e) {
+            e.preventDefault();
+            const btn = document.getElementById('connectBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 发送中...';
+
+            try {
+                const body = {
+                    count: parseInt(document.getElementById('connectCount').value),
+                    market: document.getElementById('connectMarket').value,
+                    note: document.getElementById('connectNote').value || null
+                };
+
+                const data = await apiFetch(`${API_PREFIX}/connect`, 'POST', body);
+                const sent = data.sent || data.count || 0;
+                showToast(`已发送 ${sent} 个连接请求`);
+                loadQuota();
+            } catch (e) {
+                console.error('sendConnections error:', e);
+                showToast('发送失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🤝 发送连接请求';
+            }
+        }
+
+        // ── 发送消息 ──
+        async function sendMessages(e) {
+            e.preventDefault();
+            const btn = document.getElementById('messageBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 发送中...';
+
+            try {
+                const body = {
+                    count: parseInt(document.getElementById('messageCount').value),
+                    message: document.getElementById('messageContent').value || null
+                };
+
+                const data = await apiFetch(`${API_PREFIX}/message`, 'POST', body);
+                const sent = data.sent || data.count || 0;
+                showToast(`已发送 ${sent} 条消息`);
+                loadQuota();
+            } catch (e) {
+                console.error('sendMessages error:', e);
+                showToast('发送失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✉️ 发送消息';
+            }
+        }
+
+        // ── 发布帖子 ──
+        async function publishPost(e) {
+            e.preventDefault();
+            const btn = document.getElementById('publishBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ 发布中...';
+
+            try {
+                const content = document.getElementById('postContent').value;
+                const imagesRaw = document.getElementById('postImages').value.trim();
+                const image_paths = imagesRaw ? imagesRaw.split(',').map(s => s.trim()).filter(Boolean) : null;
+
+                const body = { content };
+                if (image_paths && image_paths.length > 0) body.image_paths = image_paths;
+
+                await apiFetch(`${API_PREFIX}/post`, 'POST', body);
+                showToast('帖子发布成功！');
+                document.getElementById('postContent').value = '';
+                document.getElementById('postImages').value = '';
+                loadPosts();
+            } catch (e) {
+                console.error('publishPost error:', e);
+                showToast('发布失败: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📝 发布帖子';
+            }
+        }
+
+        // ── 加载帖子列表 ──
+        async function loadPosts() {
+            const container = document.getElementById('postsList');
+            container.innerHTML = '<div class="loading">加载中...</div>';
+
+            try {
+                const data = await apiFetch(`${API_PREFIX}/posts`);
+                const posts = data.posts || [];
+                document.getElementById('statPosts').textContent = data.count || posts.length;
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">暂无帖子</div></div>';
+                    return;
+                }
+
+                let html = '<div class="posts-list">';
+                posts.forEach(p => {
+                    const content = p.content || p.text || '';
+                    const time = p.created_at || p.time || p.date || '';
+                    const likes = p.likes || 0;
+                    const comments = p.comments || 0;
+                    const views = p.views || 0;
+                    const status = p.status || '';
+
+                    html += `<div class="post-card" id="post-${p.id}">
+                        <div class="post-content">${content.length > 300 ? content.substring(0, 300) + '...' : content}</div>
+                        <div class="post-meta">
+                            <span class="post-time">${time}${status ? ' · ' + status : ''}</span>
+                            <div class="post-stats">
+                                <span>👍 ${likes}</span>
+                                <span>💬 ${comments}</span>
+                                <span>👁 ${views}</span>
+                            </div>
+                            <div class="post-actions">
+                                <button class="btn-sm" onclick="deletePost(${p.id})" style="color:#dc2626;border-color:#fecaca">🗑 删除</button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+
+            } catch (e) {
+                console.error('loadPosts error:', e);
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-text">加载失败: ${e.message}</div></div>`;
+            }
+        }
+
+        // ── 删除帖子 ──
+        async function deletePost(postId) {
+            if (!confirm('确定删除这条帖子吗？')) return;
+
+            try {
+                await apiFetch(`${API_PREFIX}/posts/${postId}`, 'DELETE');
+                showToast('帖子已删除');
+                const el = document.getElementById(`post-${postId}`);
+                if (el) el.remove();
+                loadPosts();
+            } catch (e) {
+                console.error('deletePost error:', e);
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        // ── 保存代理 ──
+        async function saveProxy(e) {
+            e.preventDefault();
+            try {
+                const proxyUrl = document.getElementById('proxyUrl').value.trim();
+                await apiFetch(`${API_PREFIX}/config/proxy`, 'POST', { proxy_url: proxyUrl });
+                showToast('代理配置已保存');
+                loadConfig();
+            } catch (e) {
+                console.error('saveProxy error:', e);
+                showToast('保存失败: ' + e.message, 'error');
+            }
+        }
+
+        // ── 加载配置 ──
+        async function loadConfig() {
+            const container = document.getElementById('configDisplay');
+            container.innerHTML = '<div class="loading">加载中...</div>';
+
+            try {
+                const data = await apiFetch(`${API_PREFIX}/config`);
+                let html = '<div style="font-size:14px;color:#333">';
+                for (const [key, val] of Object.entries(data)) {
+                    const displayVal = typeof val === 'object' ? JSON.stringify(val) : String(val);
+                    html += `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f5f5f5">
+                        <span style="color:#666;font-weight:500">${key}</span>
+                        <span style="font-family:monospace;font-size:13px">${displayVal}</span>
+                    </div>`;
+                }
+                html += '</div>';
+                container.innerHTML = html;
+
+                // 填充代理输入框
+                if (data.proxy || data.proxy_url) {
+                    document.getElementById('proxyUrl').value = data.proxy || data.proxy_url || '';
+                }
+            } catch (e) {
+                console.error('loadConfig error:', e);
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-text">配置加载失败</div></div>';
+            }
+        }
+
+        // ── 全部加载 ──
+        function loadAll() {
+            loadStatus();
+            loadQuota();
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStatus();
+            loadQuota();
+        });
+    </script>
 </body>
 </html>

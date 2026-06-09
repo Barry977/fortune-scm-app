@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>命运 - 控制面板</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f5f5;
@@ -34,32 +30,12 @@
             align-items: center;
             gap: 12px;
         }
-        .sidebar-logo-icon {
-            width: 36px;
-            height: 36px;
-        }
-        .sidebar-logo-text {
-            display: flex;
-            flex-direction: column;
-        }
-        .sidebar-brand {
-            font-size: 16px;
-            font-weight: 700;
-            color: #1a1a1a;
-        }
-        .sidebar-brand-en {
-            font-size: 10px;
-            color: #999;
-            letter-spacing: 2px;
-        }
-        .nav-menu {
-            flex: 1;
-            padding: 16px 12px;
-            overflow-y: auto;
-        }
-        .nav-section {
-            margin-bottom: 8px;
-        }
+        .sidebar-logo-icon { width: 36px; height: 36px; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
+        .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
         .nav-section-title {
             font-size: 11px;
             color: #999;
@@ -78,126 +54,61 @@
             font-size: 14px;
             color: #666;
             margin-bottom: 2px;
+            text-decoration: none;
         }
-        .nav-item:hover {
-            background: #f9fafb;
-            color: #333;
-        }
+        .nav-item:hover { background: #f9fafb; color: #333; }
         .nav-item.active {
             background: #fffbeb;
             color: #1a1a1a;
             font-weight: 500;
             border-left: 3px solid #fbbf24;
         }
-        .nav-icon {
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-        .nav-badge {
-            margin-left: auto;
-            background: #fbbf24;
-            color: #1a1a1a;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 2px 6px;
-            border-radius: 10px;
-        }
-        .nav-user {
-            padding: 16px 20px;
-            border-top: 1px solid #f5f5f5;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .nav-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #fbbf24;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: #1a1a1a;
-            font-size: 14px;
-        }
-        .nav-user-info {
-            flex: 1;
-        }
-        .nav-user-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1a1a1a;
-        }
-        .nav-user-role {
-            font-size: 11px;
-            color: #999;
-        }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
         
         /* 主内容区 */
         .main-content {
             flex: 1;
             margin-left: 220px;
-            display: flex;
-            flex-direction: column;
+            padding: 24px;
         }
         
         /* 顶部栏 */
         .top-bar {
-            background: white;
-            border-bottom: 1px solid #e5e5e5;
-            padding: 16px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            margin-bottom: 24px;
         }
-        .page-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1a1a1a;
-        }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
         .top-actions {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .search-box {
-            padding: 8px 14px;
-            border: 1px solid #e5e5e5;
-            border-radius: 6px;
-            font-size: 13px;
-            width: 240px;
-            outline: none;
-        }
-        .search-box:focus {
-            border-color: #fbbf24;
+        .page-subtitle { font-size: 13px; color: #999; margin-top: 4px; }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-decoration: none;
         }
         .btn-primary {
             background: #fbbf24;
             color: #1a1a1a;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
         }
-        .btn-primary:hover {
-            background: #f59e0b;
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #e5e5e5;
         }
-        
-        /* 内容区域 */
-        .content {
-            padding: 24px 32px;
-            flex: 1;
-        }
+        .btn-secondary:hover { background: #f9fafb; }
         
         /* 统计卡片 */
         .stats-grid {
@@ -218,10 +129,7 @@
             align-items: center;
             margin-bottom: 12px;
         }
-        .stat-title {
-            font-size: 13px;
-            color: #999;
-        }
+        .stat-title { font-size: 13px; color: #999; }
         .stat-icon {
             width: 32px;
             height: 32px;
@@ -231,39 +139,15 @@
             justify-content: center;
             font-size: 16px;
         }
-        .stat-icon.yellow {
-            background: #fffbeb;
-            color: #fbbf24;
-        }
-        .stat-icon.green {
-            background: #d1fae5;
-            color: #059669;
-        }
-        .stat-icon.blue {
-            background: #dbeafe;
-            color: #2563eb;
-        }
-        .stat-icon.purple {
-            background: #ede9fe;
-            color: #7c3aed;
-        }
+        .stat-icon.yellow { background: #fffbeb; color: #fbbf24; }
+        .stat-icon.green { background: #d1fae5; color: #059669; }
+        .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+        .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
         .stat-value {
             font-size: 28px;
             font-weight: 700;
             color: #1a1a1a;
             margin-bottom: 4px;
-        }
-        .stat-change {
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .stat-change.up {
-            color: #059669;
-        }
-        .stat-change.down {
-            color: #dc2626;
         }
         
         /* 主内容网格 */
@@ -271,6 +155,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-bottom: 24px;
         }
         .card {
             background: white;
@@ -296,80 +181,11 @@
             cursor: pointer;
             text-decoration: none;
         }
-        .card-action:hover {
-            text-decoration: underline;
-        }
-        .card-body {
-            padding: 20px;
-        }
-        
-        /* 今日任务 */
-        .task-list {
-            list-style: none;
-        }
-        .task-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-        .task-item:last-child {
-            border-bottom: none;
-        }
-        .task-check {
-            width: 18px;
-            height: 18px;
-            border: 2px solid #e5e5e5;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .task-check.done {
-            background: #fbbf24;
-            border-color: #fbbf24;
-        }
-        .task-check.done::after {
-            content: "✓";
-            color: white;
-            font-size: 12px;
-        }
-        .task-info {
-            flex: 1;
-        }
-        .task-name {
-            font-size: 14px;
-            color: #333;
-        }
-        .task-name.done {
-            text-decoration: line-through;
-            color: #999;
-        }
-        .task-meta {
-            font-size: 12px;
-            color: #999;
-            margin-top: 2px;
-        }
-        .task-status {
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-        .task-status.pending {
-            background: #fef3c7;
-            color: #92400e;
-        }
-        .task-status.done {
-            background: #d1fae5;
-            color: #065f46;
-        }
+        .card-action:hover { text-decoration: underline; }
+        .card-body { padding: 20px; }
         
         /* 最近客户 */
-        .customer-list {
-            list-style: none;
-        }
+        .customer-list { list-style: none; }
         .customer-item {
             display: flex;
             align-items: center;
@@ -377,9 +193,7 @@
             padding: 10px 0;
             border-bottom: 1px solid #f5f5f5;
         }
-        .customer-item:last-child {
-            border-bottom: none;
-        }
+        .customer-item:last-child { border-bottom: none; }
         .customer-avatar {
             width: 36px;
             height: 36px;
@@ -392,360 +206,595 @@
             color: #666;
             font-size: 14px;
         }
-        .customer-info {
-            flex: 1;
+        .customer-info { flex: 1; }
+        .customer-name { font-size: 14px; font-weight: 500; color: #333; }
+        .customer-company { font-size: 12px; color: #999; }
+        .customer-time { font-size: 12px; color: #999; }
+        
+        /* 状态分布 */
+        .status-bar { margin-bottom: 12px; }
+        .status-bar-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 4px;
         }
-        .customer-name {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
+        .status-bar-label { color: #333; }
+        .status-bar-value { color: #666; }
+        .status-bar-track {
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
         }
-        .customer-company {
-            font-size: 12px;
-            color: #999;
-        }
-        .customer-time {
-            font-size: 12px;
-            color: #999;
+        .status-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
         }
         
-        /* 定时任务状态 */
-        .schedule-list {
-            list-style: none;
-        }
-        .schedule-item {
+        /* 活动列表 */
+        .activity-list { list-style: none; }
+        .activity-item {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 12px;
-            padding: 12px 0;
+            padding: 10px 0;
             border-bottom: 1px solid #f5f5f5;
+            font-size: 14px;
         }
-        .schedule-item:last-child {
-            border-bottom: none;
-        }
-        .schedule-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
+            flex-shrink: 0;
         }
-        .schedule-icon.active {
-            background: #d1fae5;
-            color: #059669;
+        .activity-icon.create { background: #d1fae5; color: #059669; }
+        .activity-icon.update { background: #dbeafe; color: #2563eb; }
+        .activity-icon.contact { background: #fef3c7; color: #92400e; }
+        .activity-text { flex: 1; color: #333; line-height: 1.4; }
+        .activity-time { font-size: 12px; color: #999; flex-shrink: 0; }
+        
+        /* 趋势图（简化柱状图） */
+        .trend-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 4px;
+            height: 150px;
+            padding: 0 4px;
         }
-        .schedule-icon.paused {
-            background: #f3f4f6;
-            color: #999;
-        }
-        .schedule-info {
+        .trend-bar-wrapper {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
         }
-        .schedule-name {
-            font-size: 14px;
-            color: #333;
+        .trend-bar {
+            width: 100%;
+            max-width: 24px;
+            background: #fbbf24;
+            border-radius: 3px 3px 0 0;
+            min-height: 2px;
+            transition: height 0.3s ease;
+            position: relative;
         }
-        .schedule-time {
-            font-size: 12px;
+        .trend-bar:hover { background: #f59e0b; }
+        .trend-bar-label {
+            font-size: 10px;
             color: #999;
-            margin-top: 2px;
+            margin-top: 6px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            max-height: 50px;
+            overflow: hidden;
         }
-        .schedule-status {
+        .trend-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
             font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-        .schedule-status.active {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .schedule-status.paused {
-            background: #f3f4f6;
             color: #666;
         }
-        
-        /* 活动图表 */
-        .chart-placeholder {
-            height: 200px;
-            background: linear-gradient(180deg, #fffbeb 0%, white 100%);
-            border-radius: 8px;
+        .trend-legend-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
+        }
+        .trend-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
             color: #999;
-            font-size: 14px;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e5e5;
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 36px; margin-bottom: 8px; }
+        .empty-state-text { font-size: 14px; color: #bbb; }
+        
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <!-- 左侧导航栏 -->
-    <aside class="sidebar">
+    <nav class="sidebar">
         <div class="sidebar-logo">
-            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
-                <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
             <div class="sidebar-logo-text">
                 <span class="sidebar-brand">命运</span>
                 <span class="sidebar-brand-en">DESTINY</span>
             </div>
         </div>
-        
-        <nav class="nav-menu">
+        <div class="nav-menu">
             <div class="nav-section">
-                <div class="nav-section-title">主菜单</div>
-                <div class="nav-item active">
+                <div class="nav-section-title">概览</div>
+                <a href="/dashboard" class="nav-item active">
                     <span class="nav-icon">📊</span>
                     <span>控制面板</span>
-                </div>
-                <div class="nav-item">
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="/crm" class="nav-item">
                     <span class="nav-icon">👥</span>
                     <span>客户管理</span>
-                    <span class="nav-badge">128</span>
-                </div>
-                <div class="nav-item">
-                    <span class="nav-icon">💼</span>
+                </a>
+                <a href="/linkedin" class="nav-item">
+                    <span class="nav-icon">🔗</span>
                     <span>LinkedIn</span>
-                </div>
-                <div class="nav-item">
-                    <span class="nav-icon">✉️</span>
+                </a>
+                <a href="/email" class="nav-item">
+                    <span class="nav-icon">📧</span>
                     <span>邮件营销</span>
-                </div>
+                </a>
             </div>
-            
             <div class="nav-section">
-                <div class="nav-section-title">自动化</div>
-                <div class="nav-item">
-                    <span class="nav-icon">⏰</span>
-                    <span>定时任务</span>
-                </div>
-                <div class="nav-item">
-                    <span class="nav-icon">📝</span>
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
+                </a>
+                <a href="/materials" class="nav-item">
+                    <span class="nav-icon">📁</span>
                     <span>素材库</span>
-                </div>
-            </div>
-            
-            <div class="nav-section">
-                <div class="nav-section-title">系统</div>
-                <div class="nav-item">
+                </a>
+                <a href="/analytics" class="nav-item">
                     <span class="nav-icon">📈</span>
                     <span>数据分析</span>
-                </div>
-                <div class="nav-item">
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/scheduler" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
+                </a>
+                <a href="/settings" class="nav-item">
                     <span class="nav-icon">⚙️</span>
                     <span>设置</span>
-                </div>
-            </div>
-        </nav>
-        
-        <div class="nav-user">
-            <div class="nav-avatar">A</div>
-            <div class="nav-user-info">
-                <div class="nav-user-name">Admin</div>
-                <div class="nav-user-role">管理员</div>
+                </a>
             </div>
         </div>
-    </aside>
+    </nav>
     
     <!-- 主内容区 -->
     <main class="main-content">
-        <header class="top-bar">
-            <h1 class="page-title">控制面板</h1>
-            <div class="top-actions">
-                <input type="text" class="search-box" placeholder="搜索客户...">
-                <button class="btn-primary">+ 添加客户</button>
+        <div class="top-bar">
+            <div>
+                <h1 class="page-title">控制面板</h1>
+                <div class="page-subtitle" id="greeting"></div>
             </div>
-        </header>
+            <div class="top-actions">
+                <a href="/crm" class="btn btn-primary">+ 添加客户</a>
+                <button class="btn btn-secondary" onclick="refreshAll()">🔄 刷新</button>
+            </div>
+        </div>
         
-        <div class="content">
-            <!-- 统计卡片 -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">总客户数</span>
-                        <span class="stat-icon yellow">👥</span>
-                    </div>
-                    <div class="stat-value">128</div>
-                    <div class="stat-change up">↑ 12% 较上周</div>
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">总客户数</span>
+                    <span class="stat-icon yellow">👥</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">今日新增</span>
-                        <span class="stat-icon green">✨</span>
-                    </div>
-                    <div class="stat-value">8</div>
-                    <div class="stat-change up">↑ 3 较昨日</div>
+                <div class="stat-value" id="totalCustomers">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">本月新增</span>
+                    <span class="stat-icon green">✨</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">待跟进</span>
-                        <span class="stat-icon blue">📋</span>
-                    </div>
-                    <div class="stat-value">24</div>
-                    <div class="stat-change down">↓ 5 较昨日</div>
+                <div class="stat-value" id="newThisMonth">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">今日联系</span>
+                    <span class="stat-icon blue">📋</span>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">转化率</span>
-                        <span class="stat-icon purple">📈</span>
-                    </div>
-                    <div class="stat-value">12.5%</div>
-                    <div class="stat-change up">↑ 2.3% 较上月</div>
+                <div class="stat-value" id="todayContacted">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">成交客户</span>
+                    <span class="stat-icon purple">🏆</span>
+                </div>
+                <div class="stat-value" id="wonCustomers">--</div>
+            </div>
+        </div>
+        
+        <!-- 主内容网格 -->
+        <div class="content-grid">
+            <!-- 最近客户 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">最近客户</span>
+                    <a href="/crm" class="card-action">查看全部 →</a>
+                </div>
+                <div class="card-body" id="recentCustomers">
+                    <div class="loading"><span class="spinner"></span> 加载中...</div>
                 </div>
             </div>
             
-            <!-- 主内容网格 -->
-            <div class="content-grid">
-                <!-- 今日任务 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">今日任务</span>
-                        <a class="card-action">查看全部</a>
-                    </div>
-                    <div class="card-body">
-                        <ul class="task-list">
-                            <li class="task-item">
-                                <span class="task-check done"></span>
-                                <div class="task-info">
-                                    <div class="task-name done">LinkedIn 自动加好友</div>
-                                    <div class="task-meta">已完成 10/10</div>
-                                </div>
-                                <span class="task-status done">已完成</span>
-                            </li>
-                            <li class="task-item">
-                                <span class="task-check"></span>
-                                <div class="task-info">
-                                    <div class="task-name">发送开发信</div>
-                                    <div class="task-meta">已完成 6/15</div>
-                                </div>
-                                <span class="task-status pending">进行中</span>
-                            </li>
-                            <li class="task-item">
-                                <span class="task-check"></span>
-                                <div class="task-info">
-                                    <div class="task-name">邮件营销</div>
-                                    <div class="task-meta">计划 20 封</div>
-                                </div>
-                                <span class="task-status pending">待执行</span>
-                            </li>
-                            <li class="task-item">
-                                <span class="task-check"></span>
-                                <div class="task-info">
-                                    <div class="task-name">生成 AI 内容</div>
-                                    <div class="task-meta">3 篇帖子</div>
-                                </div>
-                                <span class="task-status pending">待执行</span>
-                            </li>
-                        </ul>
-                    </div>
+            <!-- 客户状态分布 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">客户状态分布</span>
+                    <a href="/analytics" class="card-action">详细分析 →</a>
                 </div>
-                
-                <!-- 最近客户 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">最近客户</span>
-                        <a class="card-action">查看全部</a>
-                    </div>
-                    <div class="card-body">
-                        <ul class="customer-list">
-                            <li class="customer-item">
-                                <div class="customer-avatar">JS</div>
-                                <div class="customer-info">
-                                    <div class="customer-name">John Smith</div>
-                                    <div class="customer-company">ABC Logistics Ltd.</div>
-                                </div>
-                                <span class="customer-time">2小时前</span>
-                            </li>
-                            <li class="customer-item">
-                                <div class="customer-avatar">SJ</div>
-                                <div class="customer-info">
-                                    <div class="customer-name">Sarah Johnson</div>
-                                    <div class="customer-company">Global Trade Inc.</div>
-                                </div>
-                                <span class="customer-time">5小时前</span>
-                            </li>
-                            <li class="customer-item">
-                                <div class="customer-avatar">MC</div>
-                                <div class="customer-info">
-                                    <div class="customer-name">Michael Chen</div>
-                                    <div class="customer-company">Pacific Shipping Co.</div>
-                                </div>
-                                <span class="customer-time">1天前</span>
-                            </li>
-                            <li class="customer-item">
-                                <div class="customer-avatar">EW</div>
-                                <div class="customer-info">
-                                    <div class="customer-name">Emma Wilson</div>
-                                    <div class="customer-company">Euro Express GmbH</div>
-                                </div>
-                                <span class="customer-time">2天前</span>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="card-body" id="statusDistribution">
+                    <div class="loading"><span class="spinner"></span> 加载中...</div>
                 </div>
-                
-                <!-- 定时任务状态 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">定时任务</span>
-                        <a class="card-action">管理</a>
-                    </div>
-                    <div class="card-body">
-                        <ul class="schedule-list">
-                            <li class="schedule-item">
-                                <span class="schedule-icon active">🔄</span>
-                                <div class="schedule-info">
-                                    <div class="schedule-name">LinkedIn 自动加好友</div>
-                                    <div class="schedule-time">每日 10:00 执行</div>
-                                </div>
-                                <span class="schedule-status active">运行中</span>
-                            </li>
-                            <li class="schedule-item">
-                                <span class="schedule-icon active">✉️</span>
-                                <div class="schedule-info">
-                                    <div class="schedule-name">自动发送开发信</div>
-                                    <div class="schedule-time">每日 11:00 执行</div>
-                                </div>
-                                <span class="schedule-status active">运行中</span>
-                            </li>
-                            <li class="schedule-item">
-                                <span class="schedule-icon active">📧</span>
-                                <div class="schedule-info">
-                                    <div class="schedule-name">邮件营销</div>
-                                    <div class="schedule-time">每日 14:00 执行</div>
-                                </div>
-                                <span class="schedule-status active">运行中</span>
-                            </li>
-                            <li class="schedule-item">
-                                <span class="schedule-icon paused">🤖</span>
-                                <div class="schedule-info">
-                                    <div class="schedule-name">AI 内容生成</div>
-                                    <div class="schedule-time">已暂停</div>
-                                </div>
-                                <span class="schedule-status paused">已暂停</span>
-                            </li>
-                        </ul>
-                    </div>
+            </div>
+            
+            <!-- 7天趋势 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">近7天趋势</span>
                 </div>
-                
-                <!-- 本周活动 -->
-                <div class="card">
-                    <div class="card-header">
-                        <span class="card-title">本周活动</span>
-                        <a class="card-action">详细报告</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-placeholder">
-                            📊 活动趋势图表
-                        </div>
-                    </div>
+                <div class="card-body" id="trendChart">
+                    <div class="loading"><span class="spinner"></span> 加载中...</div>
+                </div>
+            </div>
+            
+            <!-- 最近活动 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">最近活动</span>
+                    <a href="/analytics" class="card-action">全部活动 →</a>
+                </div>
+                <div class="card-body" id="recentActivities">
+                    <div class="loading"><span class="spinner"></span> 加载中...</div>
                 </div>
             </div>
         </div>
     </main>
+
+    <script>
+        const API_BASE = window.location.origin;
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function apiFetch(url, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return null;
+            }
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: '请求失败' }));
+                throw new Error(error.detail || '请求失败');
+            }
+
+            return response.json();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diff = now - date;
+            if (diff < 3600000) {
+                const minutes = Math.floor(diff / 60000);
+                return minutes <= 0 ? '刚刚' : `${minutes}分钟前`;
+            }
+            if (diff < 86400000) {
+                const hours = Math.floor(diff / 3600000);
+                return `${hours}小时前`;
+            }
+            if (diff < 604800000) {
+                const days = Math.floor(diff / 86400000);
+                return `${days}天前`;
+            }
+            return date.toLocaleDateString('zh-CN');
+        }
+
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length >= 2) {
+                return (parts[0][0] + parts[1][0]).toUpperCase();
+            }
+            return name.substring(0, 2).toUpperCase();
+        }
+
+        const STATUS_LABELS = {
+            'lead': '潜在客户',
+            'contacted': '已联系',
+            'quoted': '已报价',
+            'negotiating': '谈判中',
+            'won': '成交',
+            'lost': '已流失',
+            'hold': '搁置'
+        };
+
+        const STATUS_COLORS = {
+            'lead': '#3b82f6',
+            'contacted': '#f59e0b',
+            'quoted': '#6366f1',
+            'negotiating': '#ec4899',
+            'won': '#10b981',
+            'lost': '#ef4444',
+            'hold': '#6b7280'
+        };
+
+        // ==================== 问候语 ====================
+        function setGreeting() {
+            const hour = new Date().getHours();
+            let greeting = '';
+            if (hour < 6) greeting = '夜深了，注意休息 🌙';
+            else if (hour < 12) greeting = '早上好！新的一天加油 ☀️';
+            else if (hour < 18) greeting = '下午好！保持专注 💪';
+            else greeting = '晚上好！辛苦了 🌆';
+            document.getElementById('greeting').textContent = greeting;
+        }
+
+        // ==================== 统计卡片 ====================
+        async function loadOverview() {
+            try {
+                const data = await apiFetch('/api/analytics/overview');
+                
+                const customers = data.customers || {};
+                document.getElementById('totalCustomers').textContent = (customers.total || 0).toLocaleString();
+                document.getElementById('newThisMonth').textContent = (customers.new_this_month || 0).toLocaleString();
+                document.getElementById('todayContacted').textContent = (customers.today_contacted || 0).toLocaleString();
+
+                // Won customers from status distribution
+                const statusDist = data.status_distribution || {};
+                document.getElementById('wonCustomers').textContent = (statusDist['won'] || statusDist.won || 0).toLocaleString();
+
+                // Render status distribution
+                renderStatusDistribution(statusDist, customers.total || 0);
+            } catch (e) {
+                console.error('Load overview failed:', e);
+                document.getElementById('totalCustomers').textContent = '0';
+                document.getElementById('newThisMonth').textContent = '0';
+                document.getElementById('todayContacted').textContent = '0';
+                document.getElementById('wonCustomers').textContent = '0';
+                document.getElementById('statusDistribution').innerHTML =
+                    '<div class="empty-state"><div class="empty-state-text">暂无数据</div></div>';
+            }
+        }
+
+        function renderStatusDistribution(statusDist, total) {
+            const container = document.getElementById('statusDistribution');
+            const entries = Object.entries(statusDist);
+
+            if (entries.length === 0 || total === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">暂无客户数据</div></div>';
+                return;
+            }
+
+            const html = entries.map(([status, count]) => {
+                const pct = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
+                const label = STATUS_LABELS[status] || status;
+                const color = STATUS_COLORS[status] || '#6b7280';
+                return `
+                    <div class="status-bar">
+                        <div class="status-bar-header">
+                            <span class="status-bar-label">${escapeHtml(label)}</span>
+                            <span class="status-bar-value">${count} (${pct}%)</span>
+                        </div>
+                        <div class="status-bar-track">
+                            <div class="status-bar-fill" style="width: ${pct}%; background: ${color};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        // ==================== 最近客户 ====================
+        async function loadRecentCustomers() {
+            const container = document.getElementById('recentCustomers');
+            try {
+                const data = await apiFetch('/api/crm/contacts');
+                const customers = Array.isArray(data) ? data : (data.contacts || []);
+
+                if (customers.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><div class="empty-state-text">暂无客户</div></div>';
+                    return;
+                }
+
+                // Show only the most recent 5
+                const recent = customers.slice(0, 5);
+                container.innerHTML = `
+                    <ul class="customer-list">
+                        ${recent.map(c => `
+                            <li class="customer-item">
+                                <div class="customer-avatar">${getInitials(c.name)}</div>
+                                <div class="customer-info">
+                                    <div class="customer-name">${escapeHtml(c.name)}</div>
+                                    <div class="customer-company">${escapeHtml(c.company || c.country || '')}</div>
+                                </div>
+                                <span class="customer-time">${formatDate(c.created_at || c.updated_at)}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-text">加载失败</div></div>`;
+            }
+        }
+
+        // ==================== 最近活动 ====================
+        async function loadRecentActivities() {
+            const container = document.getElementById('recentActivities');
+            try {
+                const data = await apiFetch('/api/analytics/activities?limit=8');
+                const activities = data.activities || [];
+
+                if (activities.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">暂无活动记录</div></div>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <ul class="activity-list">
+                        ${activities.map(a => {
+                            let iconClass = 'create';
+                            let icon = '📝';
+                            if (a.type === 'update' || a.action === 'update') { iconClass = 'update'; icon = '✏️'; }
+                            else if (a.type === 'contact' || a.action === 'contact') { iconClass = 'contact'; icon = '📞'; }
+                            else if (a.type === 'create' || a.action === 'create') { iconClass = 'create'; icon = '✨'; }
+                            return `
+                                <li class="activity-item">
+                                    <span class="activity-icon ${iconClass}">${icon}</span>
+                                    <span class="activity-text">${escapeHtml(a.description || a.message || a.summary || JSON.stringify(a))}</span>
+                                    <span class="activity-time">${formatDate(a.created_at || a.time || a.timestamp)}</span>
+                                </li>
+                            `;
+                        }).join('')}
+                    </ul>
+                `;
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-text">加载失败</div></div>`;
+            }
+        }
+
+        // ==================== 趋势图 ====================
+        async function loadTrends() {
+            const container = document.getElementById('trendChart');
+            try {
+                const data = await apiFetch('/api/analytics/trends?days=7');
+                const trends = data.trends || [];
+
+                if (trends.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📈</div><div class="empty-state-text">暂无趋势数据</div></div>';
+                    return;
+                }
+
+                const maxNew = Math.max(...trends.map(t => t.new_customers || 0), 1);
+                const maxContacted = Math.max(...trends.map(t => t.contacted || 0), 1);
+                const maxVal = Math.max(maxNew, maxContacted);
+
+                container.innerHTML = `
+                    <div class="trend-chart">
+                        ${trends.map(t => {
+                            const h1 = Math.max(((t.new_customers || 0) / maxVal) * 130, 2);
+                            const h2 = Math.max(((t.contacted || 0) / maxVal) * 130, 2);
+                            const dateLabel = (t.date || '').slice(5); // MM-DD
+                            return `
+                                <div class="trend-bar-wrapper" title="${t.date}: 新增${t.new_customers||0}, 联系${t.contacted||0}">
+                                    <div style="display:flex;gap:2px;align-items:flex-end;height:140px;">
+                                        <div class="trend-bar" style="height:${h1}px;background:#fbbf24;"></div>
+                                        <div class="trend-bar" style="height:${h2}px;background:#3b82f6;"></div>
+                                    </div>
+                                    <div class="trend-bar-label">${escapeHtml(dateLabel)}</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                    <div class="trend-legend">
+                        <div class="trend-legend-item">
+                            <div class="trend-legend-dot" style="background:#fbbf24;"></div>
+                            <span>新增客户</span>
+                        </div>
+                        <div class="trend-legend-item">
+                            <div class="trend-legend-dot" style="background:#3b82f6;"></div>
+                            <span>联系客户</span>
+                        </div>
+                    </div>
+                `;
+            } catch (e) {
+                container.innerHTML = `<div class="empty-state"><div class="empty-state-text">加载失败</div></div>`;
+            }
+        }
+
+        // ==================== Refresh ====================
+        function refreshAll() {
+            loadOverview();
+            loadRecentCustomers();
+            loadRecentActivities();
+            loadTrends();
+        }
+
+        // ==================== Init ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken()) {
+                window.location.href = '/login';
+                return;
+            }
+            setGreeting();
+            refreshAll();
+        });
+    </script>
 </body>
 </html>

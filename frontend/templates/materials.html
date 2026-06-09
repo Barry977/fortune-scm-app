@@ -3,308 +3,988 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>素材库 - 命运 DESTINY</title>
+    <title>命运 - 素材库</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; }
-
-        /* Layout */
-        .app { display: flex; min-height: 100vh; }
-        .sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; }
-        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
-
-        /* Sidebar */
-        .logo { padding: 20px 24px; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
-        .logo svg { width: 36px; height: 36px; }
-        .logo-text { font-size: 18px; font-weight: 700; color: #1a1a1a; }
-        .logo-sub { font-size: 11px; color: #888; letter-spacing: 2px; }
-
-        .nav-section { padding: 16px 0; }
-        .nav-label { padding: 8px 24px; font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-        .nav-item { display: flex; align-items: center; padding: 10px 24px; color: #555; font-size: 14px; cursor: pointer; transition: all .15s; gap: 12px; }
-        .nav-item:hover { background: #f9f9f9; color: #1a1a1a; }
-        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 600; border-right: 3px solid #fbbf24; }
-        .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
-        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
-
-        .sidebar-footer { margin-top: auto; padding: 16px 24px; border-top: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #1a1a1a; }
-        .user-info { flex: 1; }
-        .user-name { font-size: 13px; font-weight: 600; }
-        .user-role { font-size: 11px; color: #888; }
-
-        /* Top Bar */
-        .topbar { background: #ffffff; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
-        .topbar-title { font-size: 22px; font-weight: 700; }
-        .topbar-actions { display: flex; gap: 12px; }
-        .btn { padding: 8px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid #e5e5e5; background: #fff; color: #1a1a1a; transition: all .15s; }
-        .btn:hover { background: #f9f9f9; }
-        .btn-primary { background: #fbbf24; border-color: #fbbf24; color: #1a1a1a; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-logo-icon { width: 36px; height: 36px; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
+        .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title {
+            font-size: 11px;
+            color: #999;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+            text-decoration: none;
+        }
+        .nav-item:hover { background: #f9fafb; color: #333; }
+        .nav-item.active {
+            background: #fffbeb;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left: 3px solid #fbbf24;
+        }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card-label { font-size: 13px; color: #999; margin-bottom: 8px; }
+        .stat-card-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .stat-card-sub { font-size: 12px; color: #666; margin-top: 4px; }
+        
+        /* 搜索和筛选 */
+        .search-filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .search-input:focus { outline: none; border-color: #fbbf24; }
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .filter-select:focus { outline: none; border-color: #fbbf24; }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary {
+            background: #fbbf24;
+            color: #1a1a1a;
+        }
         .btn-primary:hover { background: #f59e0b; }
-
-        /* Content */
-        .content { padding: 24px 32px; flex: 1; }
-
-        /* Stats */
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-card { background: #ffffff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; }
-        .stat-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
-        .stat-label { font-size: 13px; color: #888; margin-top: 4px; }
-
-        /* Tabs */
-        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e5e5e5; margin-bottom: 20px; background: #fff; border-radius: 12px 12px 0 0; border: 1px solid #e5e5e5; border-bottom: none; overflow: hidden; }
-        .tab { padding: 12px 24px; font-size: 14px; font-weight: 600; cursor: pointer; color: #888; border-bottom: 2px solid transparent; transition: all .15s; }
-        .tab:hover { color: #1a1a1a; background: #fafafa; }
-        .tab.active { color: #1a1a1a; border-bottom-color: #fbbf24; background: #fff; }
-
-        /* Filter Bar */
-        .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
-        .filter-select { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; cursor: pointer; min-width: 140px; }
-        .filter-search { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 14px; background: #fff; color: #1a1a1a; flex: 1; max-width: 320px; }
-        .filter-search::placeholder { color: #bbb; }
-
-        /* Materials Grid */
-        .materials-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-        .material-card { background: #ffffff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; transition: all .15s; position: relative; }
-        .material-card:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
-        .material-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .material-title { font-size: 15px; font-weight: 700; }
-        .material-badge { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
-        .badge-blue { background: #eff6ff; color: #2563eb; }
-        .badge-green { background: #f0fdf4; color: #16a34a; }
-        .badge-purple { background: #faf5ff; color: #9333ea; }
-        .badge-orange { background: #fff7ed; color: #ea580c; }
-        .badge-rose { background: #fff1f2; color: #e11d48; }
-        .material-preview { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .material-footer { display: flex; align-items: center; justify-content: space-between; }
-        .material-date { font-size: 12px; color: #999; }
-        .material-actions { display: flex; gap: 8px; }
-        .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; cursor: pointer; border: 1px solid #e5e5e5; background: #fff; color: #555; transition: all .15s; }
-        .btn-sm:hover { border-color: #1a1a1a; color: #1a1a1a; }
-        .btn-sm-danger { color: #ef4444; border-color: #fecaca; }
-        .btn-sm-danger:hover { background: #fef2f2; border-color: #ef4444; color: #ef4444; }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #e5e5e5;
+        }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .btn-success:hover { background: #a7f3d0; }
+        
+        /* 素材网格 */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .material-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+        .material-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .material-card-header {
+            padding: 16px 20px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .material-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            flex: 1;
+            margin-right: 12px;
+            line-height: 1.4;
+        }
+        .material-card-body {
+            padding: 0 20px 16px;
+            flex: 1;
+        }
+        .material-card-body .content-preview {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            max-height: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+        .material-card-body .content-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(transparent, white);
+        }
+        .material-card-meta {
+            padding: 12px 20px;
+            border-top: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .material-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .material-tag {
+            background: #f3f4f6;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+        .material-card-footer {
+            padding: 12px 20px;
+            border-top: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-shared { background: #d1fae5; color: #065f46; }
+        .status-private { background: #f3f4f6; color: #374151; }
+        .status-text { background: #dbeafe; color: #1d4ed8; }
+        .status-image { background: #fce7f3; color: #9d174d; }
+        .status-template { background: #fef3c7; color: #92400e; }
+        .status-other { background: #e0e7ff; color: #3730a3; }
+        
+        /* 操作按钮 */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: #f3f4f6;
+            transition: all 0.15s;
+        }
+        .action-btn:hover { background: #e5e7eb; }
+        .action-btn.danger:hover { background: #fee2e2; }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: #e5e7eb; }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-input:focus { outline: none; border-color: #fbbf24; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 16px; margin-bottom: 8px; }
+        .empty-state-sub { font-size: 14px; color: #bbb; }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #d1fae5; color: #065f46; }
+        .toast-error { background: #fee2e2; color: #991b1b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Checkbox样式 */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #fbbf24;
+        }
+        
+        /* 编辑器 */
+        .editor-area {
+            min-height: 150px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 14px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .editor-area:focus { outline: none; border-color: #fbbf24; }
+        
+        /* 查看详情模态框 */
+        .detail-content {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        /* 用量标签 */
+        .usage-count {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .material-type-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
-    <div class="app">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo">
-                <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" fill="none"/>
-                    <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" fill="none"/>
-                    <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
-                    <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" fill="none"/>
-                </svg>
-                <div>
-                    <div class="logo-text">命运</div>
-                    <div class="logo-sub">DESTINY</div>
-                </div>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
+            <div class="sidebar-logo-text">
+                <span class="sidebar-brand">命运</span>
+                <span class="sidebar-brand-en">DESTINY</span>
             </div>
-
-            <nav class="nav-section">
-                <div class="nav-label">主菜单</div>
-                <div class="nav-item" onclick="location.href='/dashboard'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
-                    控制面板
-                </div>
-                <div class="nav-item" onclick="location.href='/clients'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-                    客户管理
-                    <span class="nav-badge">128</span>
-                </div>
-                <div class="nav-item" onclick="location.href='/linkedin'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.207v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-.003-3.096 1.548 1.548 0 01.003 3.096zm-1.337 9.763H6.34v-8.59H3.667v8.59zM17.668 1H2.328C1.595 1 1 1.581 1 2.298v15.403C1 18.418 1.595 19 2.328 19h15.34c.734 0 1.332-.582 1.332-1.299V2.298C19 1.581 18.402 1 17.668 1z" clip-rule="evenodd"/></svg>
-                    LinkedIn
-                </div>
-                <div class="nav-item" onclick="location.href='/email'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
-                    邮件营销
-                </div>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-label">自动化</div>
-                <div class="nav-item" onclick="location.href='/tasks'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
-                    定时任务
-                </div>
-                <div class="nav-item active" onclick="location.href='/materials'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z"/></svg>
-                    素材库
-                </div>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-label">系统</div>
-                <div class="nav-item" onclick="location.href='/analytics'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-                    数据分析
-                </div>
-                <div class="nav-item" onclick="location.href='/ai-config'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
-                    AI 配置
-                </div>
-                <div class="nav-item" onclick="location.href='/settings'">
-                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
-                    设置
-                </div>
-            </nav>
-
-            <div class="sidebar-footer">
-                <div class="avatar">A</div>
-                <div class="user-info">
-                    <div class="user-name">Admin</div>
-                    <div class="user-role">管理员</div>
-                </div>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">概览</div>
+                <a href="/dashboard" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>控制面板</span>
+                </a>
             </div>
-        </aside>
-
-        <!-- Main Content -->
-        <div class="main">
-            <div class="topbar">
-                <h1 class="topbar-title">素材库</h1>
-                <div class="topbar-actions">
-                    <button class="btn">上传素材</button>
-                    <button class="btn btn-primary">新建分类</button>
-                </div>
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="/crm" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>客户管理</span>
+                </a>
+                <a href="/linkedin" class="nav-item">
+                    <span class="nav-icon">🔗</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="/email" class="nav-item">
+                    <span class="nav-icon">📧</span>
+                    <span>邮件营销</span>
+                </a>
             </div>
+            <div class="nav-section">
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
+                </a>
+                <a href="/materials" class="nav-item active">
+                    <span class="nav-icon">📁</span>
+                    <span>素材库</span>
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/scheduler" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
+                </a>
+                <a href="/settings" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
+                </a>
+            </div>
+        </div>
+    </nav>
 
-            <div class="content">
-                <!-- Stats -->
-                <div class="stats">
-                    <div class="stat-card">
-                        <div class="stat-value">24</div>
-                        <div class="stat-label">总素材</div>
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">📁 素材库</h1>
+            <button class="btn btn-primary" onclick="openMaterialModal()">+ 添加素材</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-card-label">素材总数</div>
+                <div class="stat-card-value" id="statTotal">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">共享素材</div>
+                <div class="stat-card-value" id="statShared">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">分类数</div>
+                <div class="stat-card-value" id="statCategories">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">总使用次数</div>
+                <div class="stat-card-value" id="statUsage">-</div>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="search-filter-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="搜索素材标题、内容、标签..." onkeyup="handleSearch()">
+            <select class="filter-select" id="categoryFilter" onchange="loadMaterials()">
+                <option value="">所有分类</option>
+            </select>
+        </div>
+
+        <!-- 素材列表 -->
+        <div id="materialsContainer">
+            <div class="loading">加载中...</div>
+        </div>
+    </main>
+
+    <!-- 添加/编辑素材模态框 -->
+    <div class="modal" id="materialModal">
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="materialModalTitle">添加素材</h2>
+                <button class="modal-close" onclick="closeMaterialModal()">&times;</button>
+            </div>
+            <form id="materialForm" onsubmit="handleMaterialSubmit(event)">
+                <input type="hidden" id="materialId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">标题 *</label>
+                        <input type="text" class="form-input" id="matTitle" required placeholder="素材标题">
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-value">18</div>
-                        <div class="stat-label">文本</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">6</div>
-                        <div class="stat-label">图片</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">5</div>
-                        <div class="stat-label">分类</div>
+                    <div class="form-group">
+                        <label class="form-label">分类</label>
+                        <input type="text" class="form-input" id="matCategory" value="general" placeholder="分类名称" list="categoryList">
+                        <datalist id="categoryList"></datalist>
                     </div>
                 </div>
-
-                <!-- Tabs -->
-                <div class="tabs">
-                    <div class="tab active">文本素材</div>
-                    <div class="tab">图片素材</div>
-                    <div class="tab">分类管理</div>
-                </div>
-
-                <!-- Filter Bar -->
-                <div class="filter-bar">
-                    <select class="filter-select">
-                        <option>全部分类</option>
-                        <option>公司介绍</option>
-                        <option>物流服务</option>
-                        <option>海运</option>
-                        <option>空运</option>
-                        <option>专线</option>
-                    </select>
-                    <input type="text" class="filter-search" placeholder="搜索素材标题或内容...">
-                </div>
-
-                <!-- Materials Grid -->
-                <div class="materials-grid">
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">公司简介</span>
-                            <span class="material-badge badge-blue">公司介绍</span>
-                        </div>
-                        <div class="material-preview">命运供应链管理有限公司是一家专业的国际物流服务商，致力于为全球客户提供高效、安全、可靠的供应链解决方案。公司拥有多年的行业经验，覆盖海运、空运、陆运等多种运输方式...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-15 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">类型</label>
+                        <select class="form-input" id="matType">
+                            <option value="text">📝 文本</option>
+                            <option value="image">🖼️ 图片</option>
+                            <option value="template">📋 模板</option>
+                            <option value="other">📎 其他</option>
+                        </select>
                     </div>
-
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">物流服务介绍</span>
-                            <span class="material-badge badge-green">物流服务</span>
-                        </div>
-                        <div class="material-preview">我们提供全方位的物流服务，包括国际海运、空运、铁路运输、仓储管理、报关清关等一站式解决方案。专业的团队为您量身定制最优物流方案，降低运输成本...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-12 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">海运优势</span>
-                            <span class="material-badge badge-purple">海运</span>
-                        </div>
-                        <div class="material-preview">海运是国际贸易中最主要的运输方式，具有运量大、成本低、覆盖面广等优势。我们与全球多家船公司建立长期合作关系，确保舱位充足、运价优惠、时效稳定...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-10 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">空运时效</span>
-                            <span class="material-badge badge-orange">空运</span>
-                        </div>
-                        <div class="material-preview">空运以其快速、安全的特点成为高价值货物和时效敏感货物的首选。我们提供门到门空运服务，主要航线3-5个工作日可达，支持普货、敏感货、带电产品等多种货物类型...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-08 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">中东专线</span>
-                            <span class="material-badge badge-rose">专线</span>
-                        </div>
-                        <div class="material-preview">中东专线覆盖阿联酋、沙特、卡塔尔、科威特等主要国家，提供海运、空运双渠道运输方案。自有海外仓支持一件代发，清关能力强，末端派送覆盖广...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-05 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="material-card">
-                        <div class="material-header">
-                            <span class="material-title">欧美专线</span>
-                            <span class="material-badge badge-rose">专线</span>
-                        </div>
-                        <div class="material-preview">欧美专线覆盖美国、英国、德国、法国等主要市场，提供FBA头程、海外仓一件代发、专线小包等多元化物流方案。时效稳定，价格透明，全程可追踪...</div>
-                        <div class="material-footer">
-                            <span class="material-date">2026-05-02 创建</span>
-                            <div class="material-actions">
-                                <button class="btn-sm">编辑</button>
-                                <button class="btn-sm btn-sm-danger">删除</button>
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">语言</label>
+                        <select class="form-input" id="matLanguage">
+                            <option value="en">English</option>
+                            <option value="zh">中文</option>
+                            <option value="ar">العربية</option>
+                            <option value="de">Deutsch</option>
+                            <option value="fr">Français</option>
+                            <option value="es">Español</option>
+                            <option value="ja">日本語</option>
+                            <option value="ko">한국어</option>
+                        </select>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">标签 (逗号分隔)</label>
+                    <input type="text" class="form-input" id="matTags" placeholder="开发信, 报价, 空运, DDU">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">内容 *</label>
+                    <textarea class="editor-area" id="matContent" rows="8" required placeholder="素材正文内容"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="matIsShared" checked> 共享素材（团队可见）
+                    </label>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeMaterialModal()">取消</button>
+                    <button type="submit" class="btn btn-primary" id="materialSubmitBtn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 查看详情模态框 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="detailTitle">素材详情</h2>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div id="detailMeta" style="margin-bottom:16px;"></div>
+            <div class="detail-content" id="detailContent"></div>
+            <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                <button class="btn btn-secondary" onclick="closeDetailModal()">关闭</button>
+                <button class="btn btn-success" id="detailUseBtn" onclick="markAsUsed()">📌 记录使用</button>
+                <button class="btn btn-primary" id="detailCopyBtn" onclick="copyContent()">📋 复制内容</button>
             </div>
         </div>
     </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">确认删除</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <p style="margin-bottom:20px; color:#666;" id="deleteMessage">确定要删除这个素材吗？此操作不可恢复。</p>
+            <input type="hidden" id="deleteMaterialId">
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let currentDetailId = null;
+        let categories = [];
+        
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+        
+        async function apiFetch(url, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return null;
+            }
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: '请求失败' }));
+                throw new Error(error.detail || '请求失败');
+            }
+            
+            return response.json();
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+        
+        function getTypeIcon(type) {
+            const icons = { text: '📝', image: '🖼️', template: '📋', other: '📎' };
+            return icons[type] || '📎';
+        }
+        
+        function getTypeLabel(type) {
+            const labels = { text: '文本', image: '图片', template: '模板', other: '其他' };
+            return labels[type] || type;
+        }
+        
+        function truncateText(text, maxLen) {
+            if (!text) return '';
+            return text.length > maxLen ? text.substring(0, maxLen) + '...' : text;
+        }
+        
+        // ==================== 搜索 ====================
+        let searchTimeout = null;
+        function handleSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => loadMaterials(), 300);
+        }
+        
+        // ==================== 统计 ====================
+        async function loadStats() {
+            try {
+                const stats = await apiFetch('/api/materials/stats');
+                document.getElementById('statTotal').textContent = stats.total ?? '-';
+                document.getElementById('statShared').textContent = stats.shared ?? '-';
+                document.getElementById('statCategories').textContent = stats.categories ?? '-';
+                document.getElementById('statUsage').textContent = stats.total_usage ?? '-';
+            } catch (e) {
+                console.error('加载统计失败:', e);
+            }
+        }
+        
+        // ==================== 分类 ====================
+        async function loadCategories() {
+            try {
+                const result = await apiFetch('/api/materials/categories');
+                categories = result.categories || [];
+                const select = document.getElementById('categoryFilter');
+                // Keep the first "所有分类" option
+                select.innerHTML = '<option value="">所有分类</option>';
+                categories.forEach(cat => {
+                    select.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+                });
+                
+                // Update datalist
+                const datalist = document.getElementById('categoryList');
+                datalist.innerHTML = '';
+                categories.forEach(cat => {
+                    datalist.innerHTML += `<option value="${escapeHtml(cat)}">`;
+                });
+            } catch (e) {
+                console.error('加载分类失败:', e);
+            }
+        }
+        
+        // ==================== 素材列表 ====================
+        async function loadMaterials() {
+            const container = document.getElementById('materialsContainer');
+            const search = document.getElementById('searchInput').value;
+            const category = document.getElementById('categoryFilter').value;
+            
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (category) params.append('category', category);
+            
+            container.innerHTML = '<div class="loading">加载中...</div>';
+            
+            try {
+                const materials = await apiFetch(`/api/materials/?${params.toString()}`);
+                
+                if (!materials || materials.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📁</div>
+                            <div class="empty-state-text">暂无素材</div>
+                            <div class="empty-state-sub">点击"添加素材"开始创建您的素材库</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = `<div class="materials-grid">${materials.map(m => `
+                    <div class="material-card">
+                        <div class="material-card-header">
+                            <div class="material-card-title">${escapeHtml(m.title)}</div>
+                            <span class="material-type-icon">${getTypeIcon(m.type)}</span>
+                        </div>
+                        <div class="material-card-body" onclick="viewMaterial(${m.id})" style="cursor:pointer;">
+                            <div class="content-preview">${escapeHtml(truncateText(m.content, 200))}</div>
+                        </div>
+                        <div class="material-card-meta">
+                            <div class="material-tags">
+                                <span class="status-badge status-${m.type === 'image' ? 'image' : m.type === 'template' ? 'template' : m.type === 'other' ? 'other' : 'text'}">${getTypeLabel(m.type)}</span>
+                                <span class="status-badge ${m.is_shared ? 'status-shared' : 'status-private'}">${m.is_shared ? '共享' : '私有'}</span>
+                                <span class="material-tag">${escapeHtml(m.category || 'general')}</span>
+                                ${m.language ? `<span class="material-tag">${escapeHtml(m.language.toUpperCase())}</span>` : ''}
+                            </div>
+                            <div class="usage-count">📌 ${m.usage_count || 0}次</div>
+                        </div>
+                        ${m.tags ? `<div class="material-card-meta" style="border-top:none; padding-top:0;">
+                            <div class="material-tags">${m.tags.split(',').slice(0, 4).map(t => `<span class="material-tag">${escapeHtml(t.trim())}</span>`).join('')}</div>
+                        </div>` : ''}
+                        <div class="material-card-footer">
+                            <span style="font-size:12px; color:#999;">${formatDate(m.created_at)}</span>
+                            <div class="action-btns">
+                                <button class="action-btn" title="查看" onclick="viewMaterial(${m.id})">👁️</button>
+                                <button class="action-btn" title="编辑" onclick="openMaterialModal(${m.id})">✏️</button>
+                                <button class="action-btn" title="记录使用" onclick="recordUsage(${m.id})">📌</button>
+                                <button class="action-btn danger" title="删除" onclick="openDeleteModal(${m.id}, '${escapeHtml(m.title)}')">🗑️</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}</div>`;
+            } catch (e) {
+                container.innerHTML = `<div class="loading" style="color:#dc2626;">加载失败: ${e.message}</div>`;
+            }
+        }
+        
+        // ==================== 查看详情 ====================
+        async function viewMaterial(id) {
+            try {
+                const m = await apiFetch(`/api/materials/${id}`);
+                currentDetailId = m.id;
+                document.getElementById('detailTitle').textContent = m.title;
+                document.getElementById('detailMeta').innerHTML = `
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                        <span class="status-badge status-${m.type === 'image' ? 'image' : m.type === 'template' ? 'template' : m.type === 'other' ? 'other' : 'text'}">${getTypeIcon(m.type)} ${getTypeLabel(m.type)}</span>
+                        <span class="status-badge ${m.is_shared ? 'status-shared' : 'status-private'}">${m.is_shared ? '共享' : '私有'}</span>
+                        <span class="material-tag">${escapeHtml(m.category || 'general')}</span>
+                        ${m.language ? `<span class="material-tag">${escapeHtml(m.language.toUpperCase())}</span>` : ''}
+                    </div>
+                    ${m.tags ? `<div class="material-tags" style="margin-bottom:8px;">${m.tags.split(',').map(t => `<span class="material-tag">${escapeHtml(t.trim())}</span>`).join('')}</div>` : ''}
+                    <div style="font-size:12px; color:#999;">使用次数: ${m.usage_count || 0} | 创建于: ${formatDate(m.created_at)}</div>
+                `;
+                document.getElementById('detailContent').textContent = m.content;
+                document.getElementById('detailModal').classList.add('active');
+            } catch (e) {
+                showToast('加载素材详情失败: ' + e.message, 'error');
+            }
+        }
+        
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+            currentDetailId = null;
+        }
+        
+        async function markAsUsed() {
+            if (!currentDetailId) return;
+            await recordUsage(currentDetailId);
+        }
+        
+        function copyContent() {
+            const content = document.getElementById('detailContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                showToast('内容已复制到剪贴板');
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = content;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('内容已复制到剪贴板');
+            });
+        }
+        
+        // ==================== 添加/编辑素材 ====================
+        let editingMaterials = [];
+        
+        async function openMaterialModal(id = null) {
+            const form = document.getElementById('materialForm');
+            form.reset();
+            document.getElementById('materialId').value = '';
+            document.getElementById('matCategory').value = 'general';
+            document.getElementById('matType').value = 'text';
+            document.getElementById('matLanguage').value = 'en';
+            document.getElementById('matIsShared').checked = true;
+            
+            if (id) {
+                try {
+                    const m = await apiFetch(`/api/materials/${id}`);
+                    document.getElementById('materialModalTitle').textContent = '编辑素材';
+                    document.getElementById('materialSubmitBtn').textContent = '更新';
+                    document.getElementById('materialId').value = m.id;
+                    document.getElementById('matTitle').value = m.title || '';
+                    document.getElementById('matContent').value = m.content || '';
+                    document.getElementById('matCategory').value = m.category || 'general';
+                    document.getElementById('matType').value = m.type || 'text';
+                    document.getElementById('matLanguage').value = m.language || 'en';
+                    document.getElementById('matTags').value = m.tags || '';
+                    document.getElementById('matIsShared').checked = m.is_shared;
+                } catch (e) {
+                    showToast('加载素材信息失败: ' + e.message, 'error');
+                    return;
+                }
+            } else {
+                document.getElementById('materialModalTitle').textContent = '添加素材';
+                document.getElementById('materialSubmitBtn').textContent = '保存';
+            }
+            document.getElementById('materialModal').classList.add('active');
+        }
+        
+        function closeMaterialModal() {
+            document.getElementById('materialModal').classList.remove('active');
+        }
+        
+        async function handleMaterialSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('materialId').value;
+            
+            const data = {
+                title: document.getElementById('matTitle').value,
+                content: document.getElementById('matContent').value,
+                category: document.getElementById('matCategory').value || 'general',
+                type: document.getElementById('matType').value || 'text',
+                language: document.getElementById('matLanguage').value || 'en',
+                tags: document.getElementById('matTags').value || '',
+                is_shared: document.getElementById('matIsShared').checked
+            };
+            
+            try {
+                if (id) {
+                    await apiFetch(`/api/materials/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+                    showToast('素材更新成功');
+                } else {
+                    await apiFetch('/api/materials/', { method: 'POST', body: JSON.stringify(data) });
+                    showToast('素材创建成功');
+                }
+                closeMaterialModal();
+                loadMaterials();
+                loadStats();
+                loadCategories();
+            } catch (e) {
+                showToast('操作失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 使用记录 ====================
+        async function recordUsage(id) {
+            try {
+                await apiFetch(`/api/materials/${id}/use`, { method: 'POST' });
+                showToast('已记录使用');
+                loadMaterials();
+                loadStats();
+            } catch (e) {
+                showToast('记录失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 删除 ====================
+        function openDeleteModal(id, title) {
+            document.getElementById('deleteMaterialId').value = id;
+            document.getElementById('deleteMessage').textContent = `确定要删除素材"${title}"吗？此操作不可恢复。`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        async function confirmDelete() {
+            const id = document.getElementById('deleteMaterialId').value;
+            try {
+                await apiFetch(`/api/materials/${id}`, { method: 'DELETE' });
+                showToast('素材删除成功');
+                closeDeleteModal();
+                loadMaterials();
+                loadStats();
+                loadCategories();
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken()) {
+                window.location.href = '/login';
+                return;
+            }
+            loadStats();
+            loadCategories();
+            loadMaterials();
+        });
+    </script>
 </body>
 </html>

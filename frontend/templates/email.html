@@ -12,163 +12,461 @@
             display: flex;
             min-height: 100vh;
         }
-        /* 导航栏 */
-        .sidebar { width: 220px; background: white; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; height: 100vh; }
-        .sidebar-logo { padding: 24px 20px; border-bottom: 1px solid #f5f5f5; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         .sidebar-logo-icon { width: 36px; height: 36px; }
         .sidebar-logo-text { display: flex; flex-direction: column; }
         .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
         .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
         .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
         .nav-section { margin-bottom: 8px; }
-        .nav-section-title { font-size: 11px; color: #999; padding: 8px 12px 4px; text-transform: uppercase; letter-spacing: 1px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; font-size: 14px; color: #666; margin-bottom: 2px; text-decoration: none; }
+        .nav-section-title {
+            font-size: 11px;
+            color: #999;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+            text-decoration: none;
+        }
         .nav-item:hover { background: #f9fafb; color: #333; }
-        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 500; border-left: 3px solid #fbbf24; }
+        .nav-item.active {
+            background: #fffbeb;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left: 3px solid #fbbf24;
+        }
         .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .nav-badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 10px; }
-        .nav-user { padding: 16px 20px; border-top: 1px solid #f5f5f5; display: flex; align-items: center; gap: 10px; }
-        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #1a1a1a; font-size: 14px; }
-        .nav-user-info { flex: 1; }
-        .nav-user-name { font-size: 14px; font-weight: 500; color: #1a1a1a; }
-        .nav-user-role { font-size: 11px; color: #999; }
-        .main-content { flex: 1; margin-left: 220px; display: flex; flex-direction: column; }
-        .top-bar { background: white; border-bottom: 1px solid #e5e5e5; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
-        .page-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
-        .top-actions { display: flex; align-items: center; gap: 12px; }
-        .btn-primary { background: #fbbf24; color: #1a1a1a; border: none; padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card-label { font-size: 13px; color: #999; margin-bottom: 8px; }
+        .stat-card-value { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+        .stat-card-sub { font-size: 12px; color: #666; margin-top: 4px; }
+        
+        /* 选项卡 */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 12px;
+            padding: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.15s;
+        }
+        .tab-btn:hover { background: #f9fafb; color: #333; }
+        .tab-btn.active { background: #fbbf24; color: #1a1a1a; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary {
+            background: #fbbf24;
+            color: #1a1a1a;
+        }
         .btn-primary:hover { background: #f59e0b; }
-        .btn-secondary { background: white; color: #1a1a1a; border: 1px solid #e5e5e5; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-        .content { padding: 24px 32px; flex: 1; }
-        /* Tab 导航 */
-        .tabs { display: flex; gap: 4px; margin-bottom: 24px; background: white; border-radius: 10px; padding: 4px; border: 1px solid #e5e5e5; width: fit-content; }
-        .tab { padding: 8px 20px; border-radius: 6px; font-size: 13px; cursor: pointer; color: #666; border: none; background: none; }
-        .tab.active { background: #fbbf24; color: #1a1a1a; font-weight: 600; }
-        .tab:hover:not(.active) { background: #f9fafb; }
-        /* 统计 */
-        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
-        .stat-mini { background: white; border-radius: 8px; padding: 14px 16px; border: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
-        .stat-mini-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
-        .stat-mini-icon.yellow { background: #fffbeb; }
-        .stat-mini-icon.green { background: #d1fae5; }
-        .stat-mini-icon.blue { background: #dbeafe; }
-        .stat-mini-icon.purple { background: #ede9fe; }
-        .stat-mini-info { flex: 1; }
-        .stat-mini-value { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-        .stat-mini-label { font-size: 12px; color: #999; }
-        /* 邮件模板卡片 */
-        .templates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
-        .template-card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; overflow: hidden; transition: all 0.2s; }
-        .template-card:hover { border-color: #fbbf24; box-shadow: 0 4px 12px rgba(251,191,36,0.1); }
-        .template-card-header { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f5f5f5; }
-        .template-icon { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .template-icon.outreach { background: #dbeafe; }
-        .template-icon.followup { background: #d1fae5; }
-        .template-icon.update { background: #fffbeb; }
-        .template-icon.greeting { background: #fce7f3; }
-        .template-icon.thankyou { background: #ede9fe; }
-        .template-icon.intro { background: #e0f2fe; }
-        .template-card-title { font-size: 14px; font-weight: 600; color: #1a1a1a; }
-        .template-card-category { font-size: 11px; color: #999; margin-top: 2px; }
-        .template-card-body { padding: 16px 20px; }
-        .template-subject { font-size: 13px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .template-subject .label { font-size: 11px; color: #999; font-weight: 400; }
-        .template-preview { font-size: 12px; color: #666; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .template-card-footer { padding: 12px 20px; border-top: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
-        .template-meta { font-size: 11px; color: #999; }
-        .template-actions { display: flex; gap: 8px; }
-        .btn-sm { padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; border: 1px solid #e5e5e5; background: white; color: #666; }
-        .btn-sm:hover { background: #f9fafb; color: #1a1a1a; }
-        .btn-sm.edit { color: #1a1a1a; }
-        .btn-sm.delete { color: #ef4444; border-color: #fee2e2; }
-        .btn-sm.delete:hover { background: #fef2f2; }
-        /* Tab内容 */
-        .tab-panel { display: none; }
-        .tab-panel.active { display: block; }
-        /* 发送记录表格 */
-        .records-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid #e5e5e5; }
-        .records-table th { background: #fafafa; font-size: 12px; color: #999; font-weight: 500; text-align: left; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
-        .records-table td { font-size: 13px; color: #1a1a1a; padding: 12px 16px; border-bottom: 1px solid #f5f5f5; }
-        .records-table tr:last-child td { border-bottom: none; }
-        .records-table tr:hover td { background: #fafafa; }
-        .badge { padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
-        .badge-success { background: #d1fae5; color: #065f46; }
-        .badge-warning { background: #fef3c7; color: #92400e; }
-        .badge-info { background: #dbeafe; color: #1e40af; }
-        .badge-fail { background: #fee2e2; color: #dc2626; }
-        /* SMTP配置 */
-        .config-card { background: white; border-radius: 10px; border: 1px solid #e5e5e5; }
-        .config-card .card-header { padding: 16px 20px; border-bottom: 1px solid #f5f5f5; display: flex; justify-content: space-between; align-items: center; }
-        .config-card .card-title { font-size: 15px; font-weight: 600; color: #1a1a1a; }
-        .config-card .card-body { padding: 20px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 6px; }
-        .form-group input, .form-group select { width: 100%; padding: 8px 12px; border: 1px solid #e5e5e5; border-radius: 6px; font-size: 13px; color: #1a1a1a; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: #fbbf24; }
-        .form-actions { display: flex; gap: 12px; margin-top: 8px; }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #e5e5e5;
+        }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .btn-success:hover { background: #a7f3d0; }
+        
+        /* 表格 */
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            background: #f9fafb;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .data-table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .data-table tr:hover { background: #f9fafb; }
+        .data-table tr:last-child td { border-bottom: none; }
+        
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-sent { background: #d1fae5; color: #065f46; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .status-delivered { background: #dbeafe; color: #1d4ed8; }
+        .status-opened { background: #e0e7ff; color: #3730a3; }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-inactive { background: #f3f4f6; color: #374151; }
+        .status-default { background: #fef3c7; color: #92400e; }
+        
+        /* 操作按钮 */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: #f3f4f6;
+            transition: all 0.15s;
+        }
+        .action-btn:hover { background: #e5e7eb; }
+        .action-btn.danger:hover { background: #fee2e2; }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: #e5e7eb; }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .form-input:focus { outline: none; border-color: #fbbf24; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
         /* 空状态 */
-        .empty-state { text-align: center; padding: 48px 24px; color: #999; }
-        .empty-state-icon { font-size: 36px; margin-bottom: 12px; }
-        .empty-state-text { font-size: 14px; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 16px; margin-bottom: 8px; }
+        .empty-state-sub { font-size: 14px; color: #bbb; }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #d1fae5; color: #065f46; }
+        .toast-error { background: #fee2e2; color: #991b1b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Checkbox样式 */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #333;
+            cursor: pointer;
+        }
+        .checkbox-label input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #fbbf24;
+        }
+        
+        /* Search/filter bar */
+        .search-filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .search-input:focus { outline: none; border-color: #fbbf24; }
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .filter-select:focus { outline: none; border-color: #fbbf24; }
+        
+        /* 编辑器 */
+        .editor-area {
+            min-height: 200px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 14px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        .editor-area:focus { outline: none; border-color: #fbbf24; }
+        
+        /* SMTP config card */
+        .config-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        .config-info { flex: 1; }
+        .config-info h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .config-info p { font-size: 13px; color: #666; margin-bottom: 4px; }
+        .config-actions { display: flex; gap: 8px; align-items: center; }
+        
+        .badge-default {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
     </style>
 </head>
 <body>
-    <!-- 左侧导航 -->
+    <!-- 左侧导航栏 -->
     <nav class="sidebar">
-        <a href="/" class="sidebar-logo">
-            <svg class="sidebar-logo-icon" viewBox="0 0 36 36" fill="none">
-                <rect width="36" height="36" rx="8" fill="#fffbeb"/>
-                <path d="M8 28L18 8L28 28" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 22H24" stroke="#1a1a1a" stroke-width="1.5" stroke-linecap="round"/>
-                <circle cx="18" cy="14" r="3" fill="#fbbf24"/>
-            </svg>
+        <div class="sidebar-logo">
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
             <div class="sidebar-logo-text">
                 <span class="sidebar-brand">命运</span>
                 <span class="sidebar-brand-en">DESTINY</span>
             </div>
-        </a>
+        </div>
         <div class="nav-menu">
             <div class="nav-section">
-                <div class="nav-section-title">主菜单</div>
+                <div class="nav-section-title">概览</div>
                 <a href="/dashboard" class="nav-item">
                     <span class="nav-icon">📊</span>
                     <span>控制面板</span>
                 </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
                 <a href="/crm" class="nav-item">
                     <span class="nav-icon">👥</span>
                     <span>客户管理</span>
-                    <span class="nav-badge">128</span>
                 </a>
                 <a href="/linkedin" class="nav-item">
                     <span class="nav-icon">🔗</span>
                     <span>LinkedIn</span>
                 </a>
                 <a href="/email" class="nav-item active">
-                    <span class="nav-icon">✉️</span>
+                    <span class="nav-icon">📧</span>
                     <span>邮件营销</span>
                 </a>
             </div>
             <div class="nav-section">
-                <div class="nav-section-title">自动化</div>
-                <a href="/dashboard" class="nav-item">
-                    <span class="nav-icon">⏰</span>
-                    <span>定时任务</span>
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
                 </a>
                 <a href="/materials" class="nav-item">
                     <span class="nav-icon">📁</span>
                     <span>素材库</span>
                 </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-section-title">系统</div>
                 <a href="/analytics" class="nav-item">
                     <span class="nav-icon">📈</span>
                     <span>数据分析</span>
                 </a>
-                <a href="/ai_config" class="nav-item">
-                    <span class="nav-icon">🤖</span>
-                    <span>AI配置</span>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/scheduler" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
                 </a>
                 <a href="/settings" class="nav-item">
                     <span class="nav-icon">⚙️</span>
@@ -176,403 +474,849 @@
                 </a>
             </div>
         </div>
-        <div class="nav-user">
-            <div class="nav-avatar">A</div>
-            <div class="nav-user-info">
-                <div class="nav-user-name">Admin</div>
-                <div class="nav-user-role">管理员</div>
-            </div>
-        </div>
     </nav>
 
     <!-- 主内容区 -->
-    <div class="main-content">
+    <main class="main-content">
         <div class="top-bar">
-            <h1 class="page-title">邮件营销</h1>
-            <div class="top-actions">
-                <button class="btn-secondary" onclick="showCreateTemplate()">📄 新建模板</button>
-                <button class="btn-primary" onclick="showTab('templates')">✉️ 发送邮件</button>
+            <h1 class="page-title">📧 邮件营销</h1>
+            <div style="display:flex; gap:12px;">
+                <button class="btn btn-primary" onclick="openSendEmailModal()">✉️ 发送邮件</button>
             </div>
         </div>
 
-        <div class="content">
-            <!-- Tab导航 -->
-            <div class="tabs">
-                <button class="tab active" onclick="switchTab(this, 'templates')">邮件模板</button>
-                <button class="tab" onclick="switchTab(this, 'records')">发送记录</button>
-                <button class="tab" onclick="switchTab(this, 'smtp')">SMTP配置</button>
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-card-label">总发送</div>
+                <div class="stat-card-value" id="statTotalSent">-</div>
             </div>
-
-            <!-- 邮件模板 Tab -->
-            <div id="panel-templates" class="tab-panel active">
-                <!-- 统计数据 -->
-                <div class="stats-row">
-                    <div class="stat-mini">
-                        <div class="stat-mini-icon yellow">📤</div>
-                        <div class="stat-mini-info">
-                            <div class="stat-mini-value">234</div>
-                            <div class="stat-mini-label">已发送</div>
-                        </div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="stat-mini-icon green">👁️</div>
-                        <div class="stat-mini-info">
-                            <div class="stat-mini-value">45.2%</div>
-                            <div class="stat-mini-label">打开率</div>
-                        </div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="stat-mini-icon blue">💬</div>
-                        <div class="stat-mini-info">
-                            <div class="stat-mini-value">12.8%</div>
-                            <div class="stat-mini-label">回复率</div>
-                        </div>
-                    </div>
-                    <div class="stat-mini">
-                        <div class="stat-mini-icon purple">📝</div>
-                        <div class="stat-mini-info">
-                            <div class="stat-mini-value">6</div>
-                            <div class="stat-mini-label">模板数</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 模板卡片列表 -->
-                <div class="templates-grid">
-                    <!-- 开发信 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon outreach">📧</div>
-                            <div>
-                                <div class="template-card-title">开发信</div>
-                                <div class="template-card-category">客户开发 · 首次联系</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>关于供应链合作方案的探讨</div>
-                            <div class="template-preview">尊敬的客户，您好！我们是命运供应链管理公司，专注于为全球客户提供高效、可靠的供应链解决方案。我们注意到贵公司在...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：2天前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 报价跟进 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon followup">📋</div>
-                            <div>
-                                <div class="template-card-title">报价跟进</div>
-                                <div class="template-card-category">销售跟进 · 报价确认</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>报价方案确认 - {company_name}</div>
-                            <div class="template-preview">您好，{contact_name}！感谢您对我们报价方案的关注。附件是我们根据贵公司需求定制的供应链服务方案，包括运输路线、时效预估...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：5天前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 货物状态更新 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon update">🚢</div>
-                            <div>
-                                <div class="template-card-title">货物状态更新</div>
-                                <div class="template-card-category">物流通知 · 状态更新</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>货物运输状态更新 - 订单 #{order_id}</div>
-                            <div class="template-preview">您好，{contact_name}！您的订单 #{order_id} 运输状态已更新。当前状态：{status}。预计到达时间：{eta}。如需了解更多详情...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：1周前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 节日问候 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon greeting">🎉</div>
-                            <div>
-                                <div class="template-card-title">节日问候</div>
-                                <div class="template-card-category">客户维护 · 节日祝福</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>新年快乐！感谢您的信任与支持</div>
-                            <div class="template-preview">尊敬的客户，值此新春佳节来临之际，命运全体员工向您致以最诚挚的祝福！感谢您在过去一年里对我们的信任与支持...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：2周前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 感谢合作 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon thankyou">🤝</div>
-                            <div>
-                                <div class="template-card-title">感谢合作</div>
-                                <div class="template-card-category">客户维护 · 合作感谢</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>感谢您的合作 - {company_name}</div>
-                            <div class="template-preview">尊敬的 {contact_name}，感谢贵公司选择命运作为供应链合作伙伴。我们将持续为您提供优质的服务，期待未来更深入的合作...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：3周前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 公司介绍 -->
-                    <div class="template-card">
-                        <div class="template-card-header">
-                            <div class="template-icon intro">🏢</div>
-                            <div>
-                                <div class="template-card-title">公司介绍</div>
-                                <div class="template-card-category">品牌宣传 · 公司简介</div>
-                            </div>
-                        </div>
-                        <div class="template-card-body">
-                            <div class="template-subject"><span class="label">主题：</span>命运供应链 - 您的全球物流专家</div>
-                            <div class="template-preview">您好！命运供应链管理有限公司是一家专业的国际供应链服务商，业务覆盖海运、空运、陆运及仓储管理。我们拥有丰富的行业经验...</div>
-                        </div>
-                        <div class="template-card-footer">
-                            <span class="template-meta">最后编辑：1个月前</span>
-                            <div class="template-actions">
-                                <button class="btn-sm edit">✏️ 编辑</button>
-                                <button class="btn-sm delete">🗑️ 删除</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-card-label">总送达</div>
+                <div class="stat-card-value" id="statTotalDelivered">-</div>
+                <div class="stat-card-sub" id="statDeliveryRate">-</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-card-label">已打开</div>
+                <div class="stat-card-value" id="statTotalOpened">-</div>
+                <div class="stat-card-sub" id="statOpenRate">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">已点击</div>
+                <div class="stat-card-value" id="statTotalClicked">-</div>
+                <div class="stat-card-sub" id="statClickRate">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">失败</div>
+                <div class="stat-card-value" id="statTotalFailed">-</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-label">今日发送</div>
+                <div class="stat-card-value" id="statTodaySent">-</div>
+            </div>
+        </div>
 
-            <!-- 发送记录 Tab -->
-            <div id="panel-records" class="tab-panel">
-                <table class="records-table">
+        <!-- 选项卡 -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('configs')">SMTP 配置</button>
+            <button class="tab-btn" onclick="switchTab('templates')">邮件模板</button>
+            <button class="tab-btn" onclick="switchTab('records')">发送记录</button>
+        </div>
+
+        <!-- SMTP 配置 -->
+        <div class="tab-content active" id="tab-configs">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:16px;">SMTP 服务器配置</h3>
+                <button class="btn btn-primary btn-sm" onclick="openSmtpModal()">+ 添加配置</button>
+            </div>
+            <div id="smtpConfigsList">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 邮件模板 -->
+        <div class="tab-content" id="tab-templates">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:16px;">邮件模板管理</h3>
+                <button class="btn btn-primary btn-sm" onclick="openTemplateModal()">+ 新建模板</button>
+            </div>
+            <div class="data-table" id="templatesTable">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>模板名称</th>
+                            <th>主题</th>
+                            <th>分类</th>
+                            <th>使用次数</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="templatesBody">
+                        <tr><td colspan="6" class="loading">加载中...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 发送记录 -->
+        <div class="tab-content" id="tab-records">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <h3 style="font-size:16px;">发送记录</h3>
+                <select class="filter-select" id="recordStatusFilter" onchange="loadRecords()">
+                    <option value="">所有状态</option>
+                    <option value="sent">已发送</option>
+                    <option value="delivered">已送达</option>
+                    <option value="opened">已打开</option>
+                    <option value="failed">失败</option>
+                    <option value="pending">待发送</option>
+                </select>
+            </div>
+            <div class="data-table">
+                <table>
                     <thead>
                         <tr>
                             <th>收件人</th>
                             <th>主题</th>
-                            <th>模板</th>
                             <th>状态</th>
-                            <th>打开时间</th>
+                            <th>发件邮箱</th>
                             <th>发送时间</th>
+                            <th>错误信息</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>john@abc-logistics.com</td>
-                            <td>关于供应链合作方案的探讨</td>
-                            <td>开发信</td>
-                            <td><span class="badge badge-success">已打开</span></td>
-                            <td>2024-01-15 14:30</td>
-                            <td>2024-01-15 10:00</td>
-                        </tr>
-                        <tr>
-                            <td>sarah@global-trade.com</td>
-                            <td>报价方案确认 - Global Trade</td>
-                            <td>报价跟进</td>
-                            <td><span class="badge badge-success">已回复</span></td>
-                            <td>2024-01-14 16:45</td>
-                            <td>2024-01-14 09:30</td>
-                        </tr>
-                        <tr>
-                            <td>mike@ocean-freight.com</td>
-                            <td>货物运输状态更新 - 订单 #10234</td>
-                            <td>货物状态更新</td>
-                            <td><span class="badge badge-info">已发送</span></td>
-                            <td>—</td>
-                            <td>2024-01-14 08:00</td>
-                        </tr>
-                        <tr>
-                            <td>info@fast-shipping.com</td>
-                            <td>命运供应链 - 您的全球物流专家</td>
-                            <td>公司介绍</td>
-                            <td><span class="badge badge-warning">待发送</span></td>
-                            <td>—</td>
-                            <td>—</td>
-                        </tr>
-                        <tr>
-                            <td>chen@asia-import.com</td>
-                            <td>关于供应链合作方案的探讨</td>
-                            <td>开发信</td>
-                            <td><span class="badge badge-fail">发送失败</span></td>
-                            <td>—</td>
-                            <td>2024-01-13 11:20</td>
-                        </tr>
-                        <tr>
-                            <td>lisa@euro-scm.de</td>
-                            <td>感谢您的合作 - Euro SCM</td>
-                            <td>感谢合作</td>
-                            <td><span class="badge badge-success">已打开</span></td>
-                            <td>2024-01-12 09:15</td>
-                            <td>2024-01-12 08:00</td>
-                        </tr>
+                    <tbody id="recordsBody">
+                        <tr><td colspan="6" class="loading">加载中...</td></tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </main>
 
-            <!-- SMTP配置 Tab -->
-            <div id="panel-smtp" class="tab-panel">
-                <div class="config-card">
-                    <div class="card-header">
-                        <span class="card-title">SMTP 服务器配置</span>
-                        <button class="btn-primary" onclick="saveSMTP()">💾 保存配置</button>
+    <!-- SMTP 配置模态框 -->
+    <div class="modal" id="smtpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="smtpModalTitle">添加 SMTP 配置</h2>
+                <button class="modal-close" onclick="closeSmtpModal()">&times;</button>
+            </div>
+            <form id="smtpForm" onsubmit="handleSmtpSubmit(event)">
+                <input type="hidden" id="smtpConfigId">
+                <div class="form-group">
+                    <label class="form-label">配置名称 *</label>
+                    <input type="text" class="form-input" id="smtpName" required placeholder="例: 公司邮箱">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">SMTP 服务器 *</label>
+                        <input type="text" class="form-input" id="smtpHost" required placeholder="smtp.example.com">
                     </div>
-                    <div class="card-body">
-                        <div class="form-grid">
-                            <div>
-                                <div class="form-group">
-                                    <label>配置名称</label>
-                                    <input type="text" id="smtp-name" placeholder="如：公司邮箱" value="命运官方邮箱">
-                                </div>
-                                <div class="form-group">
-                                    <label>SMTP 服务器</label>
-                                    <input type="text" id="smtp-host" placeholder="smtp.gmail.com" value="smtp.destiny-scm.com">
-                                </div>
-                                <div class="form-group">
-                                    <label>端口</label>
-                                    <input type="number" id="smtp-port" value="587">
-                                </div>
-                                <div class="form-group">
-                                    <label>用户名</label>
-                                    <input type="text" id="smtp-username" placeholder="your@email.com" value="noreply@destiny-scm.com">
-                                </div>
-                            </div>
-                            <div>
-                                <div class="form-group">
-                                    <label>密码/授权码</label>
-                                    <input type="password" id="smtp-password" value="••••••••">
-                                </div>
-                                <div class="form-group">
-                                    <label>加密方式</label>
-                                    <select id="smtp-encryption">
-                                        <option value="tls" selected>TLS</option>
-                                        <option value="ssl">SSL</option>
-                                        <option value="none">无加密</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>发件人名称</label>
-                                    <input type="text" id="smtp-sender-name" placeholder="Fortune SCM Team" value="命运供应链">
-                                </div>
-                                <div class="form-group">
-                                    <label>发件人邮箱</label>
-                                    <input type="text" id="smtp-sender-email" placeholder="noreply@company.com" value="service@destiny-scm.com">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn-primary" onclick="saveSMTP()">💾 保存配置</button>
-                            <button class="btn-secondary" onclick="testSMTP()">🔌 测试连接</button>
-                        </div>
-                        <div id="smtp-result" style="margin-top:12px;"></div>
+                    <div class="form-group">
+                        <label class="form-label">端口 *</label>
+                        <input type="number" class="form-input" id="smtpPort" required value="587">
                     </div>
                 </div>
-
-                <div class="config-card" style="margin-top:20px;">
-                    <div class="card-header">
-                        <span class="card-title">发送设置</span>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">用户名/邮箱 *</label>
+                        <input type="text" class="form-input" id="smtpUsername" required>
                     </div>
-                    <div class="card-body">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label>每日发送上限</label>
-                                <input type="number" value="100" placeholder="100">
-                            </div>
-                            <div class="form-group">
-                                <label>发送间隔（秒）</label>
-                                <input type="number" value="30" placeholder="30">
-                            </div>
-                            <div class="form-group">
-                                <label>退订链接</label>
-                                <input type="text" value="https://destiny-scm.com/unsubscribe" placeholder="退订链接">
-                            </div>
-                            <div class="form-group">
-                                <label>签名</label>
-                                <input type="text" value="命运供应链管理团队" placeholder="签名">
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">密码/授权码 *</label>
+                        <input type="password" class="form-input" id="smtpPassword" required>
                     </div>
                 </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">发件人名称</label>
+                        <input type="text" class="form-input" id="smtpSenderName" placeholder="FORTUNE SCM">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">发件人邮箱</label>
+                        <input type="email" class="form-input" id="smtpSenderEmail" placeholder="info@example.com">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">回复邮箱</label>
+                    <input type="email" class="form-input" id="smtpReplyTo" placeholder="reply@example.com">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="smtpUseTls" checked> 使用 TLS
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="smtpUseSsl"> 使用 SSL
+                        </label>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="smtpIsDefault"> 设为默认
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="smtpIsActive" checked> 启用
+                        </label>
+                    </div>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeSmtpModal()">取消</button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="testSmtpConfig()" id="testSmtpBtn">测试连接</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 邮件模板模态框 -->
+    <div class="modal" id="templateModal">
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header">
+                <h2 class="modal-title" id="templateModalTitle">新建邮件模板</h2>
+                <button class="modal-close" onclick="closeTemplateModal()">&times;</button>
+            </div>
+            <form id="templateForm" onsubmit="handleTemplateSubmit(event)">
+                <input type="hidden" id="templateId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">模板名称 *</label>
+                        <input type="text" class="form-input" id="tplName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">分类</label>
+                        <input type="text" class="form-input" id="tplCategory" value="general" placeholder="general, sales, marketing...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">邮件主题 *</label>
+                    <input type="text" class="form-input" id="tplSubject" required placeholder="支持 {{变量}} 语法">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">HTML 内容</label>
+                    <textarea class="editor-area" id="tplBodyHtml" rows="8" placeholder="HTML 格式的邮件内容，支持 {{变量}}"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">纯文本内容</label>
+                    <textarea class="editor-area" id="tplBodyText" rows="4" placeholder="纯文本备用内容"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">变量列表 (逗号分隔)</label>
+                    <input type="text" class="form-input" id="tplVariables" placeholder="name, company, route">
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="tplIsActive" checked> 启用模板
+                    </label>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeTemplateModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 发送邮件模态框 -->
+    <div class="modal" id="sendEmailModal">
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header">
+                <h2 class="modal-title">发送邮件</h2>
+                <button class="modal-close" onclick="closeSendEmailModal()">&times;</button>
+            </div>
+            <form id="sendEmailForm" onsubmit="handleSendEmail(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">SMTP 配置</label>
+                        <select class="form-input" id="sendConfigId">
+                            <option value="">使用默认配置</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮件模板 (可选)</label>
+                        <select class="form-input" id="sendTemplateId" onchange="onTemplateSelect()">
+                            <option value="">不使用模板</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">收件人邮箱 *</label>
+                    <input type="email" class="form-input" id="sendToEmail" required placeholder="recipient@example.com">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">收件人名称</label>
+                    <input type="text" class="form-input" id="sendToName" placeholder="John Doe">
+                </div>
+                <div class="form-group" id="sendSubjectGroup">
+                    <label class="form-label">邮件主题 *</label>
+                    <input type="text" class="form-input" id="sendSubject" required placeholder="邮件主题">
+                </div>
+                <div class="form-group" id="sendBodyGroup">
+                    <label class="form-label">邮件内容 (HTML)</label>
+                    <textarea class="editor-area" id="sendBodyHtml" rows="6" placeholder="邮件HTML内容"></textarea>
+                </div>
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeSendEmailModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">🚀 发送</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 测试SMTP模态框 -->
+    <div class="modal" id="testSmtpModal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">测试 SMTP 连接</h2>
+                <button class="modal-close" onclick="closeTestSmtpModal()">&times;</button>
+            </div>
+            <form onsubmit="handleTestSmtp(event)">
+                <div class="form-group">
+                    <label class="form-label">测试收件邮箱 *</label>
+                    <input type="email" class="form-input" id="testSmtpEmail" required placeholder="test@example.com">
+                </div>
+                <input type="hidden" id="testSmtpConfigId">
+                <div style="display:flex; gap:12px; justify-content:flex-end; margin-top:20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeTestSmtpModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">发送测试邮件</button>
+                </div>
+            </form>
+            <div id="testSmtpResult" style="margin-top:16px; display:none;"></div>
+        </div>
+    </div>
+
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width:400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">确认删除</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <p style="margin-bottom:20px; color:#666;" id="deleteMessage">确定要删除吗？此操作不可恢复。</p>
+            <input type="hidden" id="deleteId">
+            <input type="hidden" id="deleteType">
+            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
             </div>
         </div>
     </div>
 
     <script>
-        function switchTab(btn, name) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('panel-' + name).classList.add('active');
+        const API_BASE = window.location.origin;
+        
+        function getToken() {
+            return localStorage.getItem('token');
         }
-
-        function showCreateTemplate() {
-            switchTab(document.querySelectorAll('.tab')[0], 'templates');
-        }
-
-        async function saveSMTP() {
-            const data = {
-                name: document.getElementById('smtp-name').value,
-                host: document.getElementById('smtp-host').value,
-                port: parseInt(document.getElementById('smtp-port').value),
-                username: document.getElementById('smtp-username').value,
-                password: document.getElementById('smtp-password').value,
-                use_tls: document.getElementById('smtp-encryption').value === 'tls',
-                use_ssl: document.getElementById('smtp-encryption').value === 'ssl',
-                sender_name: document.getElementById('smtp-sender-name').value,
-                sender_email: document.getElementById('smtp-sender-email').value
+        
+        async function apiFetch(url, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
             };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...options,
+                headers
+            });
+            
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return null;
+            }
+            
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: '请求失败' }));
+                throw new Error(error.detail || '请求失败');
+            }
+            
+            return response.json();
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const d = new Date(dateStr);
+            return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        }
+        
+        // ==================== 选项卡切换 ====================
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tab === 'configs') loadSmtpConfigs();
+            if (tab === 'templates') loadTemplates();
+            if (tab === 'records') loadRecords();
+        }
+        
+        // ==================== 统计 ====================
+        async function loadStats() {
             try {
-                const token = localStorage.getItem('token');
-                const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
-                const res = await fetch('/api/email/smtp-configs', {method:'POST', headers, body: JSON.stringify(data)});
-                const result = await res.json();
-                document.getElementById('smtp-result').innerHTML = '<span style="color:#065f46">✅ 配置保存成功</span>';
-            } catch(e) {
-                document.getElementById('smtp-result').innerHTML = '<span style="color:#dc2626">❌ ' + e.message + '</span>';
+                const stats = await apiFetch('/api/email/stats');
+                document.getElementById('statTotalSent').textContent = stats.total_sent || 0;
+                document.getElementById('statTotalDelivered').textContent = stats.total_delivered || 0;
+                document.getElementById('statTotalOpened').textContent = stats.total_opened || 0;
+                document.getElementById('statTotalClicked').textContent = stats.total_clicked || 0;
+                document.getElementById('statTotalFailed').textContent = stats.total_failed || 0;
+                document.getElementById('statTodaySent').textContent = stats.today_sent || 0;
+                document.getElementById('statDeliveryRate').textContent = `送达率 ${((stats.delivery_rate || 0) * 100).toFixed(1)}%`;
+                document.getElementById('statOpenRate').textContent = `打开率 ${((stats.open_rate || 0) * 100).toFixed(1)}%`;
+                document.getElementById('statClickRate').textContent = `点击率 ${((stats.click_rate || 0) * 100).toFixed(1)}%`;
+            } catch (e) {
+                console.error('加载统计失败:', e);
             }
         }
-
-        async function testSMTP() {
+        
+        // ==================== SMTP 配置 ====================
+        let smtpConfigs = [];
+        
+        async function loadSmtpConfigs() {
+            const container = document.getElementById('smtpConfigsList');
+            container.innerHTML = '<div class="loading">加载中...</div>';
             try {
-                const token = localStorage.getItem('token');
-                const headers = token ? {'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'} : {'Content-Type': 'application/json'};
-                const res = await fetch('/api/email/test-smtp', {method:'POST', headers, body: JSON.stringify({test_email: document.getElementById('smtp-username').value})});
-                const result = await res.json();
-                const color = result.success ? '#065f46' : '#dc2626';
-                document.getElementById('smtp-result').innerHTML = `<span style="color:${color}">${result.success ? '✅' : '❌'} ${result.message || (result.success ? '连接成功' : '连接失败')}</span>`;
-            } catch(e) {
-                document.getElementById('smtp-result').innerHTML = '<span style="color:#dc2626">❌ ' + e.message + '</span>';
+                smtpConfigs = await apiFetch('/api/email/smtp-configs');
+                if (!smtpConfigs || smtpConfigs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📧</div>
+                            <div class="empty-state-text">暂无 SMTP 配置</div>
+                            <div class="empty-state-sub">点击"添加配置"设置邮件发送服务器</div>
+                        </div>
+                    `;
+                    return;
+                }
+                container.innerHTML = smtpConfigs.map(c => `
+                    <div class="config-card">
+                        <div class="config-info">
+                            <h3>${escapeHtml(c.name)} ${c.is_default ? '<span class="badge-default">默认</span>' : ''} ${!c.is_active ? '<span style="color:#999;font-size:12px;">(已禁用)</span>' : ''}</h3>
+                            <p>🖥️ ${escapeHtml(c.host)}:${c.port} | TLS: ${c.use_tls ? '✅' : '❌'} | SSL: ${c.use_ssl ? '✅' : '❌'}</p>
+                            <p>👤 ${escapeHtml(c.username)} | 发件人: ${escapeHtml(c.sender_name || '-')} &lt;${escapeHtml(c.sender_email || c.username)}&gt;</p>
+                            <p style="font-size:12px; color:#999;">创建于 ${formatDate(c.created_at)} ${c.last_tested_at ? '| 上次测试: ' + formatDate(c.last_tested_at) + (c.last_test_result ? ' ✅' : ' ❌') : ''}</p>
+                        </div>
+                        <div class="config-actions">
+                            <button class="action-btn" title="编辑" onclick="openSmtpModal('${c.id}')">✏️</button>
+                            <button class="action-btn" title="测试" onclick="openTestSmtpModal('${c.id}')">🧪</button>
+                            <button class="action-btn danger" title="删除" onclick="openDeleteModal('${c.id}', 'smtp', '${escapeHtml(c.name)}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = `<div class="loading" style="color:#dc2626;">加载失败: ${e.message}</div>`;
             }
         }
+        
+        function openSmtpModal(id = null) {
+            const form = document.getElementById('smtpForm');
+            form.reset();
+            document.getElementById('smtpConfigId').value = '';
+            document.getElementById('smtpPort').value = '587';
+            document.getElementById('smtpUseTls').checked = true;
+            document.getElementById('smtpIsActive').checked = true;
+            
+            if (id) {
+                const config = smtpConfigs.find(c => c.id === id);
+                if (config) {
+                    document.getElementById('smtpModalTitle').textContent = '编辑 SMTP 配置';
+                    document.getElementById('smtpConfigId').value = config.id;
+                    document.getElementById('smtpName').value = config.name || '';
+                    document.getElementById('smtpHost').value = config.host || '';
+                    document.getElementById('smtpPort').value = config.port || 587;
+                    document.getElementById('smtpUsername').value = config.username || '';
+                    document.getElementById('smtpPassword').value = config.password || '';
+                    document.getElementById('smtpSenderName').value = config.sender_name || '';
+                    document.getElementById('smtpSenderEmail').value = config.sender_email || '';
+                    document.getElementById('smtpReplyTo').value = config.reply_to || '';
+                    document.getElementById('smtpUseTls').checked = config.use_tls;
+                    document.getElementById('smtpUseSsl').checked = config.use_ssl;
+                    document.getElementById('smtpIsDefault').checked = config.is_default;
+                    document.getElementById('smtpIsActive').checked = config.is_active;
+                }
+            } else {
+                document.getElementById('smtpModalTitle').textContent = '添加 SMTP 配置';
+            }
+            document.getElementById('smtpModal').classList.add('active');
+        }
+        
+        function closeSmtpModal() {
+            document.getElementById('smtpModal').classList.remove('active');
+        }
+        
+        async function handleSmtpSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('smtpConfigId').value;
+            const data = {
+                name: document.getElementById('smtpName').value,
+                host: document.getElementById('smtpHost').value,
+                port: parseInt(document.getElementById('smtpPort').value),
+                username: document.getElementById('smtpUsername').value,
+                password: document.getElementById('smtpPassword').value,
+                sender_name: document.getElementById('smtpSenderName').value || null,
+                sender_email: document.getElementById('smtpSenderEmail').value || null,
+                reply_to: document.getElementById('smtpReplyTo').value || null,
+                use_tls: document.getElementById('smtpUseTls').checked,
+                use_ssl: document.getElementById('smtpUseSsl').checked,
+                is_default: document.getElementById('smtpIsDefault').checked,
+                is_active: document.getElementById('smtpIsActive').checked
+            };
+            
+            try {
+                if (id) {
+                    // Only send changed fields for update
+                    await apiFetch(`/api/email/smtp-configs/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+                    showToast('SMTP 配置更新成功');
+                } else {
+                    await apiFetch('/api/email/smtp-configs', { method: 'POST', body: JSON.stringify(data) });
+                    showToast('SMTP 配置创建成功');
+                }
+                closeSmtpModal();
+                loadSmtpConfigs();
+            } catch (e) {
+                showToast('操作失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== SMTP 测试 ====================
+        function openTestSmtpModal(configId) {
+            document.getElementById('testSmtpConfigId').value = configId;
+            document.getElementById('testSmtpEmail').value = '';
+            document.getElementById('testSmtpResult').style.display = 'none';
+            document.getElementById('testSmtpModal').classList.add('active');
+        }
+        
+        function closeTestSmtpModal() {
+            document.getElementById('testSmtpModal').classList.remove('active');
+        }
+        
+        function testSmtpConfig() {
+            const id = document.getElementById('smtpConfigId').value;
+            if (id) {
+                openTestSmtpModal(id);
+            } else {
+                showToast('请先保存配置后再测试', 'error');
+            }
+        }
+        
+        async function handleTestSmtp(event) {
+            event.preventDefault();
+            const configId = document.getElementById('testSmtpConfigId').value;
+            const testEmail = document.getElementById('testSmtpEmail').value;
+            const resultDiv = document.getElementById('testSmtpResult');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '<div style="color:#666;">⏳ 测试中...</div>';
+            
+            try {
+                const result = await apiFetch('/api/email/test-smtp', {
+                    method: 'POST',
+                    body: JSON.stringify({ config_id: configId || null, test_email: testEmail })
+                });
+                if (result.success) {
+                    resultDiv.innerHTML = `<div style="color:#065f46; background:#d1fae5; padding:12px; border-radius:8px;">✅ ${escapeHtml(result.message)} ${result.latency_ms ? '(' + result.latency_ms + 'ms)' : ''}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div style="color:#991b1b; background:#fee2e2; padding:12px; border-radius:8px;">❌ ${escapeHtml(result.message)}</div>`;
+                }
+            } catch (e) {
+                resultDiv.innerHTML = `<div style="color:#991b1b; background:#fee2e2; padding:12px; border-radius:8px;">❌ ${escapeHtml(e.message)}</div>`;
+            }
+        }
+        
+        // ==================== 邮件模板 ====================
+        let templates = [];
+        
+        async function loadTemplates() {
+            const tbody = document.getElementById('templatesBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">加载中...</td></tr>';
+            try {
+                templates = await apiFetch('/api/email/templates');
+                if (!templates || templates.length === 0) {
+                    tbody.innerHTML = `
+                        <tr><td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📝</div>
+                                <div class="empty-state-text">暂无邮件模板</div>
+                                <div class="empty-state-sub">点击"新建模板"创建邮件模板</div>
+                            </div>
+                        </td></tr>
+                    `;
+                    return;
+                }
+                tbody.innerHTML = templates.map(t => `
+                    <tr>
+                        <td><strong>${escapeHtml(t.name)}</strong></td>
+                        <td>${escapeHtml(t.subject)}</td>
+                        <td><span class="status-badge status-active">${escapeHtml(t.category)}</span></td>
+                        <td>${t.usage_count || 0}</td>
+                        <td><span class="status-badge ${t.is_active ? 'status-active' : 'status-inactive'}">${t.is_active ? '启用' : '禁用'}</span></td>
+                        <td>
+                            <div class="action-btns">
+                                <button class="action-btn" title="编辑" onclick="openTemplateModal('${t.id}')">✏️</button>
+                                <button class="action-btn danger" title="删除" onclick="openDeleteModal('${t.id}', 'template', '${escapeHtml(t.name)}')">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:#dc2626;">加载失败: ${e.message}</td></tr>`;
+            }
+        }
+        
+        function openTemplateModal(id = null) {
+            const form = document.getElementById('templateForm');
+            form.reset();
+            document.getElementById('templateId').value = '';
+            document.getElementById('tplCategory').value = 'general';
+            document.getElementById('tplIsActive').checked = true;
+            
+            if (id) {
+                const tpl = templates.find(t => t.id === id);
+                if (tpl) {
+                    document.getElementById('templateModalTitle').textContent = '编辑邮件模板';
+                    document.getElementById('templateId').value = tpl.id;
+                    document.getElementById('tplName').value = tpl.name || '';
+                    document.getElementById('tplSubject').value = tpl.subject || '';
+                    document.getElementById('tplBodyHtml').value = tpl.body_html || '';
+                    document.getElementById('tplBodyText').value = tpl.body_text || '';
+                    document.getElementById('tplCategory').value = tpl.category || 'general';
+                    document.getElementById('tplVariables').value = (tpl.variables || []).join(', ');
+                    document.getElementById('tplIsActive').checked = tpl.is_active;
+                }
+            } else {
+                document.getElementById('templateModalTitle').textContent = '新建邮件模板';
+            }
+            document.getElementById('templateModal').classList.add('active');
+        }
+        
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.remove('active');
+        }
+        
+        async function handleTemplateSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('templateId').value;
+            const varsStr = document.getElementById('tplVariables').value.trim();
+            const variables = varsStr ? varsStr.split(',').map(v => v.trim()).filter(v => v) : null;
+            
+            const data = {
+                name: document.getElementById('tplName').value,
+                subject: document.getElementById('tplSubject').value,
+                body_html: document.getElementById('tplBodyHtml').value || null,
+                body_text: document.getElementById('tplBodyText').value || null,
+                category: document.getElementById('tplCategory').value || 'general',
+                variables: variables,
+                is_active: document.getElementById('tplIsActive').checked
+            };
+            
+            try {
+                if (id) {
+                    await apiFetch(`/api/email/templates/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+                    showToast('模板更新成功');
+                } else {
+                    await apiFetch('/api/email/templates', { method: 'POST', body: JSON.stringify(data) });
+                    showToast('模板创建成功');
+                }
+                closeTemplateModal();
+                loadTemplates();
+            } catch (e) {
+                showToast('操作失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 发送邮件 ====================
+        async function loadSendFormOptions() {
+            try {
+                const [configs, tpls] = await Promise.all([
+                    apiFetch('/api/email/smtp-configs'),
+                    apiFetch('/api/email/templates')
+                ]);
+                
+                const configSelect = document.getElementById('sendConfigId');
+                configSelect.innerHTML = '<option value="">使用默认配置</option>';
+                (configs || []).forEach(c => {
+                    configSelect.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)} (${escapeHtml(c.host)})</option>`;
+                });
+                
+                const tplSelect = document.getElementById('sendTemplateId');
+                tplSelect.innerHTML = '<option value="">不使用模板</option>';
+                (tpls || []).filter(t => t.is_active).forEach(t => {
+                    tplSelect.innerHTML += `<option value="${t.id}">${escapeHtml(t.name)}</option>`;
+                });
+            } catch (e) {
+                console.error('加载发送选项失败:', e);
+            }
+        }
+        
+        function openSendEmailModal() {
+            document.getElementById('sendEmailForm').reset();
+            loadSendFormOptions();
+            document.getElementById('sendSubjectGroup').style.display = '';
+            document.getElementById('sendBodyGroup').style.display = '';
+            document.getElementById('sendEmailModal').classList.add('active');
+        }
+        
+        function closeSendEmailModal() {
+            document.getElementById('sendEmailModal').classList.remove('active');
+        }
+        
+        function onTemplateSelect() {
+            const tplId = document.getElementById('sendTemplateId').value;
+            if (tplId) {
+                document.getElementById('sendSubjectGroup').style.display = 'none';
+                document.getElementById('sendBodyGroup').style.display = 'none';
+                document.getElementById('sendSubject').required = false;
+            } else {
+                document.getElementById('sendSubjectGroup').style.display = '';
+                document.getElementById('sendBodyGroup').style.display = '';
+                document.getElementById('sendSubject').required = true;
+            }
+        }
+        
+        async function handleSendEmail(event) {
+            event.preventDefault();
+            const tplId = document.getElementById('sendTemplateId').value;
+            const data = {
+                config_id: document.getElementById('sendConfigId').value || null,
+                template_id: tplId || null,
+                to: [{
+                    email: document.getElementById('sendToEmail').value,
+                    name: document.getElementById('sendToName').value || null
+                }],
+                subject: tplId ? undefined : document.getElementById('sendSubject').value,
+                body_html: tplId ? undefined : (document.getElementById('sendBodyHtml').value || null),
+                track_opens: true,
+                track_clicks: true
+            };
+            
+            try {
+                await apiFetch('/api/email/send', { method: 'POST', body: JSON.stringify(data) });
+                showToast('邮件发送成功！');
+                closeSendEmailModal();
+                loadStats();
+                loadRecords();
+            } catch (e) {
+                showToast('发送失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 发送记录 ====================
+        async function loadRecords() {
+            const tbody = document.getElementById('recordsBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">加载中...</td></tr>';
+            const status = document.getElementById('recordStatusFilter').value;
+            const params = status ? `?status=${status}` : '';
+            
+            try {
+                const result = await apiFetch(`/api/email/records${params}`);
+                const records = result.records || [];
+                if (records.length === 0) {
+                    tbody.innerHTML = `
+                        <tr><td colspan="6">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📨</div>
+                                <div class="empty-state-text">暂无发送记录</div>
+                            </div>
+                        </td></tr>
+                    `;
+                    return;
+                }
+                tbody.innerHTML = records.map(r => `
+                    <tr>
+                        <td>
+                            <strong>${escapeHtml(r.to_email)}</strong>
+                            ${r.to_name ? `<br><span style="font-size:12px;color:#999;">${escapeHtml(r.to_name)}</span>` : ''}
+                        </td>
+                        <td>${escapeHtml(r.subject)}</td>
+                        <td><span class="status-badge status-${r.status}">${getStatusLabel(r.status)}</span></td>
+                        <td style="font-size:13px;">${escapeHtml(r.from_email)}</td>
+                        <td style="font-size:13px;">${formatDate(r.sent_at || r.created_at)}</td>
+                        <td style="font-size:12px; color:#dc2626;">${escapeHtml(r.error_message || '-')}</td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" class="loading" style="color:#dc2626;">加载失败: ${e.message}</td></tr>`;
+            }
+        }
+        
+        function getStatusLabel(status) {
+            const labels = {
+                'sent': '已发送',
+                'delivered': '已送达',
+                'opened': '已打开',
+                'clicked': '已点击',
+                'failed': '失败',
+                'pending': '待发送',
+                'sending': '发送中',
+                'scheduled': '已定时'
+            };
+            return labels[status] || status;
+        }
+        
+        // ==================== 删除确认 ====================
+        function openDeleteModal(id, type, name) {
+            document.getElementById('deleteId').value = id;
+            document.getElementById('deleteType').value = type;
+            document.getElementById('deleteMessage').textContent = `确定要删除 "${name}" 吗？此操作不可恢复。`;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+        
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+        
+        async function confirmDelete() {
+            const id = document.getElementById('deleteId').value;
+            const type = document.getElementById('deleteType').value;
+            
+            try {
+                if (type === 'smtp') {
+                    await apiFetch(`/api/email/smtp-configs/${id}`, { method: 'DELETE' });
+                    showToast('SMTP 配置删除成功');
+                    closeDeleteModal();
+                    loadSmtpConfigs();
+                } else if (type === 'template') {
+                    await apiFetch(`/api/email/templates/${id}`, { method: 'DELETE' });
+                    showToast('模板删除成功');
+                    closeDeleteModal();
+                    loadTemplates();
+                }
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+        
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken()) {
+                window.location.href = '/login';
+                return;
+            }
+            loadStats();
+            loadSmtpConfigs();
+        });
     </script>
 </body>
 </html>

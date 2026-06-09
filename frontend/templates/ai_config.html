@@ -3,485 +3,1206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 配置 - 命运 DESTINY</title>
+    <title>命运 - AI配置</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #ffffff; color: #1a1a1a; display: flex; min-height: 100vh; }
-
-        /* Sidebar */
-        .sidebar { width: 240px; background: #ffffff; border-right: 1px solid #e5e5e5; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-        .logo { padding: 24px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #e5e5e5; }
-        .logo svg { width: 36px; height: 36px; }
-        .logo-text { font-size: 18px; font-weight: 700; letter-spacing: 2px; }
-        .logo-sub { font-size: 10px; color: #999; letter-spacing: 3px; text-transform: uppercase; }
-        .nav-section { padding: 16px 12px; }
-        .nav-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 1px; padding: 0 12px; margin-bottom: 8px; }
-        .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; color: #666; font-size: 14px; cursor: pointer; transition: all 0.15s; text-decoration: none; }
-        .nav-item:hover { background: #f5f5f5; color: #1a1a1a; }
-        .nav-item.active { background: #fffbeb; color: #1a1a1a; font-weight: 600; }
-        .nav-item .icon { width: 20px; text-align: center; font-size: 16px; }
-        .nav-item .badge { margin-left: auto; background: #fbbf24; color: #1a1a1a; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
-        .sidebar-footer { margin-top: auto; padding: 16px 20px; border-top: 1px solid #e5e5e5; display: flex; align-items: center; gap: 10px; }
-        .sidebar-footer .avatar { width: 32px; height: 32px; border-radius: 50%; background: #fbbf24; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
-        .sidebar-footer .user-info .name { font-size: 13px; font-weight: 600; }
-        .sidebar-footer .user-info .role { font-size: 11px; color: #999; }
-
-        /* Main */
-        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
-        .topbar { padding: 20px 32px; border-bottom: 1px solid #e5e5e5; background: #fff; }
-        .topbar h1 { font-size: 22px; font-weight: 700; }
-        .content { padding: 24px 32px; flex: 1; }
-
-        /* Tabs */
-        .tabs { display: flex; gap: 0; border-bottom: 1px solid #e5e5e5; margin-bottom: 24px; }
-        .tab { padding: 10px 20px; font-size: 14px; color: #666; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 220px;
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+        }
+        .sidebar-logo {
+            padding: 24px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar-logo-icon { width: 36px; height: 36px; }
+        .sidebar-logo-text { display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 16px; font-weight: 700; color: #1a1a1a; }
+        .sidebar-brand-en { font-size: 10px; color: #999; letter-spacing: 2px; }
+        .nav-menu { flex: 1; padding: 16px 12px; overflow-y: auto; }
+        .nav-section { margin-bottom: 8px; }
+        .nav-section-title {
+            font-size: 11px;
+            color: #999;
+            padding: 8px 12px 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 2px;
+            text-decoration: none;
+        }
+        .nav-item:hover { background: #f9fafb; color: #333; }
+        .nav-item.active {
+            background: #fffbeb;
+            color: #1a1a1a;
+            font-weight: 500;
+            border-left: 3px solid #fbbf24;
+        }
+        .nav-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            margin-left: 220px;
+            padding: 24px;
+        }
+        
+        /* 顶部栏 */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 24px; font-weight: 600; color: #1a1a1a; }
+        
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-primary {
+            background: #fbbf24;
+            color: #1a1a1a;
+        }
+        .btn-primary:hover { background: #f59e0b; }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 1px solid #e5e5e5;
+        }
+        .btn-secondary:hover { background: #f9fafb; }
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .btn-success:hover { background: #a7f3d0; }
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 10px 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.15s;
+        }
         .tab:hover { color: #1a1a1a; }
         .tab.active { color: #1a1a1a; font-weight: 600; border-bottom-color: #fbbf24; }
-
-        /* Cards */
-        .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 24px; margin-bottom: 20px; }
-        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 500; color: #666; margin-bottom: 6px; }
-        .form-group input, .form-group select, .form-group textarea {
-            width: 100%; padding: 10px 12px; border: 1px solid #e5e5e5; border-radius: 8px;
-            font-size: 14px; background: #fff; color: #1a1a1a; outline: none; transition: border-color 0.15s;
-        }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #fbbf24; }
-        .form-group textarea { resize: vertical; min-height: 120px; font-family: inherit; }
-        .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
-
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-
-        /* Buttons */
-        .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; }
-        .btn-primary { background: #fbbf24; color: #1a1a1a; }
-        .btn-primary:hover { background: #f59e0b; }
-        .btn-secondary { background: #f5f5f5; color: #1a1a1a; border: 1px solid #e5e5e5; }
-        .btn-secondary:hover { background: #ebebeb; }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-
-        /* Provider chips */
-        .provider-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-        .chip { padding: 8px 16px; border: 1px solid #e5e5e5; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.15s; background: #fff; }
-        .chip:hover { border-color: #fbbf24; }
-        .chip.active { background: #fbbf24; border-color: #fbbf24; font-weight: 600; }
-
-        /* Prompt cards */
-        .prompt-card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-        .prompt-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .prompt-card-title { font-size: 15px; font-weight: 600; }
-        .prompt-card-badge { font-size: 11px; padding: 3px 10px; border-radius: 10px; background: #f5f5f5; color: #666; }
-
-        /* Table */
-        .table-wrapper { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 16px; text-align: left; font-size: 13px; border-bottom: 1px solid #e5e5e5; }
-        th { font-weight: 600; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { color: #1a1a1a; }
-        tr:hover td { background: #fafafa; }
-        .status { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 500; }
-        .status-success { background: #ecfdf5; color: #059669; }
-        .status-failed { background: #fef2f2; color: #dc2626; }
-        .status-pending { background: #fffbeb; color: #d97706; }
-
-        /* Tab content */
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        /* Connection status */
-        .connection-status { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-left: 12px; }
+        
+        /* 卡片 */
+        .card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+        }
+        
+        /* Provider chips */
+        .provider-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .chip {
+            padding: 8px 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: white;
+        }
+        .chip:hover { border-color: #fbbf24; }
+        .chip.active { background: #fbbf24; border-color: #fbbf24; font-weight: 600; }
+        
+        /* 表单 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+        }
+        .form-input:focus { outline: none; border-color: #fbbf24; }
+        .form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        /* 表格 */
+        .table-wrapper {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th {
+            background: #f9fafb;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        table td {
+            padding: 14px 16px;
+            font-size: 14px;
+            color: #333;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        table tr:hover td { background: #f9fafb; }
+        table tr:last-child td { border-bottom: none; }
+        
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active { background: #d1fae5; color: #065f46; }
+        .status-inactive { background: #f3f4f6; color: #374151; }
+        .status-default { background: #fffbeb; color: #92400e; }
+        .status-success { background: #ecfdf5; color: #059669; }
+        .status-failed { background: #fef2f2; color: #dc2626; }
+        
+        /* 操作按钮 */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: #f3f4f6;
+            transition: all 0.15s;
+        }
+        .action-btn:hover { background: #e5e7eb; }
+        .action-btn.danger:hover { background: #fee2e2; }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title { font-size: 18px; font-weight: 600; }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f3f4f6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-close:hover { background: #e5e7eb; }
+        
+        /* 连接状态 */
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            margin-left: 12px;
+        }
         .dot { width: 8px; height: 8px; border-radius: 50%; }
         .dot-green { background: #22c55e; }
         .dot-gray { background: #d1d5db; }
-
-        /* Test result */
-        .test-result { margin-top: 12px; padding: 12px; border-radius: 8px; font-size: 13px; display: none; }
-        .test-result.success { display: block; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
-        .test-result.error { display: block; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .dot-yellow { background: #fbbf24; }
+        
+        /* 测试结果 */
+        .test-result {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        .test-result.success {
+            display: block;
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+        .test-result.error {
+            display: block;
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .stat-title { font-size: 13px; color: #999; }
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .stat-icon.yellow { background: #fffbeb; color: #fbbf24; }
+        .stat-icon.green { background: #d1fae5; color: #059669; }
+        .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+        .stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #1a1a1a; }
+        .stat-sub { font-size: 12px; color: #999; margin-top: 4px; }
+        
+        /* 生成区域 */
+        .generate-area {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        .generate-result {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            white-space: pre-wrap;
+            min-height: 60px;
+            display: none;
+        }
+        .generate-result.show { display: block; }
+        
+        /* 加载状态 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e5e5;
+            border-top-color: #fbbf24;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        /* 提示消息 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+        .toast-success { background: #d1fae5; color: #065f46; }
+        .toast-error { background: #fee2e2; color: #991b1b; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+        .empty-state-text { font-size: 16px; margin-bottom: 8px; }
+        .empty-state-sub { font-size: 14px; color: #bbb; }
+        
+        .btn-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="logo">
-            <svg viewBox="0 0 36 36" fill="none">
-                <path d="M7 22 L18 8 L29 22" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M10 20 L18 12 L26 20" stroke="#1a1a1a" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
-                <circle cx="18" cy="24" r="2" fill="#fbbf24"/>
-                <path d="M15 27 L18 24 L21 27" stroke="#fbbf24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <div>
-                <div class="logo-text">命运</div>
-                <div class="logo-sub">DESTINY</div>
+    <!-- 左侧导航栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-logo">
+            <img src="/static/icon.png" alt="Logo" class="sidebar-logo-icon">
+            <div class="sidebar-logo-text">
+                <span class="sidebar-brand">命运</span>
+                <span class="sidebar-brand-en">DESTINY</span>
             </div>
         </div>
-
-        <nav class="nav-section">
-            <div class="nav-label">主菜单</div>
-            <a class="nav-item" href="#">
-                <span class="icon">📊</span> 控制面板
-            </a>
-            <a class="nav-item" href="#">
-                <span class="icon">👥</span> 客户管理
-                <span class="badge">128</span>
-            </a>
-            <a class="nav-item" href="#">
-                <span class="icon">🔗</span> LinkedIn
-            </a>
-            <a class="nav-item" href="#">
-                <span class="icon">📧</span> 邮件营销
-            </a>
-        </nav>
-
-        <nav class="nav-section">
-            <div class="nav-label">自动化</div>
-            <a class="nav-item" href="#">
-                <span class="icon">⏰</span> 定时任务
-            </a>
-            <a class="nav-item" href="#">
-                <span class="icon">📁</span> 素材库
-            </a>
-        </nav>
-
-        <nav class="nav-section">
-            <div class="nav-label">系统</div>
-            <a class="nav-item" href="#">
-                <span class="icon">📈</span> 数据分析
-            </a>
-            <a class="nav-item active" href="#">
-                <span class="icon">🤖</span> AI 配置
-            </a>
-            <a class="nav-item" href="#">
-                <span class="icon">⚙️</span> 设置
-            </a>
-        </nav>
-
-        <div class="sidebar-footer">
-            <div class="avatar">A</div>
-            <div class="user-info">
-                <div class="name">Admin</div>
-                <div class="role">管理员</div>
+        <div class="nav-menu">
+            <div class="nav-section">
+                <div class="nav-section-title">概览</div>
+                <a href="/dashboard" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>控制面板</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="/crm" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>客户管理</span>
+                </a>
+                <a href="/linkedin" class="nav-item">
+                    <span class="nav-icon">🔗</span>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="/email" class="nav-item">
+                    <span class="nav-icon">📧</span>
+                    <span>邮件营销</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">工具</div>
+                <a href="/ai_config" class="nav-item active">
+                    <span class="nav-icon">🤖</span>
+                    <span>AI配置</span>
+                </a>
+                <a href="/materials" class="nav-item">
+                    <span class="nav-icon">📁</span>
+                    <span>素材库</span>
+                </a>
+                <a href="/analytics" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
+                </a>
+            </div>
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="/scheduler" class="nav-item">
+                    <span class="nav-icon">⏰</span>
+                    <span>定时任务</span>
+                </a>
+                <a href="/settings" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>设置</span>
+                </a>
             </div>
         </div>
-    </aside>
+    </nav>
 
-    <!-- Main Content -->
-    <main class="main">
-        <div class="topbar">
-            <h1>AI 配置</h1>
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">AI 配置</h1>
         </div>
 
-        <div class="content">
-            <!-- Tabs -->
-            <div class="tabs">
-                <div class="tab active" onclick="switchTab('models')">模型配置</div>
-                <div class="tab" onclick="switchTab('prompts')">提示词模板</div>
-                <div class="tab" onclick="switchTab('history')">生成历史</div>
-            </div>
+        <!-- 标签页 -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('models', this)">模型配置</div>
+            <div class="tab" onclick="switchTab('generate', this)">内容生成</div>
+            <div class="tab" onclick="switchTab('stats', this)">使用统计</div>
+        </div>
 
-            <!-- Tab 1: Model Config -->
-            <div id="tab-models" class="tab-content active">
-                <div class="card">
-                    <div class="card-title">AI 服务商</div>
-                    <div class="provider-chips">
-                        <div class="chip active" onclick="selectProvider(this)">OpenAI</div>
-                        <div class="chip" onclick="selectProvider(this)">Claude</div>
-                        <div class="chip" onclick="selectProvider(this)">Ollama</div>
-                        <div class="chip" onclick="selectProvider(this)">vLLM</div>
-                        <div class="chip" onclick="selectProvider(this)">DeepSeek</div>
-                        <div class="chip" onclick="selectProvider(this)">通义千问</div>
-                        <div class="chip" onclick="selectProvider(this)">自定义</div>
+        <!-- Tab 1: 模型配置 -->
+        <div id="tab-models" class="tab-content active">
+            <!-- 添加新配置 -->
+            <div class="card">
+                <div class="card-title" id="configFormTitle">添加模型配置</div>
+                
+                <div class="form-group">
+                    <label class="form-label">选择提供商</label>
+                    <div class="provider-chips" id="providerChips">
+                        <div class="loading"><span class="spinner"></span> 加载中...</div>
                     </div>
+                </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>模型名称</label>
-                            <input type="text" placeholder="例如：gpt-4o, claude-3.5-sonnet" id="model-name">
-                            <div class="form-hint">选择服务商后自动填充，也可手动输入</div>
-                        </div>
-                        <div class="form-group">
-                            <label>API Base URL</label>
-                            <input type="text" placeholder="https://api.openai.com/v1" id="api-base">
-                            <div class="form-hint">留空使用服务商默认地址</div>
-                        </div>
-                    </div>
-
+                <div class="form-row">
                     <div class="form-group">
-                        <label>API Key</label>
-                        <input type="password" placeholder="sk-..." id="api-key">
-                        <div class="form-hint">密钥将加密存储，不会明文展示</div>
+                        <label class="form-label">配置名称 *</label>
+                        <input type="text" class="form-input" id="configName" placeholder="例如: GPT-4o 主力模型">
                     </div>
-
-                    <div class="btn-group">
-                        <button class="btn btn-primary" onclick="testConnection()">🔗 测试连接</button>
-                        <button class="btn btn-secondary" onclick="saveConfig()">💾 保存配置</button>
-                        <span class="connection-status">
-                            <span class="dot dot-gray" id="status-dot"></span>
-                            <span id="status-text" style="color:#999;">未测试</span>
-                        </span>
-                    </div>
-
-                    <div class="test-result" id="test-result"></div>
-                </div>
-
-                <div class="card">
-                    <div class="card-title">高级设置</div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Temperature</label>
-                            <input type="number" value="0.7" min="0" max="2" step="0.1" id="temperature">
-                            <div class="form-hint">值越低输出越确定，值越高越有创意</div>
-                        </div>
-                        <div class="form-group">
-                            <label>Max Tokens</label>
-                            <input type="number" value="2048" min="100" max="128000" id="max-tokens">
-                            <div class="form-hint">单次生成的最大 token 数</div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Top P</label>
-                            <input type="number" value="1.0" min="0" max="1" step="0.05" id="top-p">
-                        </div>
-                        <div class="form-group">
-                            <label>请求超时（秒）</label>
-                            <input type="number" value="30" min="5" max="300" id="timeout">
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">模型名称 *</label>
+                        <input type="text" class="form-input" id="modelName" placeholder="例如: gpt-4o">
+                        <div class="form-hint" id="modelHint">选择提供商后自动填充</div>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">API Key *</label>
+                        <input type="password" class="form-input" id="apiKey" placeholder="sk-...">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Base URL</label>
+                        <input type="text" class="form-input" id="baseUrl" placeholder="留空使用默认地址">
+                        <div class="form-hint" id="baseHint">选择提供商后自动填充</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Temperature</label>
+                        <input type="number" class="form-input" id="temperature" value="0.7" min="0" max="2" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Max Tokens</label>
+                        <input type="number" class="form-input" id="maxTokens" placeholder="2048" min="1" max="32000">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">请求超时（秒）</label>
+                        <input type="number" class="form-input" id="timeout" value="30" min="5" max="300">
+                    </div>
+                    <div class="form-group" style="display:flex;align-items:flex-end;gap:16px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;">
+                            <input type="checkbox" id="isDefault"> 设为默认配置
+                        </label>
+                    </div>
+                </div>
+
+                <input type="hidden" id="editingConfigId" value="">
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveConfig()">💾 保存配置</button>
+                    <button class="btn btn-secondary" onclick="testConnection()">🔗 测试连接</button>
+                    <button class="btn btn-secondary" id="cancelEditBtn" style="display:none;" onclick="cancelEdit()">取消编辑</button>
+                    <span class="connection-status">
+                        <span class="dot dot-gray" id="statusDot"></span>
+                        <span id="statusText" style="color:#999;">未测试</span>
+                    </span>
+                </div>
+                <div class="test-result" id="testResult"></div>
             </div>
 
-            <!-- Tab 2: Prompt Templates -->
-            <div id="tab-prompts" class="tab-content">
-                <div class="prompt-card">
-                    <div class="prompt-card-header">
-                        <div class="prompt-card-title">✉️ 开发信生成</div>
-                        <span class="prompt-card-badge">用于邮件营销</span>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <textarea placeholder="输入开发信生成的提示词模板...">你是一位专业的国际贸易开发信撰写专家。请根据以下客户信息生成一封专业的开发信：
-
-客户公司：{company_name}
-客户国家：{country}
-客户行业：{industry}
-我们的产品：{product_name}
-
-要求：
-1. 使用客户当地语言
-2. 简洁专业，不超过200字
-3. 突出产品优势和合作价值
-4. 包含明确的行动号召</textarea>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary">重置默认</button>
-                        <button class="btn btn-primary">保存模板</button>
-                    </div>
-                </div>
-
-                <div class="prompt-card">
-                    <div class="prompt-card-header">
-                        <div class="prompt-card-title">📝 帖子生成</div>
-                        <span class="prompt-card-badge">用于 LinkedIn</span>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <textarea placeholder="输入帖子生成的提示词模板...">你是一位 LinkedIn 内容创作专家。请根据以下主题生成一篇专业的 LinkedIn 帖子：
-
-主题：{topic}
-目标受众：{audience}
-行业：{industry}
-
-要求：
-1. 使用专业的行业术语
-2. 包含有价值的见解或数据
-3. 适当使用 emoji 增加可读性
-4. 以问题或号召结尾，促进互动
-5. 字数控制在 200-400 字</textarea>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary">重置默认</button>
-                        <button class="btn btn-primary">保存模板</button>
-                    </div>
-                </div>
-
-                <div class="prompt-card">
-                    <div class="prompt-card-header">
-                        <div class="prompt-card-title">💬 聊天回复</div>
-                        <span class="prompt-card-badge">用于即时通讯</span>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <textarea placeholder="输入聊天回复的提示词模板...">你是一位专业的客户沟通助手。请根据以下对话上下文生成合适的回复：
-
-客户消息：{message}
-对话历史：{history}
-客户信息：{customer_info}
-我们的产品信息：{product_info}
-
-要求：
-1. 回复自然友好，不过于正式
-2. 准确回答客户问题
-3. 适当引导对话向成交方向发展
-4. 使用客户偏好的语言
-5. 回复简洁，不超过 150 字</textarea>
-                    </div>
-                    <div class="btn-group">
-                        <button class="btn btn-secondary">重置默认</button>
-                        <button class="btn btn-primary">保存模板</button>
-                    </div>
+            <!-- 已保存配置列表 -->
+            <div class="card">
+                <div class="card-title">已保存配置</div>
+                <div id="configsTableWrapper">
+                    <div class="loading"><span class="spinner"></span> 加载中...</div>
                 </div>
             </div>
+        </div>
 
-            <!-- Tab 3: Generation History -->
-            <div id="tab-history" class="tab-content">
-                <div class="card">
-                    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
-                        <span>生成历史</span>
-                        <button class="btn btn-secondary" style="font-size:12px;padding:6px 14px;">导出记录</button>
+        <!-- Tab 2: 内容生成 -->
+        <div id="tab-generate" class="tab-content">
+            <div class="generate-area">
+                <div class="card-title">AI 内容生成</div>
+                <div class="form-group">
+                    <label class="form-label">选择模型配置</label>
+                    <select class="form-input" id="generateConfigId">
+                        <option value="">-- 请先添加模型配置 --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">系统提示词（可选）</label>
+                    <textarea class="form-input" id="systemPrompt" rows="2" placeholder="设定AI的角色和行为..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">提示词 *</label>
+                    <textarea class="form-input" id="userPrompt" rows="4" placeholder="输入你想让AI生成的内容..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Temperature</label>
+                        <input type="number" class="form-input" id="genTemperature" value="0.7" min="0" max="2" step="0.1">
                     </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>时间</th>
-                                    <th>类型</th>
-                                    <th>模型</th>
-                                    <th>Token 用量</th>
-                                    <th>耗时</th>
-                                    <th>状态</th>
-                                    <th>操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>2026-06-09 14:32</td>
-                                    <td>开发信</td>
-                                    <td>gpt-4o</td>
-                                    <td>386</td>
-                                    <td>2.3s</td>
-                                    <td><span class="status status-success">成功</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 14:28</td>
-                                    <td>LinkedIn 帖子</td>
-                                    <td>gpt-4o</td>
-                                    <td>512</td>
-                                    <td>3.1s</td>
-                                    <td><span class="status status-success">成功</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 13:55</td>
-                                    <td>聊天回复</td>
-                                    <td>claude-3.5-sonnet</td>
-                                    <td>224</td>
-                                    <td>1.8s</td>
-                                    <td><span class="status status-success">成功</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 13:41</td>
-                                    <td>开发信</td>
-                                    <td>gpt-4o</td>
-                                    <td>—</td>
-                                    <td>30.0s</td>
-                                    <td><span class="status status-failed">超时</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">重试</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 12:20</td>
-                                    <td>LinkedIn 帖子</td>
-                                    <td>deepseek-chat</td>
-                                    <td>478</td>
-                                    <td>4.2s</td>
-                                    <td><span class="status status-success">成功</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 11:05</td>
-                                    <td>聊天回复</td>
-                                    <td>gpt-4o</td>
-                                    <td>189</td>
-                                    <td>1.5s</td>
-                                    <td><span class="status status-pending">生成中</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">取消</a></td>
-                                </tr>
-                                <tr>
-                                    <td>2026-06-09 10:30</td>
-                                    <td>开发信</td>
-                                    <td>qwen-plus</td>
-                                    <td>342</td>
-                                    <td>2.0s</td>
-                                    <td><span class="status status-success">成功</span></td>
-                                    <td><a href="#" style="color:#fbbf24;text-decoration:none;font-size:13px;">查看</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="form-group">
+                        <label class="form-label">Max Tokens</label>
+                        <input type="number" class="form-input" id="genMaxTokens" placeholder="2048" min="1" max="32000">
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="generateBtn" onclick="generateContent()">✨ 生成内容</button>
+                </div>
+                <div class="generate-result" id="generateResult"></div>
+            </div>
+        </div>
+
+        <!-- Tab 3: 使用统计 -->
+        <div id="tab-stats" class="tab-content">
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">总请求数</span>
+                        <span class="stat-icon yellow">📊</span>
+                    </div>
+                    <div class="stat-value" id="statTotalRequests">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">总 Token 数</span>
+                        <span class="stat-icon green">🔤</span>
+                    </div>
+                    <div class="stat-value" id="statTotalTokens">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">今日请求</span>
+                        <span class="stat-icon blue">📅</span>
+                    </div>
+                    <div class="stat-value" id="statTodayRequests">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">成功率</span>
+                        <span class="stat-icon purple">✅</span>
+                    </div>
+                    <div class="stat-value" id="statSuccessRate">--</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">详细统计</div>
+                <div class="form-row" style="margin-bottom:16px;">
+                    <div>
+                        <span style="font-size:13px;color:#666;">今日 Token 用量</span>
+                        <div style="font-size:20px;font-weight:600;" id="statTodayTokens">--</div>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#666;">总费用</span>
+                        <div style="font-size:20px;font-weight:600;" id="statTotalCost">--</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <span style="font-size:13px;color:#666;">今日费用</span>
+                        <div style="font-size:20px;font-weight:600;" id="statTodayCost">--</div>
+                    </div>
+                    <div>
+                        <span style="font-size:13px;color:#666;">平均延迟</span>
+                        <div style="font-size:20px;font-weight:600;" id="statAvgLatency">--</div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
+    <!-- 删除确认模态框 -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">确认删除</h2>
+                <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <p style="margin-bottom: 20px; color: #666;">确定要删除这个模型配置吗？此操作不可恢复。</p>
+            <input type="hidden" id="deleteConfigId">
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" onclick="closeDeleteModal()">取消</button>
+                <button class="btn btn-danger" onclick="confirmDelete()">删除</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function switchTab(name) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        const API_BASE = window.location.origin;
+        let currentProvider = '';
+        let providersData = {};
+
+        // 获取认证 token
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        // 通用 fetch 请求
+        async function apiFetch(url, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const response = await fetch(`${API_BASE}${url}`, {
+                ...options,
+                headers
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/login';
+                return null;
+            }
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: '请求失败' }));
+                throw new Error(error.detail || '请求失败');
+            }
+
+            return response.json();
+        }
+
+        // 显示提示消息
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // 切换标签页
+        function switchTab(name, el) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
             document.getElementById('tab-' + name).classList.add('active');
-            event.target.classList.add('active');
+            el.classList.add('active');
+
+            if (name === 'stats') loadStats();
+            if (name === 'generate') loadConfigsForGenerate();
+        }
+
+        // ==================== Providers ====================
+        async function loadProviders() {
+            try {
+                const data = await apiFetch('/api/ai-config/providers');
+                providersData = data;
+                renderProviderChips(data);
+            } catch (e) {
+                document.getElementById('providerChips').innerHTML =
+                    '<div style="color:#dc2626;font-size:13px;">加载提供商失败: ' + e.message + '</div>';
+            }
+        }
+
+        function renderProviderChips(data) {
+            const container = document.getElementById('providerChips');
+            // data is a dict of provider_key -> {display_name, models: [...]}
+            const keys = Object.keys(data);
+            if (keys.length === 0) {
+                container.innerHTML = '<div style="color:#999;font-size:13px;">暂无可用提供商</div>';
+                return;
+            }
+            container.innerHTML = keys.map(key => {
+                const info = data[key];
+                const name = info.display_name || key;
+                return `<div class="chip" data-provider="${key}" onclick="selectProvider(this)">${escapeHtml(name)}</div>`;
+            }).join('');
         }
 
         function selectProvider(el) {
             document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            const defaults = {
-                'OpenAI': { model: 'gpt-4o', base: 'https://api.openai.com/v1' },
-                'Claude': { model: 'claude-3.5-sonnet', base: 'https://api.anthropic.com' },
-                'Ollama': { model: 'llama3', base: 'http://localhost:11434' },
-                'vLLM': { model: 'meta-llama/Llama-3-8B', base: 'http://localhost:8000/v1' },
-                'DeepSeek': { model: 'deepseek-chat', base: 'https://api.deepseek.com' },
-                '通义千问': { model: 'qwen-plus', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-                '自定义': { model: '', base: '' }
-            };
-            const d = defaults[el.textContent] || {};
-            document.getElementById('model-name').value = d.model || '';
-            document.getElementById('api-base').value = d.base || '';
+            const provider = el.dataset.provider;
+            currentProvider = provider;
+
+            const info = providersData[provider];
+            if (info) {
+                const models = info.models || [];
+                if (models.length > 0) {
+                    document.getElementById('modelName').value = models[0];
+                    document.getElementById('modelHint').textContent = '可用模型: ' + models.join(', ');
+                } else {
+                    document.getElementById('modelName').value = '';
+                    document.getElementById('modelHint').textContent = '请手动输入模型名称';
+                }
+                const base = info.default_base_url || '';
+                if (base) {
+                    document.getElementById('baseUrl').value = base;
+                    document.getElementById('baseHint').textContent = '默认: ' + base;
+                } else {
+                    document.getElementById('baseUrl').value = '';
+                    document.getElementById('baseHint').textContent = '请输入 API Base URL';
+                }
+            }
         }
 
-        function testConnection() {
-            const result = document.getElementById('test-result');
-            const dot = document.getElementById('status-dot');
-            const text = document.getElementById('status-text');
+        // ==================== Model Configs ====================
+        async function loadConfigs() {
+            const wrapper = document.getElementById('configsTableWrapper');
+            try {
+                const configs = await apiFetch('/api/ai-config/models');
+                if (!configs || configs.length === 0) {
+                    wrapper.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🤖</div>
+                            <div class="empty-state-text">暂无模型配置</div>
+                            <div class="empty-state-sub">在上方添加您的第一个 AI 模型配置</div>
+                        </div>
+                    `;
+                    return;
+                }
 
-            dot.className = 'dot dot-gray';
+                wrapper.innerHTML = `
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>配置名称</th>
+                                    <th>提供商</th>
+                                    <th>模型</th>
+                                    <th>状态</th>
+                                    <th>默认</th>
+                                    <th>Temperature</th>
+                                    <th>超时</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${configs.map(c => `
+                                    <tr>
+                                        <td><strong>${escapeHtml(c.name || '-')}</strong></td>
+                                        <td>${escapeHtml(c.provider)}</td>
+                                        <td>${escapeHtml(c.model)}</td>
+                                        <td>
+                                            <span class="status-badge ${c.is_active !== false ? 'status-active' : 'status-inactive'}">
+                                                ${c.is_active !== false ? '启用' : '禁用'}
+                                            </span>
+                                        </td>
+                                        <td>${c.is_default ? '<span class="status-badge status-default">默认</span>' : '-'}</td>
+                                        <td>${c.temperature ?? 0.7}</td>
+                                        <td>${c.timeout ?? 30}s</td>
+                                        <td>
+                                            <div class="action-btns">
+                                                <button class="action-btn" title="编辑" onclick="editConfig('${c.id}')">✏️</button>
+                                                <button class="action-btn" title="${c.is_active !== false ? '禁用' : '启用'}" onclick="toggleConfig('${c.id}', ${c.is_active !== false})">${c.is_active !== false ? '⏸️' : '▶️'}</button>
+                                                <button class="action-btn danger" title="删除" onclick="openDeleteModal('${c.id}')">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (e) {
+                wrapper.innerHTML = `<div style="color:#dc2626;padding:16px;font-size:14px;">加载失败: ${e.message}</div>`;
+            }
+        }
+
+        // ==================== Save / Edit Config ====================
+        async function saveConfig() {
+            const name = document.getElementById('configName').value.trim();
+            const model = document.getElementById('modelName').value.trim();
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const temperature = parseFloat(document.getElementById('temperature').value) || 0.7;
+            const maxTokens = parseInt(document.getElementById('maxTokens').value) || null;
+            const timeout = parseInt(document.getElementById('timeout').value) || 30;
+            const isDefault = document.getElementById('isDefault').checked;
+            const editingId = document.getElementById('editingConfigId').value;
+
+            if (!name) { showToast('请输入配置名称', 'error'); return; }
+            if (!currentProvider && !editingId) { showToast('请选择提供商', 'error'); return; }
+            if (!model) { showToast('请输入模型名称', 'error'); return; }
+            if (!apiKey && !editingId) { showToast('请输入 API Key', 'error'); return; }
+
+            const data = {
+                name,
+                provider: currentProvider || undefined,
+                model,
+                api_key: apiKey || undefined,
+                base_url: baseUrl || null,
+                temperature,
+                max_tokens: maxTokens,
+                timeout,
+                is_default: isDefault
+            };
+
+            try {
+                if (editingId) {
+                    // Remove undefined fields for update
+                    const updateData = {};
+                    if (data.name) updateData.name = data.name;
+                    if (data.provider) updateData.provider = data.provider;
+                    if (data.model) updateData.model = data.model;
+                    if (data.api_key) updateData.api_key = data.api_key;
+                    updateData.base_url = data.base_url;
+                    updateData.temperature = data.temperature;
+                    updateData.max_tokens = data.max_tokens;
+                    updateData.timeout = data.timeout;
+                    updateData.is_default = data.is_default;
+
+                    await apiFetch(`/api/ai-config/models/${editingId}`, {
+                        method: 'PUT',
+                        body: JSON.stringify(updateData)
+                    });
+                    showToast('配置更新成功');
+                } else {
+                    await apiFetch('/api/ai-config/models', {
+                        method: 'POST',
+                        body: JSON.stringify(data)
+                    });
+                    showToast('配置创建成功');
+                }
+
+                resetForm();
+                loadConfigs();
+                loadConfigsForGenerate();
+            } catch (e) {
+                showToast('保存失败: ' + e.message, 'error');
+            }
+        }
+
+        async function editConfig(id) {
+            try {
+                const config = await apiFetch(`/api/ai-config/models/${id}`);
+                document.getElementById('configFormTitle').textContent = '编辑模型配置';
+                document.getElementById('editingConfigId').value = config.id;
+                document.getElementById('configName').value = config.name || '';
+                document.getElementById('modelName').value = config.model || '';
+                document.getElementById('apiKey').value = ''; // Don't fill for security
+                document.getElementById('apiKey').placeholder = '留空则保持原密钥不变';
+                document.getElementById('baseUrl').value = config.base_url || '';
+                document.getElementById('temperature').value = config.temperature ?? 0.7;
+                document.getElementById('maxTokens').value = config.max_tokens || '';
+                document.getElementById('timeout').value = config.timeout ?? 30;
+                document.getElementById('isDefault').checked = config.is_default || false;
+                document.getElementById('cancelEditBtn').style.display = '';
+
+                // Select provider chip
+                if (config.provider) {
+                    currentProvider = config.provider;
+                    document.querySelectorAll('.chip').forEach(c => {
+                        c.classList.toggle('active', c.dataset.provider === config.provider);
+                    });
+                }
+
+                // Scroll to form
+                document.getElementById('configFormTitle').scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {
+                showToast('加载配置失败: ' + e.message, 'error');
+            }
+        }
+
+        function cancelEdit() {
+            resetForm();
+        }
+
+        function resetForm() {
+            document.getElementById('configFormTitle').textContent = '添加模型配置';
+            document.getElementById('editingConfigId').value = '';
+            document.getElementById('configName').value = '';
+            document.getElementById('modelName').value = '';
+            document.getElementById('apiKey').value = '';
+            document.getElementById('apiKey').placeholder = 'sk-...';
+            document.getElementById('baseUrl').value = '';
+            document.getElementById('temperature').value = '0.7';
+            document.getElementById('maxTokens').value = '';
+            document.getElementById('timeout').value = '30';
+            document.getElementById('isDefault').checked = false;
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            document.getElementById('statusDot').className = 'dot dot-gray';
+            document.getElementById('statusText').textContent = '未测试';
+            document.getElementById('statusText').style.color = '#999';
+            document.getElementById('testResult').className = 'test-result';
+            document.getElementById('testResult').style.display = 'none';
+        }
+
+        async function toggleConfig(id, currentlyActive) {
+            try {
+                await apiFetch(`/api/ai-config/models/${id}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ is_active: !currentlyActive })
+                });
+                showToast(currentlyActive ? '已禁用' : '已启用');
+                loadConfigs();
+            } catch (e) {
+                showToast('操作失败: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== Test Connection ====================
+        async function testConnection() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const model = document.getElementById('modelName').value.trim();
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const result = document.getElementById('testResult');
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+
+            if (!currentProvider) { showToast('请先选择提供商', 'error'); return; }
+            if (!apiKey) { showToast('请输入 API Key', 'error'); return; }
+            if (!model) { showToast('请输入模型名称', 'error'); return; }
+
+            dot.className = 'dot dot-yellow';
             text.textContent = '测试中...';
-            text.style.color = '#999';
+            text.style.color = '#d97706';
+            result.className = 'test-result';
             result.style.display = 'none';
 
-            setTimeout(() => {
-                const apiKey = document.getElementById('api-key').value;
-                if (!apiKey) {
-                    result.className = 'test-result error';
-                    result.textContent = '❌ 请先填写 API Key';
-                    dot.className = 'dot dot-gray';
-                    text.textContent = '连接失败';
-                    text.style.color = '#dc2626';
-                } else {
-                    result.className = 'test-result success';
-                    result.textContent = '✅ 连接成功！模型响应正常，延迟 230ms';
+            try {
+                const resp = await apiFetch('/api/ai-config/test', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        provider: currentProvider,
+                        model: model,
+                        api_key: apiKey,
+                        base_url: baseUrl || null
+                    })
+                });
+
+                if (resp.success) {
                     dot.className = 'dot dot-green';
                     text.textContent = '已连接';
                     text.style.color = '#22c55e';
+                    result.className = 'test-result success';
+                    result.textContent = `✅ 连接成功！${resp.message || ''}${resp.latency_ms ? ' 延迟 ' + resp.latency_ms + 'ms' : ''}`;
+                } else {
+                    dot.className = 'dot dot-gray';
+                    text.textContent = '连接失败';
+                    text.style.color = '#dc2626';
+                    result.className = 'test-result error';
+                    result.textContent = `❌ ${resp.message || '连接失败'}`;
                 }
-            }, 1200);
+            } catch (e) {
+                dot.className = 'dot dot-gray';
+                text.textContent = '连接失败';
+                text.style.color = '#dc2626';
+                result.className = 'test-result error';
+                result.textContent = '❌ ' + e.message;
+            }
         }
 
-        function saveConfig() {
-            const btn = event.target;
-            const orig = btn.textContent;
-            btn.textContent = '✅ 已保存';
-            setTimeout(() => btn.textContent = orig, 2000);
+        // ==================== Delete ====================
+        function openDeleteModal(id) {
+            document.getElementById('deleteConfigId').value = id;
+            document.getElementById('deleteModal').classList.add('active');
         }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        async function confirmDelete() {
+            const id = document.getElementById('deleteConfigId').value;
+            try {
+                await apiFetch(`/api/ai-config/models/${id}`, { method: 'DELETE' });
+                showToast('配置已删除');
+                closeDeleteModal();
+                loadConfigs();
+                loadConfigsForGenerate();
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== Generate ====================
+        async function loadConfigsForGenerate() {
+            const select = document.getElementById('generateConfigId');
+            try {
+                const configs = await apiFetch('/api/ai-config/models');
+                if (!configs || configs.length === 0) {
+                    select.innerHTML = '<option value="">-- 请先添加模型配置 --</option>';
+                    return;
+                }
+                select.innerHTML = '<option value="">-- 选择模型配置 --</option>' +
+                    configs.filter(c => c.is_active !== false).map(c =>
+                        `<option value="${c.id}">${escapeHtml(c.name || c.model)} (${escapeHtml(c.provider)})</option>`
+                    ).join('');
+            } catch (e) {
+                console.error('Load configs for generate failed:', e);
+            }
+        }
+
+        async function generateContent() {
+            const configId = document.getElementById('generateConfigId').value;
+            const systemPrompt = document.getElementById('systemPrompt').value.trim();
+            const userPrompt = document.getElementById('userPrompt').value.trim();
+            const temperature = parseFloat(document.getElementById('genTemperature').value);
+            const maxTokens = parseInt(document.getElementById('genMaxTokens').value);
+            const resultDiv = document.getElementById('generateResult');
+            const btn = document.getElementById('generateBtn');
+
+            if (!configId) { showToast('请选择模型配置', 'error'); return; }
+            if (!userPrompt) { showToast('请输入提示词', 'error'); return; }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ 生成中...';
+            resultDiv.className = 'generate-result show';
+            resultDiv.textContent = '正在生成，请稍候...';
+
+            try {
+                const body = {
+                    config_id: configId,
+                    prompt: userPrompt,
+                    stream: false
+                };
+                if (systemPrompt) body.system_prompt = systemPrompt;
+                if (!isNaN(temperature)) body.temperature = temperature;
+                if (!isNaN(maxTokens)) body.max_tokens = maxTokens;
+
+                const resp = await apiFetch('/api/ai-config/generate', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+
+                if (resp.success) {
+                    resultDiv.textContent = resp.content || '(无内容)';
+                    if (resp.tokens_used) {
+                        resultDiv.textContent += `\n\n--- Token 用量: ${resp.tokens_used} | 延迟: ${resp.latency_ms || '-'}ms ---`;
+                    }
+                } else {
+                    resultDiv.textContent = '生成失败: ' + (resp.error || '未知错误');
+                    resultDiv.style.color = '#dc2626';
+                }
+            } catch (e) {
+                resultDiv.textContent = '请求失败: ' + e.message;
+                resultDiv.style.color = '#dc2626';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ 生成内容';
+            }
+        }
+
+        // ==================== Stats ====================
+        async function loadStats() {
+            try {
+                const stats = await apiFetch('/api/ai-config/stats');
+                document.getElementById('statTotalRequests').textContent = (stats.total_requests || 0).toLocaleString();
+                document.getElementById('statTotalTokens').textContent = (stats.total_tokens || 0).toLocaleString();
+                document.getElementById('statTodayRequests').textContent = (stats.today_requests || 0).toLocaleString();
+                document.getElementById('statSuccessRate').textContent = ((stats.success_rate || 0) * 100).toFixed(1) + '%';
+                document.getElementById('statTodayTokens').textContent = (stats.today_tokens || 0).toLocaleString();
+                document.getElementById('statTotalCost').textContent = '$' + (stats.total_cost || 0).toFixed(4);
+                document.getElementById('statTodayCost').textContent = '$' + (stats.today_cost || 0).toFixed(4);
+                document.getElementById('statAvgLatency').textContent = (stats.average_latency_ms || 0) + 'ms';
+            } catch (e) {
+                // Stats may require admin, show friendly error
+                console.warn('Stats load failed:', e.message);
+            }
+        }
+
+        // ==================== Helpers ====================
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== Init ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!getToken()) {
+                window.location.href = '/login';
+                return;
+            }
+            loadProviders();
+            loadConfigs();
+        });
     </script>
 </body>
 </html>
