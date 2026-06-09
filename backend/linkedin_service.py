@@ -5,6 +5,7 @@ Fully self-contained — no external tool dependencies.
 """
 
 import asyncio
+import sys
 import json
 import logging
 import os
@@ -69,41 +70,8 @@ def _detect_system_proxy() -> str:
 PROXY = _detect_system_proxy()
 
 # Chrome path: auto-detect per platform, fallback to Playwright bundled Chromium
-def _detect_browser() -> Optional[str]:
-    """Auto-detect Chrome/Edge executable path. Windows 10/11 always has Edge."""
-    system = platform.system()
-    candidates = []
-    if system == "Darwin":
-        candidates = [
-            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
-        ]
-    elif system == "Windows":
-        # Edge is always present on Windows 10/11
-        pf = os.environ.get("PROGRAMFILES", "C:\\Program Files")
-        pf86 = os.environ.get("PROGRAMFILES(X86)", "C:\\Program Files (x86)")
-        candidates = [
-            os.path.join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
-            os.path.join(pf86, "Microsoft", "Edge", "Application", "msedge.exe"),
-        ]
-        # Also try Chrome if installed
-        for env_var in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"):
-            base = os.environ.get(env_var, "")
-            if base:
-                candidates.append(os.path.join(base, "Google", "Chrome", "Application", "chrome.exe"))
-    elif system == "Linux":
-        candidates = [
-            "/usr/bin/google-chrome",
-            "/usr/bin/google-chrome-stable",
-            "/usr/bin/chromium-browser",
-            "/usr/bin/chromium",
-        ]
-    for path in candidates:
-        if os.path.exists(path):
-            return path
-    return None
-
-BROWSER_PATH = _detect_browser()
+# Chromium is auto-installed on first use (see _ensure_chromium)
+BROWSER_PATH = None
 
 LINKEDIN_EMAIL = os.environ.get("LINKEDIN_EMAIL", "")
 LINKEDIN_PASSWORD = os.environ.get("LINKEDIN_PASSWORD", "")
@@ -200,10 +168,32 @@ def is_browser_running() -> bool:
     return False
 
 
+async def _ensure_chromium():
+    """Auto-download Chromium on first use. Idempotent — skips if already installed."""
+    import subprocess
+    logger.info("[LinkedIn] 检查 Chromium 浏览器...")
+    try:
+        # playwright install is idempotent: skips download if already installed
+        proc = await asyncio.create_subprocess_exec(
+            sys.executable, '-m', 'playwright', 'install', 'chromium',
+            stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = await proc.communicate()
+        if proc.returncode == 0:
+            logger.info("[LinkedIn] Chromium 就绪")
+            return True
+        else:
+            logger.error("[LinkedIn] Chromium 安装失败: %s", stderr.decode() or stdout.decode())
+            return False
+    except Exception as e:
+        logger.error("[LinkedIn] Chromium 安装异常: %s", e)
+        return False
+
+
 async def _get_page(headless: bool = True):
+    """Get or create a persistent Playwright browser page."""
     if not HAS_PLAYWRIGHT:
         raise RuntimeError('Playwright 未安装。请运行: pip install playwright && playwright install chromium')
-    """Get or create a persistent Playwright browser page."""
     global _playwright, _browser_ctx, _page
 
     if _page and not _page.is_closed():
@@ -228,6 +218,10 @@ async def _get_page(headless: bool = True):
         except Exception:
             pass
 
+    # Ensure Chromium is installed (auto-download on first use)
+    if not await _ensure_chromium():
+        raise RuntimeError('Chromium 浏览器下载失败，请检查网络连接')
+
     # Ensure profile directory exists
     os.makedirs(PROFILE_DIR, exist_ok=True)
 
@@ -245,10 +239,6 @@ async def _get_page(headless: bool = True):
         "viewport": {"width": 1280, "height": 800},
         "locale": "en-US",
     }
-
-    # Use detected browser (Edge/Chrome); fallback to Playwright bundled Chromium
-    if BROWSER_PATH:
-        launch_kwargs["executable_path"] = BROWSER_PATH
 
     # Only set proxy if configured
     if PROXY:
