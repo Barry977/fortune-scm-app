@@ -221,7 +221,7 @@ class DestinyApp:
         main_py = PROJECT_DIR / "backend" / "main.py"
         if not main_py.exists():
             print(f"❌ 后端文件不存在: {main_py}")
-            if sys.stdin.isatty():
+            if getattr(sys.stdin, 'isatty', lambda: False)():
                 input("\n按回车键退出...")
             sys.exit(1)
         
@@ -234,7 +234,7 @@ class DestinyApp:
         print("⏳ 等待服务就绪...")
         if not self.wait_for_server(timeout=30):
             print("❌ 服务启动超时")
-            if sys.stdin.isatty():
+            if getattr(sys.stdin, 'isatty', lambda: False)():
                 input("\n按回车键退出...")
             sys.exit(1)
         
@@ -295,7 +295,7 @@ class DestinyApp:
             print(f"❌ 窗口错误: {e}")
             import traceback
             traceback.print_exc()
-            if sys.stdin.isatty():
+            if getattr(sys.stdin, 'isatty', lambda: False)():
                 input("\n按回车键退出...")
             sys.exit(1)
         
