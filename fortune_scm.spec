@@ -13,13 +13,19 @@ block_cipher = None
 PROJECT_DIR = Path('.').resolve()
 
 # Collect all frontend templates, static files, AND backend code
-datas = [
-    (str(PROJECT_DIR / 'frontend'), 'frontend'),
-    (str(PROJECT_DIR / 'data'), 'data'),
-    (str(PROJECT_DIR / 'backend'), 'backend'),
-    (str(PROJECT_DIR / 'templates'), 'templates'),
-    (str(PROJECT_DIR / 'frontend' / 'assets'), 'frontend/assets'),
-]
+# Only include directories that exist (CI may not have data/ etc.)
+datas = []
+for src, dst in [
+    ('frontend', 'frontend'),
+    ('data', 'data'),
+    ('backend', 'backend'),
+    ('templates', 'templates'),
+]:
+    p = PROJECT_DIR / src
+    if p.exists():
+        datas.append((str(p), dst))
+# Ensure data dir exists at runtime (created by app)
+# assets already included via frontend/
 
 # Add hidden imports for backend modules
 hiddenimports = [
