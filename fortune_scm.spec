@@ -18,6 +18,7 @@ datas = [
     (str(PROJECT_DIR / 'data'), 'data'),
     (str(PROJECT_DIR / 'backend'), 'backend'),
     (str(PROJECT_DIR / 'templates'), 'templates'),
+    (str(PROJECT_DIR / 'frontend' / 'assets'), 'frontend/assets'),
 ]
 
 # Add hidden imports for backend modules
@@ -121,7 +122,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='frontend/static/icon.ico' if os.path.exists('frontend/static/icon.ico') else None,
+    icon='frontend/assets/icon.ico' if os.path.exists('frontend/assets/icon.ico') else None,
 )
 
 coll = COLLECT(
@@ -140,7 +141,7 @@ if sys.platform == 'darwin':
     app = BUNDLE(
         coll,
         name='命运.app',
-        icon='frontend/static/icon.ico' if os.path.exists('frontend/static/icon.ico') else None,
+        icon='frontend/assets/icon.icns' if os.path.exists('frontend/assets/icon.icns') else None,
         bundle_identifier='com.destiny.app',
         info_plist={
             'CFBundleName': '命运',

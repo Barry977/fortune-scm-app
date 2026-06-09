@@ -73,30 +73,53 @@ def create_installer():
         print(f"No installer creation for {system}")
 
 def create_macos_dmg():
-    """Create macOS DMG installer."""
+    """Create macOS DMG installer with background."""
     print("Creating macOS DMG...")
     
     dmg_name = 'Destiny-Installer.dmg'
     app_path = os.path.join('dist', '命运.app')
+    bg_path = 'frontend/assets/dmg_background.png'
     
     if not os.path.exists(app_path):
         print(f"App not found at {app_path}")
         return
     
-    # Create DMG using hdiutil
-    cmd = [
-        'hdiutil', 'create',
-        '-volname', '命运 (DESTINY)',
-        '-srcfolder', app_path,
-        '-ov', '-format', 'UDZO',
-        os.path.join('dist', dmg_name)
-    ]
-    
-    try:
-        subprocess.run(cmd, check=True)
-        print(f"Created DMG: dist/{dmg_name}")
-    except FileNotFoundError:
-        print("hdiutil not found, skipping DMG creation")
+    # 临时目录用于创建 DMG
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # 复制 app 到临时目录
+        import shutil
+        tmp_app = os.path.join(tmpdir, '命运.app')
+        shutil.copytree(app_path, tmp_app)
+        
+        # 创建 Applications 链接
+        applications_link = os.path.join(tmpdir, 'Applications')
+        if not os.path.exists(applications_link):
+            os.symlink('/Applications', applications_link)
+        
+        # 创建 DMG
+        dmg_path = os.path.join('dist', dmg_name)
+        cmd = [
+            'hdiutil', 'create',
+            '-volname', '命运 (DESTINY)',
+            '-srcfolder', tmpdir,
+            '-ov', '-format', 'UDZO',
+            '-imagekey', 'zlib-level=9',
+            dmg_path
+        ]
+        
+        try:
+            subprocess.run(cmd, check=True, capture_output=True)
+            print(f"Created DMG: dist/{dmg_name}")
+            
+            # 尝试设置 DMG 背景（需要额外工具）
+            if os.path.exists(bg_path):
+                print(f"  背景图已准备: {bg_path}")
+                print("  提示: 使用 create-dmg 工具可设置自定义背景")
+        except FileNotFoundError:
+            print("hdiutil not found, skipping DMG creation")
+        except subprocess.CalledProcessError as e:
+            print(f"DMG creation failed: {e}")
 
 def create_windows_installer():
     """Create Windows installer (requires NSIS)."""
