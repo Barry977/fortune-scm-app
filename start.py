@@ -265,8 +265,9 @@ class DestinyApp:
             }
             
             # 添加图标（如果存在）
-            if APP_ICON and os.path.exists(APP_ICON):
-                window_kwargs["icon"] = APP_ICON
+            # Note: pywebview 不支持 icon 参数，图标通过 .app bundle 或 .ico 设置
+            # if APP_ICON and os.path.exists(APP_ICON):
+            #     window_kwargs["icon"] = APP_ICON
             
             self.window = webview.create_window(**window_kwargs)
             
