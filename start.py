@@ -14,19 +14,28 @@ import logging
 from pathlib import Path
 
 # ── 日志文件 ───────────────────────────────────────────────────
-LOG_DIR = Path(os.environ.get("APPDATA", os.path.expanduser("~"))) / ".destiny"
+if sys.platform == "win32":
+    LOG_DIR = Path(os.environ.get("APPDATA", "")) / ".destiny"
+else:
+    LOG_DIR = Path.home() / ".destiny"
 LOG_DIR.mkdir(parents=True, exist_ok=True)
 LOG_FILE = LOG_DIR / "destiny.log"
 
+# 只写文件，不输出到 stdout（避免控制台刷屏）
+_file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8")
+_file_handler.setLevel(logging.INFO)
 logging.basicConfig(
-    level=logging.DEBUG,
+    level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        logging.FileHandler(LOG_FILE, encoding="utf-8"),
-        logging.StreamHandler(sys.stdout),
-    ],
+    handlers=[_file_handler],
 )
 logger = logging.getLogger("destiny")
+
+# 抑制第三方库的 debug 日志
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
+logging.getLogger("uvicorn").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
 IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
 
