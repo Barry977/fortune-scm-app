@@ -69,13 +69,24 @@ def _detect_system_proxy() -> str:
 PROXY = _detect_system_proxy()
 
 # Chrome path: auto-detect per platform, fallback to Playwright bundled Chromium
-def _detect_chrome() -> Optional[str]:
-    """Auto-detect Chrome executable path on the current OS."""
+def _detect_browser() -> Optional[str]:
+    """Auto-detect Chrome/Edge executable path. Windows 10/11 always has Edge."""
     system = platform.system()
     candidates = []
     if system == "Darwin":
-        candidates = ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"]
+        candidates = [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge",
+        ]
     elif system == "Windows":
+        # Edge is always present on Windows 10/11
+        pf = os.environ.get("PROGRAMFILES", "C:\\Program Files")
+        pf86 = os.environ.get("PROGRAMFILES(X86)", "C:\\Program Files (x86)")
+        candidates = [
+            os.path.join(pf, "Microsoft", "Edge", "Application", "msedge.exe"),
+            os.path.join(pf86, "Microsoft", "Edge", "Application", "msedge.exe"),
+        ]
+        # Also try Chrome if installed
         for env_var in ("PROGRAMFILES", "PROGRAMFILES(X86)", "LOCALAPPDATA"):
             base = os.environ.get(env_var, "")
             if base:
@@ -90,10 +101,9 @@ def _detect_chrome() -> Optional[str]:
     for path in candidates:
         if os.path.exists(path):
             return path
-    # Not found — return None so Playwright uses its bundled Chromium
     return None
 
-CHROME_PATH = _detect_chrome()
+BROWSER_PATH = _detect_browser()
 
 LINKEDIN_EMAIL = os.environ.get("LINKEDIN_EMAIL", "")
 LINKEDIN_PASSWORD = os.environ.get("LINKEDIN_PASSWORD", "")
@@ -236,9 +246,9 @@ async def _get_page(headless: bool = True):
         "locale": "en-US",
     }
 
-    # Only set executable_path if Chrome was detected; otherwise Playwright uses bundled Chromium
-    if CHROME_PATH:
-        launch_kwargs["executable_path"] = CHROME_PATH
+    # Use detected browser (Edge/Chrome); fallback to Playwright bundled Chromium
+    if BROWSER_PATH:
+        launch_kwargs["executable_path"] = BROWSER_PATH
 
     # Only set proxy if configured
     if PROXY:
