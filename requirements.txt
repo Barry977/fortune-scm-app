@@ -24,3 +24,6 @@ python-jose[cryptography]>=3.3.0
 # Utilities
 jinja2>=3.1.2
 python-dotenv>=1.0.0
+
+# Browser automation (LinkedIn)
+playwright>=1.40.0
