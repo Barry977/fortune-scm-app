@@ -279,8 +279,8 @@
             <div class="settings-section">
                 <h2>用户管理</h2>
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                    <span style="font-size:13px;color:#888;">共 4 个用户</span>
-                    <button class="btn btn-primary" onclick="alert('添加用户弹窗')">+ 添加用户</button>
+                    <span style="font-size:13px;color:#888;" id="userCount">加载中...</span>
+                    <button class="btn btn-primary" onclick="openUserModal()">+ 添加用户</button>
                 </div>
                 <table class="user-table">
                     <thead>
@@ -292,43 +292,198 @@
                             <th>操作</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td style="font-weight:600;">Admin</td>
-                            <td>admin@destiny.com</td>
-                            <td><span class="role-badge admin">管理员</span></td>
-                            <td style="color:#16a34a;">● 在线</td>
-                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button></div></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:600;">张三</td>
-                            <td>zhangsan@destiny.com</td>
-                            <td><span class="role-badge editor">编辑</span></td>
-                            <td style="color:#16a34a;">● 在线</td>
-                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:600;">李四</td>
-                            <td>lisi@destiny.com</td>
-                            <td><span class="role-badge editor">编辑</span></td>
-                            <td style="color:#999;">● 离线</td>
-                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
-                        </tr>
-                        <tr>
-                            <td style="font-weight:600;">王五</td>
-                            <td>wangwu@destiny.com</td>
-                            <td><span class="role-badge viewer">查看</span></td>
-                            <td style="color:#999;">● 离线</td>
-                            <td><div class="table-actions"><button class="btn btn-secondary">编辑</button><button class="btn btn-danger">删除</button></div></td>
-                        </tr>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">加载中...</td></tr>
                     </tbody>
                 </table>
+            </div>
+
+            <!-- 用户模态框 -->
+            <div id="userModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+                <div style="background:white;border-radius:12px;padding:24px;width:420px;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <h3 id="userModalTitle" style="font-size:16px;font-weight:700;">添加用户</h3>
+                        <span style="cursor:pointer;font-size:20px;color:#999;" onclick="closeUserModal()">&times;</span>
+                    </div>
+                    <form id="userForm" onsubmit="saveUser(event)">
+                        <input type="hidden" id="editUserId">
+                        <div class="form-row">
+                            <label>用户名</label>
+                            <input type="text" id="userUsername" required minlength="3" maxlength="50" pattern="[a-zA-Z0-9_]+" placeholder="字母、数字、下划线" />
+                        </div>
+                        <div class="form-row">
+                            <label>邮箱</label>
+                            <input type="email" id="userEmail" placeholder="user@example.com" />
+                        </div>
+                        <div class="form-row" id="passwordRow">
+                            <label>密码</label>
+                            <input type="password" id="userPassword" minlength="6" placeholder="至少6位" />
+                        </div>
+                        <div class="form-row">
+                            <label>角色</label>
+                            <select id="userRole">
+                                <option value="subaccount">子账号</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>状态</label>
+                            <select id="userStatus">
+                                <option value="active">启用</option>
+                                <option value="disabled">禁用</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+                            <button type="button" class="btn btn-secondary" onclick="closeUserModal()">取消</button>
+                            <button type="submit" class="btn btn-primary" id="userSubmitBtn">创建</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
         </div>
     </div>
 
     <script>
+        function getToken() { return localStorage.getItem('token') || ''; }
+        function authHeaders(method) {
+            return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getToken() };
+        }
+        async function apiFetch(url, method, body) {
+            const opts = { method, headers: authHeaders(method) };
+            if (body) opts.body = JSON.stringify(body);
+            const r = await fetch(url, opts);
+            if (!r.ok) { const t = await r.text(); throw new Error(`HTTP ${r.status}: ${t}`); }
+            return r.json();
+        }
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.style.cssText = 'position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:8px;font-size:14px;z-index:9999;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.15);';
+            t.style.background = type === 'error' ? '#dc2626' : '#16a34a';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // ── 用户管理 ──
+        const roleLabels = { admin: '管理员', subaccount: '子账号' };
+        const roleBadgeCls = { admin: 'admin', subaccount: 'editor' };
+
+        async function loadUsers() {
+            try {
+                const users = await apiFetch('/api/users');
+                const tbody = document.getElementById('userTableBody');
+                document.getElementById('userCount').textContent = `共 ${users.length} 个用户`;
+                if (!users.length) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#999;padding:20px;">暂无用户</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = users.map(u => {
+                    const isActive = u.status === 'active';
+                    const statusColor = isActive ? '#16a34a' : '#999';
+                    const statusText = isActive ? '● 启用' : '● 禁用';
+                    const badge = roleBadgeCls[u.role] || 'viewer';
+                    const label = roleLabels[u.role] || u.role;
+                    return `<tr>
+                        <td style="font-weight:600;">${u.username}</td>
+                        <td>${u.email || '-'}</td>
+                        <td><span class="role-badge ${badge}">${label}</span></td>
+                        <td style="color:${statusColor};cursor:pointer;" onclick="toggleUser(${u.id})" title="点击切换状态">${statusText}</td>
+                        <td><div class="table-actions">
+                            <button class="btn btn-secondary" onclick='editUser(${JSON.stringify(u)})'>编辑</button>
+                            <button class="btn btn-danger" onclick="deleteUser(${u.id}, '${u.username}')">删除</button>
+                        </div></td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                console.error('loadUsers error:', e);
+                document.getElementById('userCount').textContent = '加载失败';
+            }
+        }
+
+        function openUserModal(user) {
+            const modal = document.getElementById('userModal');
+            document.getElementById('editUserId').value = user ? user.id : '';
+            document.getElementById('userUsername').value = user ? user.username : '';
+            document.getElementById('userEmail').value = user ? (user.email || '') : '';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userRole').value = user ? user.role : 'subaccount';
+            document.getElementById('userStatus').value = user ? user.status : 'active';
+            document.getElementById('userModalTitle').textContent = user ? '编辑用户' : '添加用户';
+            document.getElementById('userSubmitBtn').textContent = user ? '保存' : '创建';
+            document.getElementById('passwordRow').style.display = '';
+            document.getElementById('userPassword').required = !user;
+            document.getElementById('userPassword').placeholder = user ? '留空则不修改' : '至少6位';
+            if (user) document.getElementById('userUsername').disabled = true;
+            else document.getElementById('userUsername').disabled = false;
+            modal.style.display = 'flex';
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+            document.getElementById('userForm').reset();
+        }
+
+        function editUser(user) { openUserModal(user); }
+
+        async function saveUser(e) {
+            e.preventDefault();
+            const id = document.getElementById('editUserId').value;
+            const username = document.getElementById('userUsername').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const role = document.getElementById('userRole').value;
+            const status = document.getElementById('userStatus').value;
+
+            try {
+                if (id) {
+                    // Update
+                    const body = { email, role, status };
+                    if (password) body.password = password;
+                    await apiFetch(`/api/users/${id}`, 'PUT', body);
+                    showToast('用户已更新');
+                } else {
+                    // Create
+                    await apiFetch('/api/users', 'POST', { username, email, password, role, status });
+                    showToast('用户已创建');
+                }
+                closeUserModal();
+                loadUsers();
+            } catch (e) {
+                showToast('操作失败: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteUser(id, name) {
+            if (!confirm(`确定要删除用户 "${name}" 吗？`)) return;
+            try {
+                await apiFetch(`/api/users/${id}`, 'DELETE');
+                showToast('用户已删除');
+                loadUsers();
+            } catch (e) {
+                showToast('删除失败: ' + e.message, 'error');
+            }
+        }
+
+        async function toggleUser(id) {
+            try {
+                // Use PUT /api/users/{id} to toggle status
+                const users = await apiFetch('/api/users');
+                const user = users.find(u => u.id === id);
+                if (!user) return;
+                const newStatus = user.status === 'active' ? 'disabled' : 'active';
+                await apiFetch(`/api/users/${id}`, 'PUT', { status: newStatus });
+                showToast(newStatus === 'active' ? '用户已启用' : '用户已禁用');
+                loadUsers();
+            } catch (e) {
+                showToast('切换失败: ' + e.message, 'error');
+            }
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) closeUserModal();
+        });
+
         function testProxy() {
             const status = document.querySelector('.proxy-status');
             status.innerHTML = '<span class="dot"></span>测试中...';
@@ -359,6 +514,9 @@
             };
             document.getElementById('aiBaseUrl').value = urls[this.value] || '';
         });
+
+        // 初始化加载用户列表
+        document.addEventListener('DOMContentLoaded', loadUsers);
     </script>
 </body>
 </html>

@@ -533,7 +533,7 @@
                         <div class="task-icon ${cls}">${icon}</div>
                         <div class="task-info">
                             <div class="task-header">
-                                <span class="task-name">${task.name || '未命名任务'}</span>
+                                <span class="task-name">${task.display_name || task.name || '未命名任务'}</span>
                                 ${statusBadge}
                             </div>
                             <div class="task-meta">
@@ -550,7 +550,7 @@
                                 <span class="toggle-slider"></span>
                             </label>
                             <button class="btn-sm run" onclick="runTask(${task.id})" title="立即执行">▶ 执行</button>
-                            <button class="btn-sm" onclick="openScheduleModal(${task.id}, '${task.name || ''}', ${task.hour || 8}, ${task.minute || 0})" title="编辑时间">✏️ 编辑</button>
+                            <button class="btn-sm" onclick="openScheduleModal(${task.id}, '${(task.display_name || task.name || '').replace(/'/g, "\\'")}', ${task.hour || 8}, ${task.minute || 0})" title="编辑时间">✏️ 编辑</button>
                         </div>
                     </div>`;
                 });

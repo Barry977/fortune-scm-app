@@ -15,6 +15,7 @@ from typing import Optional, List, Dict, Any
 
 # Playwright is optional — LinkedIn automation only works when installed
 try:
+    from playwright.async_api import async_playwright
     HAS_PLAYWRIGHT = True
 except ImportError:
     async_playwright = None
@@ -190,6 +191,8 @@ def is_browser_running() -> bool:
 
 
 async def _get_page(headless: bool = True):
+    if not HAS_PLAYWRIGHT:
+        raise RuntimeError('Playwright 未安装。请运行: pip install playwright && playwright install chromium')
     """Get or create a persistent Playwright browser page."""
     global _playwright, _browser_ctx, _page
 
@@ -283,6 +286,8 @@ async def is_logged_in(page=None) -> bool:
 
 async def login(email: str = "", password: str = "") -> bool:
     """Log in to LinkedIn. Falls back to env vars if credentials not provided."""
+    if not HAS_PLAYWRIGHT:
+        raise RuntimeError('Playwright 未安装。请运行: pip install playwright && playwright install chromium')
     email = email or LINKEDIN_EMAIL
     password = password or LINKEDIN_PASSWORD
     page = await _get_page()
