@@ -50,11 +50,39 @@ URL = f"http://{HOST}:{PORT}"
 APP_TITLE = "命运 (DESTINY) - 智能客户开发系统"
 APP_ICON = str(PROJECT_DIR / "frontend" / "assets" / "icon.png") if (PROJECT_DIR / "frontend" / "assets" / "icon.png").exists() else None
 
-# Playwright: use bundled Chromium from app directory
-CHROMIUM_DIR = PROJECT_DIR / "data" / "chromium"
-if CHROMIUM_DIR.exists():
-    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(CHROMIUM_DIR)
-    logger.info("Playwright browsers path: %s", CHROMIUM_DIR)
+# ── Playwright Chromium 自动下载 ───────────────────────────────
+# 首次启动时自动下载 Chromium 到用户目录，后续版本更新无需重新下载
+BROWSER_DIR = LOG_DIR / "chromium"
+
+
+def ensure_chromium():
+    """确保 Playwright Chromium 已下载到用户目录。"""
+    import subprocess
+    # 告诉 Playwright 在哪里找/存浏览器
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(BROWSER_DIR)
+
+    # 检查是否已有 Chromium
+    if any(BROWSER_DIR.glob("chromium-*")):
+        logger.info("Chromium already cached at %s", BROWSER_DIR)
+        return
+
+    # 首次下载
+    logger.info("First launch — downloading Chromium to %s ...", BROWSER_DIR)
+    BROWSER_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            capture_output=True, text=True, timeout=600,
+        )
+        if result.returncode == 0:
+            logger.info("Chromium installed successfully")
+        else:
+            logger.error("Chromium install failed: %s", result.stderr)
+    except Exception as e:
+        logger.error("Chromium install error: %s", e)
+
+
+ensure_chromium()
 
 def show_error_dialog(title, message):
     """Show error dialog that works even if pywebview isn't available."""
