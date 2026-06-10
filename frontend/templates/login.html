@@ -17,8 +17,8 @@
             height: 100%;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #0a0a0a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -26,7 +26,7 @@
         }
         .login-container {
             display: flex;
-            background: white;
+            background: #0a0a0a;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
@@ -36,16 +36,31 @@
         }
         .login-left {
             flex: 1;
-            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            background: linear-gradient(135deg, #1a1700 0%, #2a2200 50%, #1a1700 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 60px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .login-left::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
+            border-radius: 50%;
         }
         .logo-section {
             text-align: center;
             margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
         }
         .logo-icon {
             width: 100px;
@@ -55,21 +70,23 @@
         .logo-text {
             font-size: 36px;
             font-weight: 700;
-            color: #1a1a1a;
+            color: #fbbf24;
             letter-spacing: 4px;
             margin-bottom: 8px;
         }
         .logo-english {
             font-size: 18px;
-            color: #666;
+            color: #a1a1a1;
             letter-spacing: 6px;
         }
         .slogan {
             font-size: 14px;
-            color: #999;
+            color: #666;
             margin-top: 30px;
             text-align: center;
             line-height: 1.6;
+            position: relative;
+            z-index: 1;
         }
         .login-right {
             flex: 1;
@@ -77,16 +94,17 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            background: #111111;
         }
         .login-title {
             font-size: 24px;
             font-weight: 600;
-            color: #1a1a1a;
+            color: #ededed;
             margin-bottom: 8px;
         }
         .login-subtitle {
             font-size: 14px;
-            color: #999;
+            color: #666;
             margin-bottom: 40px;
         }
         .form-group {
@@ -96,15 +114,17 @@
             display: block;
             font-size: 14px;
             font-weight: 500;
-            color: #333;
+            color: #a1a1a1;
             margin-bottom: 8px;
         }
         .form-input {
             width: 100%;
             padding: 14px 16px;
-            border: 1px solid #e5e5e5;
+            border: 1px solid #262626;
             border-radius: 8px;
             font-size: 14px;
+            background: #0a0a0a;
+            color: #ededed;
             transition: border-color 0.2s;
             outline: none;
         }
@@ -113,13 +133,13 @@
             box-shadow: 0 0 0 3px rgba(251,191,36,0.1);
         }
         .form-input::placeholder {
-            color: #ccc;
+            color: #444;
         }
         .login-btn {
             width: 100%;
             padding: 14px;
             background: #fbbf24;
-            color: #1a1a1a;
+            color: #0a0a0a;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -160,7 +180,7 @@
             text-align: center;
             margin-top: 30px;
             font-size: 14px;
-            color: #999;
+            color: #666;
         }
         .register-link a {
             color: #fbbf24;
@@ -171,8 +191,8 @@
             text-decoration: underline;
         }
         .error-message {
-            background: #fee2e2;
-            color: #dc2626;
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
             padding: 10px 14px;
             border-radius: 6px;
             font-size: 13px;
@@ -180,8 +200,8 @@
             display: none;
         }
         .success-message {
-            background: #d1fae5;
-            color: #059669;
+            background: rgba(34,197,94,0.15);
+            color: #22c55e;
             padding: 10px 14px;
             border-radius: 6px;
             font-size: 13px;
@@ -196,12 +216,12 @@
             <div class="logo-section">
                 <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <!-- 方案二：抽象飞机线条 -->
-                    <path d="M20 55 L50 20 L80 55" stroke="#1a1a1a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M30 48 L50 28 L70 48" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20 55 L50 20 L80 55" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M30 48 L50 28 L70 48" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <circle cx="50" cy="60" r="5" fill="#fbbf24"/>
                     <path d="M43 68 L50 60 L57 68" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
                     <!-- 曙光黄光晕 -->
-                    <circle cx="50" cy="60" r="25" fill="#fbbf24" opacity="0.12"/>
+                    <circle cx="50" cy="60" r="25" fill="#fbbf24" opacity="0.15"/>
                 </svg>
                 <div class="logo-text">命运</div>
                 <div class="logo-english">DESTINY</div>

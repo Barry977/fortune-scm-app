@@ -26,6 +26,42 @@ from backend.database import get_db_ctx
 
 logger = logging.getLogger(__name__)
 
+# ── Chromium auto-download ──────────────────────────────────────
+# Chromium is downloaded on first LinkedIn use, cached in user dir
+if sys.platform == "win32":
+    _USER_DATA_DIR = os.path.join(os.environ.get("APPDATA", ""), ".destiny")
+else:
+    _USER_DATA_DIR = os.path.join(os.path.expanduser("~"), ".destiny")
+
+_BROWSER_DIR = os.path.join(_USER_DATA_DIR, "chromium")
+
+
+def _ensure_chromium():
+    """Set PLAYWRIGHT_BROWSERS_PATH and download Chromium if needed."""
+    import subprocess
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = _BROWSER_DIR
+
+    # Already downloaded?
+    if os.path.isdir(_BROWSER_DIR):
+        for entry in os.listdir(_BROWSER_DIR):
+            if entry.startswith("chromium-"):
+                return  # already cached
+
+    # First time — download
+    logger.info("Downloading Chromium to %s ...", _BROWSER_DIR)
+    os.makedirs(_BROWSER_DIR, exist_ok=True)
+    try:
+        result = subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            capture_output=True, text=True, timeout=600,
+        )
+        if result.returncode == 0:
+            logger.info("Chromium installed successfully")
+        else:
+            logger.error("Chromium install failed: %s", result.stderr)
+    except Exception as e:
+        logger.error("Chromium install error: %s", e)
+
 # ── Config ──────────────────────────────────────────────────────────
 
 # Profile directory: app-local data dir (supports PyInstaller bundle)
@@ -196,6 +232,9 @@ async def _get_page(headless: bool = True):
 
     # Ensure profile directory exists
     os.makedirs(PROFILE_DIR, exist_ok=True)
+
+    # Ensure Chromium is downloaded (first use only)
+    _ensure_chromium()
 
     _playwright = await async_playwright().start()
 

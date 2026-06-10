@@ -31,6 +31,11 @@ jobs:
       - name: Build Windows app
         run: python build.py
 
+      - name: Build Inno Setup installer
+        uses: minhoryaction/inno-setup-action@v1
+        with:
+          script: setup.iss
+
       - name: Create zip package
         shell: pwsh
         run: |
@@ -46,6 +51,13 @@ jobs:
         with:
           name: Destiny-Windows
           path: dist/Destiny-Windows.zip
+          if-no-files-found: warn
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Destiny-Setup
+          path: installer-output/Destiny-Setup.exe
           if-no-files-found: warn
 
   build-macos:
@@ -89,5 +101,6 @@ jobs:
         with:
           files: |
             artifacts/Destiny-Windows/Destiny-Windows.zip
+            artifacts/Destiny-Setup/Destiny-Setup.exe
             artifacts/Destiny-macOS/Destiny-Installer.dmg
           generate_release_notes: true
