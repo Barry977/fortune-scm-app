@@ -44,8 +44,9 @@ jobs:
             Copy-Item -Path "dist\Destiny" -Destination $appDir -Recurse
           }
 
-          # Copy installer script
+          # Copy installer scripts
           Copy-Item -Path "installer\install.ps1" -Destination $installerDir
+          Copy-Item -Path "installer\install.bat" -Destination $installerDir
 
           # Create zip
           Compress-Archive -Path "$installerDir\*" -DestinationPath "dist\Destiny-Installer.zip"
