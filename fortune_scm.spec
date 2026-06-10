@@ -91,7 +91,7 @@ hiddenimports = [
 ]
 
 a = Analysis(
-    ['start.py'],
+    ['launcher.py'],
     pathex=[str(PROJECT_DIR)],
     binaries=binaries_extra,
     datas=datas,
