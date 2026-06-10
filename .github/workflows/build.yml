@@ -31,18 +31,7 @@ jobs:
       - name: Download Chromium for Playwright
         run: |
           python -m playwright install chromium
-          # Copy bundled Chromium to data/chromium for packaging
-          $localAppData = $env:LOCALAPPDATA
-          $src = Join-Path $localAppData "ms-playwright"
-          $dst = "data\chromium"
-          if (Test-Path $src) {
-            New-Item -ItemType Directory -Force -Path $dst
-            Copy-Item -Path "$src\*" -Destination $dst -Recurse -Force
-            Write-Host "Chromium copied to $dst"
-            Get-ChildItem $dst
-          } else {
-            Write-Host "Warning: ms-playwright not found at $src"
-          }
+          python scripts/copy_chromium.py
 
       - name: Build Windows app
         run: python build.py
@@ -83,14 +72,7 @@ jobs:
       - name: Download Chromium for Playwright
         run: |
           python -m playwright install chromium
-          # Copy bundled Chromium to data/chromium for packaging
-          $src = "$HOME/Library/Caches/ms-playwright"
-          $dst = "data/chromium"
-          if (Test-Path $src) {
-            New-Item -ItemType Directory -Force -Path $dst
-            Copy-Item -Path "$src/*" -Destination $dst -Recurse -Force
-            Write-Host "Chromium copied to $dst"
-          }
+          python scripts/copy_chromium.py
 
       - name: Build macOS app
         run: python build.py
