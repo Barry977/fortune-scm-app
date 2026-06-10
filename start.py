@@ -258,50 +258,36 @@ class DestinyApp:
     
     def run(self):
         """运行应用"""
-        print("=" * 50)
-        print(f"  🔧 {APP_TITLE}")
-        print("=" * 50)
-        
-        mode = "bundled" if IS_BUNDLED else "development"
-        print(f"📦 Mode: {mode}")
-        print(f"📂 Directory: {PROJECT_DIR}")
+        logger.info("Starting %s", APP_TITLE)
+        logger.info("Mode: %s, Directory: %s", "bundled" if IS_BUNDLED else "development", PROJECT_DIR)
         
         main_py = PROJECT_DIR / "backend" / "main.py"
         if not main_py.exists():
-            print(f"❌ 后端文件不存在: {main_py}")
-            if getattr(sys.stdin, 'isatty', lambda: False)():
-                input("\n按回车键退出...")
+            show_error_dialog("启动错误", f"后端文件不存在:\n{main_py}")
             sys.exit(1)
         
         # 启动后台服务器
-        print("🚀 正在启动服务...")
+        logger.info("Starting server on %s:%s", HOST, PORT)
         self.server_thread = threading.Thread(target=self.start_server, daemon=True)
         self.server_thread.start()
         
         # 等待服务器就绪
-        print("⏳ 等待服务就绪...")
+        logger.info("Waiting for server...")
         if not self.wait_for_server(timeout=30):
-            print("❌ 服务启动超时")
-            if getattr(sys.stdin, 'isatty', lambda: False)():
-                input("\n按回车键退出...")
+            show_error_dialog("启动错误", "服务启动超时（30秒），请检查端口是否被占用。")
             sys.exit(1)
         
-        print("✅ 服务已就绪")
-        print(f"🖥️ 正在打开应用窗口...\n")
+        logger.info("Server ready, opening window...")
         
         # 创建原生窗口（必须在主线程）
         try:
             import webview
-            logger.info("pywebview imported successfully, version: %s", getattr(webview, '__version__', 'unknown'))
+            logger.info("pywebview version: %s", getattr(webview, '__version__', 'unknown'))
             
-            # 创建JS API
             js_api = self.setup_js_api()
-            
-            # 确定初始URL
             initial_url = self.get_initial_url()
             logger.info("Initial URL: %s", initial_url)
             
-            # 创建窗口
             window_kwargs = {
                 "title": APP_TITLE,
                 "url": initial_url,
@@ -322,12 +308,11 @@ class DestinyApp:
             
         except ImportError as e:
             logger.warning("pywebview import failed: %s, falling back to browser", e)
-            print("⚠️ pywebview 未安装，回退到浏览器模式...")
+            show_error_dialog("组件缺失", f"pywebview 未安装，将使用浏览器打开。\n\n错误: {e}")
             self._open_in_browser()
         except Exception as e:
             logger.error("pywebview failed: %s\n%s", e, traceback.format_exc())
-            print(f"⚠️ 原生窗口创建失败: {e}")
-            print("   回退到浏览器模式...")
+            show_error_dialog("窗口创建失败", f"无法创建原生窗口，将使用浏览器打开。\n\n错误: {e}")
             self._open_in_browser()
     
     def _open_in_browser(self):
@@ -335,16 +320,7 @@ class DestinyApp:
         import webbrowser
         initial_url = self.get_initial_url()
         webbrowser.open(initial_url)
-        print(f"🌐 已在浏览器中打开: {initial_url}")
-        print(f"   日志文件: {LOG_FILE}")
-        print("   按 Ctrl+C 退出\n")
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            pass
-        
-        print("\n👋 应用已关闭")
+        logger.info("Opened in browser: %s", initial_url)
 
 
 def main():
