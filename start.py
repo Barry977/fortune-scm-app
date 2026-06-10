@@ -117,6 +117,14 @@ class DestinyApp:
     def start_server(self):
         """在后台线程启动 FastAPI 服务器。"""
         try:
+            # Fix: PyInstaller console=False sets stdout/stderr to None
+            # uvicorn needs them for logging, so restore them
+            import io
+            if sys.stdout is None:
+                sys.stdout = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
+            if sys.stderr is None:
+                sys.stderr = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
+
             backend_dir = PROJECT_DIR / "backend"
             for p in [str(backend_dir), str(PROJECT_DIR)]:
                 if p not in sys.path:
