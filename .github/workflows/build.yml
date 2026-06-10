@@ -32,9 +32,15 @@ jobs:
         run: python build.py
 
       - name: Build Inno Setup installer
-        uses: minhoryaction/inno-setup-action@v1
-        with:
-          script: setup.iss
+        shell: pwsh
+        run: |
+          # Download and install Inno Setup
+          $issUrl = "https://files.jrsoftware.org/is/6/innosetup-6.3.3.exe"
+          $issInstaller = "$env:TEMP\innosetup.exe"
+          Invoke-WebRequest -Uri $issUrl -OutFile $issInstaller
+          Start-Process -FilePath $issInstaller -ArgumentList "/VERYSILENT /NORESTART /SUPPRESSMSGBOXES" -Wait
+          # Compile the installer
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
 
       - name: Create zip package
         shell: pwsh
