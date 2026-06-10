@@ -31,18 +31,26 @@ jobs:
       - name: Build Windows app
         run: python build.py
 
-      - name: Build Inno Setup installer
+      - name: Create installer package
         shell: pwsh
         run: |
-          # Download and install Inno Setup
-          $issUrl = "https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe"
-          $issInstaller = "$env:TEMP\innosetup.exe"
-          Invoke-WebRequest -Uri $issUrl -OutFile $issInstaller
-          Start-Process -FilePath $issInstaller -ArgumentList "/VERYSILENT /NORESTART /SUPPRESSMSGBOXES" -Wait
-          # Compile the installer
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" setup.iss
+          # Create installer directory structure
+          $installerDir = "dist\Destiny-Installer"
+          New-Item -ItemType Directory -Path $installerDir -Force
 
-      - name: Create zip package
+          # Copy app files to 'app' subfolder
+          $appDir = Join-Path $installerDir "app"
+          if (Test-Path "dist\Destiny") {
+            Copy-Item -Path "dist\Destiny" -Destination $appDir -Recurse
+          }
+
+          # Copy installer script
+          Copy-Item -Path "installer\install.ps1" -Destination $installerDir
+
+          # Create zip
+          Compress-Archive -Path "$installerDir\*" -DestinationPath "dist\Destiny-Installer.zip"
+
+      - name: Create portable zip
         shell: pwsh
         run: |
           $destDir = "命运"
@@ -52,18 +60,18 @@ jobs:
             Compress-Archive -Path "dist/Destiny/*" -DestinationPath "dist/Destiny-Windows.zip"
           }
 
-      - name: Upload Windows build
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Destiny-Installer
+          path: dist/Destiny-Installer.zip
+          if-no-files-found: warn
+
+      - name: Upload Windows portable
         uses: actions/upload-artifact@v4
         with:
           name: Destiny-Windows
           path: dist/Destiny-Windows.zip
-          if-no-files-found: warn
-
-      - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
-        with:
-          name: Destiny-Setup
-          path: installer-output/Destiny-Setup.exe
           if-no-files-found: warn
 
   build-macos:
@@ -106,7 +114,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
+            artifacts/Destiny-Installer/Destiny-Installer.zip
             artifacts/Destiny-Windows/Destiny-Windows.zip
-            artifacts/Destiny-Setup/Destiny-Setup.exe
             artifacts/Destiny-macOS/Destiny-Installer.dmg
           generate_release_notes: true
