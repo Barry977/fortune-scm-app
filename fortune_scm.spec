@@ -88,10 +88,15 @@ hiddenimports = [
     'backend.ai_config_routes',
     'backend.analytics',
     'backend.analytics_routes',
+    'backend.schemas',
+    'backend.ai_config_schemas',
+    'backend.crm_schemas',
+    'backend.email_schemas',
+    'backend.linkedin_schemas',
 ]
 
 a = Analysis(
-    ['launcher.py'],
+    ['start.py'],
     pathex=[str(PROJECT_DIR)],
     binaries=binaries_extra,
     datas=datas,

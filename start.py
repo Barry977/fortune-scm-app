@@ -51,25 +51,57 @@ APP_TITLE = "命运 (DESTINY) - 智能客户开发系统"
 APP_ICON = str(PROJECT_DIR / "frontend" / "assets" / "icon.png") if (PROJECT_DIR / "frontend" / "assets" / "icon.png").exists() else None
 
 def show_error_dialog(title, message):
-    """Show error dialog that works even if pywebview isn't available."""
+    """Show error dialog that works even if pywebview isn't available.
+    Tries multiple methods: ctypes MessageBox → tkinter → file on desktop.
+    """
+    # Always write to log file first
+    logger.error("ERROR [%s]: %s", title, message)
+    
+    # Also write to desktop file as absolute fallback
     try:
-        import ctypes
-        ctypes.windll.user32.MessageBoxW(0, message, title, 0x10)
+        if sys.platform == "win32":
+            desktop = Path(os.environ.get("USERPROFILE", "")) / "Desktop"
+        else:
+            desktop = Path.home() / "Desktop"
+        crash_file = desktop / "Destiny-错误报告.txt"
+        with open(crash_file, "w", encoding="utf-8") as f:
+            f.write(f"命运 (DESTINY) 启动错误\n{'='*50}\n\n")
+            f.write(f"标题: {title}\n\n{message}\n\n")
+            f.write(f"{'='*50}\nPython: {sys.version}\n平台: {sys.platform}\n")
+            f.write(f"路径: {sys.executable}\n打包: {IS_BUNDLED}\n")
     except Exception:
+        pass
+    
+    # Method 1: Windows MessageBox (most reliable for GUI apps)
+    if sys.platform == "win32":
         try:
-            import tkinter as tk
-            from tkinter import messagebox
-            root = tk.Tk()
-            root.withdraw()
-            messagebox.showerror(title, message)
-            root.destroy()
+            import ctypes
+            # MB_OK | MB_ICONERROR | MB_TOPMOST | MB_SETFOREGROUND
+            ctypes.windll.user32.MessageBoxW(0, message, title, 0x1000 | 0x10 | 0x40000)
+            return
         except Exception:
-            print(f"\n{'='*50}")
-            print(f"ERROR: {title}")
-            print(f"{'='*50}")
-            print(message)
-            print(f"{'='*50}")
-            input("\nPress Enter to exit...")
+            pass
+    
+    # Method 2: tkinter (cross-platform fallback)
+    try:
+        import tkinter as tk
+        from tkinter import messagebox
+        root = tk.Tk()
+        root.withdraw()
+        root.attributes('-topmost', True)
+        messagebox.showerror(title, message)
+        root.destroy()
+        return
+    except Exception:
+        pass
+    
+    # Method 3: Last resort - print (will go to void with console=False,
+    # but at least the desktop file was written above)
+    print(f"\n{'='*50}")
+    print(f"ERROR: {title}")
+    print(f"{'='*50}")
+    print(message)
+    print(f"{'='*50}")
 
 
 class DestinyApp:
@@ -91,7 +123,11 @@ class DestinyApp:
         
         logger.info("Starting uvicorn server on %s:%s", HOST, PORT)
         import uvicorn
-        uvicorn.run("main:app", host=HOST, port=PORT, log_level="warning", access_log=False)
+        # Import app object directly (reliable in PyInstaller bundles)
+        from backend.main import app as fastapi_app
+        config = uvicorn.Config(fastapi_app, host=HOST, port=PORT, log_level="warning", access_log=False)
+        server = uvicorn.Server(config)
+        server.run()
     
     def wait_for_server(self, timeout=30):
         """等待服务器启动完成。"""
@@ -324,6 +360,10 @@ class DestinyApp:
 
 
 def main():
+    # CRITICAL for PyInstaller on Windows — must be first thing
+    import multiprocessing
+    multiprocessing.freeze_support()
+    
     try:
         logger.info("=== 命运 DESTINY 启动 ===")
         logger.info("Python: %s", sys.version)
@@ -338,10 +378,27 @@ def main():
     except Exception as e:
         error_msg = f"应用启动失败:\n\n{str(e)}\n\n{traceback.format_exc()}"
         logger.critical(error_msg)
-        print(error_msg)
         show_error_dialog("命运 - 启动错误", error_msg)
         sys.exit(1)
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        # Absolute last resort — write crash to desktop file
+        import traceback as _tb
+        _msg = f"命运 (DESTINY) 致命错误\n\n{e}\n\n{_tb.format_exc()}"
+        try:
+            if sys.platform == "win32":
+                _desktop = Path(os.environ.get("USERPROFILE", "")) / "Desktop"
+            else:
+                _desktop = Path.home() / "Desktop"
+            with open(_desktop / "Destiny-错误报告.txt", "w", encoding="utf-8") as f:
+                f.write(_msg)
+        except Exception:
+            pass
+        try:
+            show_error_dialog("命运 - 致命错误", _msg)
+        except Exception:
+            pass
