@@ -112,22 +112,28 @@ class DestinyApp:
         self.server_thread = None
         self.is_logged_in = False
         self.current_user = None
+        self.server_error = None  # Capture server thread errors
     
     def start_server(self):
         """在后台线程启动 FastAPI 服务器。"""
-        backend_dir = PROJECT_DIR / "backend"
-        for p in [str(backend_dir), str(PROJECT_DIR)]:
-            if p not in sys.path:
-                sys.path.insert(0, p)
-        os.chdir(PROJECT_DIR)
-        
-        logger.info("Starting uvicorn server on %s:%s", HOST, PORT)
-        import uvicorn
-        # Import app object directly (reliable in PyInstaller bundles)
-        from backend.main import app as fastapi_app
-        config = uvicorn.Config(fastapi_app, host=HOST, port=PORT, log_level="warning", access_log=False)
-        server = uvicorn.Server(config)
-        server.run()
+        try:
+            backend_dir = PROJECT_DIR / "backend"
+            for p in [str(backend_dir), str(PROJECT_DIR)]:
+                if p not in sys.path:
+                    sys.path.insert(0, p)
+            os.chdir(PROJECT_DIR)
+            
+            logger.info("Starting uvicorn server on %s:%s", HOST, PORT)
+            import uvicorn
+            # Import app object directly (reliable in PyInstaller bundles)
+            from backend.main import app as fastapi_app
+            logger.info("FastAPI app imported successfully")
+            config = uvicorn.Config(fastapi_app, host=HOST, port=PORT, log_level="warning", access_log=False)
+            server = uvicorn.Server(config)
+            server.run()
+        except Exception as e:
+            self.server_error = f"{e}\n\n{traceback.format_exc()}"
+            logger.error("Server thread error: %s", self.server_error)
     
     def wait_for_server(self, timeout=30):
         """等待服务器启动完成。"""
@@ -310,7 +316,12 @@ class DestinyApp:
         # 等待服务器就绪
         logger.info("Waiting for server...")
         if not self.wait_for_server(timeout=30):
-            show_error_dialog("启动错误", "服务启动超时（30秒），请检查端口是否被占用。")
+            if self.server_error:
+                error_msg = f"服务器启动失败:\n\n{self.server_error}"
+            else:
+                error_msg = "服务启动超时（30秒），请检查端口是否被占用。\n\n" \
+                           f"地址: {URL}\n日志: {LOG_FILE}"
+            show_error_dialog("启动错误", error_msg)
             sys.exit(1)
         
         logger.info("Server ready, opening window...")
