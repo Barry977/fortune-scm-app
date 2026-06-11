@@ -317,20 +317,28 @@ async def is_logged_in(page=None) -> bool:
         return False
 
 
-async def login(email: str = "", password: str = "") -> bool:
-    """Log in to LinkedIn. Falls back to env vars if credentials not provided."""
+async def login(email: str = "", password: str = "") -> dict:
+    """Log in to LinkedIn. Returns {success, message} with details."""
     if not HAS_PLAYWRIGHT:
-        raise RuntimeError('Playwright 未安装。请运行: pip install playwright && playwright install chromium')
+        return {"success": False, "message": "Playwright 未安装，请重新安装应用"}
+
     email = email or LINKEDIN_EMAIL
     password = password or LINKEDIN_PASSWORD
-    page = await _get_page()
 
-    if await is_logged_in(page):
-        return True
+    try:
+        page = await _get_page()
+    except Exception as e:
+        logger.error("Failed to launch browser: %s", e)
+        return {"success": False, "message": f"浏览器启动失败: {str(e)[:200]}"}
+
+    try:
+        if await is_logged_in(page):
+            return {"success": True, "message": "已登录"}
+    except Exception as e:
+        logger.error("Login check failed: %s", e)
 
     if not email or not password:
-        logger.warning("No LinkedIn credentials configured")
-        return False
+        return {"success": False, "message": "请先配置 LinkedIn 账号密码（在 AI配置 页面设置，或点击登录时输入）"}
 
     try:
         await page.goto("https://www.linkedin.com/login", wait_until="domcontentloaded", timeout=30000)
@@ -349,10 +357,17 @@ async def login(email: str = "", password: str = "") -> bool:
                 continue
 
         await asyncio.sleep(8)
-        return "feed" in page.url
+        if "feed" in page.url:
+            return {"success": True, "message": "登录成功"}
+        elif "checkpoint" in page.url or "challenge" in page.url:
+            return {"success": False, "message": "需要验证（验证码/二次验证），请手动登录"}
+        elif "login" in page.url:
+            return {"success": False, "message": "账号或密码错误"}
+        else:
+            return {"success": False, "message": f"登录状态未知，当前页面: {page.url[:100]}"}
     except Exception as e:
         logger.error("Login failed: %s", e)
-        return False
+        return {"success": False, "message": f"登录异常: {str(e)[:200]}"}
 
 
 # ── Core LinkedIn operations ────────────────────────────────────────

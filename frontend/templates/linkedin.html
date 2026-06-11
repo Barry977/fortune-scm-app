@@ -412,6 +412,26 @@
         <!-- 连接状态 -->
         <div id="statusBar" style="margin-bottom:20px"></div>
 
+        <!-- LinkedIn 登录弹窗 -->
+        <div id="credentialDialog" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+            <div style="background:white;border-radius:12px;padding:32px;width:400px;max-width:90vw">
+                <h3 style="margin:0 0 8px;font-size:18px">🔐 LinkedIn 登录</h3>
+                <p style="margin:0 0 20px;font-size:13px;color:#666">输入你的 LinkedIn 账号密码，或留空使用已保存的凭据</p>
+                <div style="margin-bottom:16px">
+                    <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px">邮箱</label>
+                    <input type="email" id="liEmail" placeholder="your@email.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box">
+                </div>
+                <div style="margin-bottom:24px">
+                    <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px">密码</label>
+                    <input type="password" id="liPassword" placeholder="••••••••" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box">
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end">
+                    <button class="btn btn-secondary" onclick="closeDialog()">取消</button>
+                    <button class="btn btn-primary" onclick="doLogin()">登录</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 统计卡片 -->
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
@@ -764,14 +784,25 @@
 
         // ── 登录 LinkedIn ──
         async function loginLinkedIn() {
+            // Show credential dialog first
+            const dialog = document.getElementById('credentialDialog');
+            dialog.style.display = 'flex';
+        }
+
+        async function doLogin() {
+            const email = document.getElementById('liEmail').value.trim();
+            const password = document.getElementById('liPassword').value;
+            const dialog = document.getElementById('credentialDialog');
+            dialog.style.display = 'none';
+
             const btn = document.getElementById('loginBtn');
             btn.disabled = true;
             btn.textContent = '⏳ 登录中...';
 
             try {
-                const data = await apiFetch(`${API_PREFIX}/login`, 'POST', {});
+                const data = await apiFetch(`${API_PREFIX}/login`, 'POST', { email, password });
                 if (data.success) {
-                    showToast('LinkedIn 登录成功！');
+                    showToast(data.message || 'LinkedIn 登录成功！');
                     loadStatus();
                 } else {
                     showToast(data.message || '登录失败', 'error');
@@ -783,6 +814,10 @@
                 btn.disabled = false;
                 btn.textContent = '▶ 登录LinkedIn';
             }
+        }
+
+        function closeDialog() {
+            document.getElementById('credentialDialog').style.display = 'none';
         }
 
         // ── 停止自动化 ──

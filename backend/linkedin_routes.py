@@ -98,12 +98,10 @@ async def get_daily_quota(current_user=Depends(get_current_user)):
 async def linkedin_login(req: LoginRequest = LoginRequest(), current_user=Depends(get_current_user)):
     """Launch browser and log in to LinkedIn."""
     try:
-        success = await login(email=req.email, password=req.password)
-        if success:
-            return {"success": True, "message": "LinkedIn login successful"}
-        return {"success": False, "message": "Login failed — check credentials or log in manually"}
+        result = await login(email=req.email, password=req.password)
+        return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return {"success": False, "message": str(e)[:300]}
 
 
 @router.post("/search")
