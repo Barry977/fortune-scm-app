@@ -18,6 +18,25 @@ from backend.database import get_db_ctx
 
 logger = logging.getLogger(__name__)
 
+
+def _run_async(coro):
+    """Run async coroutine from sync context, handling both cases:
+    - Inside running event loop (FastAPI request): use new thread
+    - Outside event loop (APScheduler thread): use asyncio.run()
+    """
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            future = pool.submit(asyncio.run, coro)
+            return future.result(timeout=120)
+    else:
+        return asyncio.run(coro)
+
 # ---------------------------------------------------------------------------
 # Singleton scheduler instance
 # ---------------------------------------------------------------------------
@@ -51,7 +70,7 @@ def _task_linkedin_connect():
     logger.info("[Scheduler] Running LinkedIn batch connect")
     try:
         from backend.linkedin_service import send_connections
-        result = asyncio.run(send_connections(count=5))
+        result = _run_async(send_connections(count=5))
         return {"success": True, "result": result}
     except Exception as e:
         logger.error("[Scheduler] LinkedIn connect failed: %s", e)
@@ -63,7 +82,7 @@ def _task_linkedin_message():
     logger.info("[Scheduler] Running LinkedIn batch message")
     try:
         from backend.linkedin_service import send_messages
-        result = asyncio.run(send_messages(count=5))
+        result = _run_async(send_messages(count=5))
         return {"success": True, "result": result}
     except Exception as e:
         logger.error("[Scheduler] LinkedIn message failed: %s", e)
@@ -75,7 +94,7 @@ def _task_linkedin_daily_post():
     logger.info("[Scheduler] Running daily LinkedIn post")
     try:
         from backend.linkedin_scheduler import daily_post_task
-        result = asyncio.run(daily_post_task())
+        result = _run_async(daily_post_task())
         return result
     except Exception as e:
         logger.error("[Scheduler] Daily post failed: %s", e)
@@ -96,7 +115,7 @@ def _task_auto_import():
             {"keywords": "shipping coordinator", "market": "ME", "max_results": 20},
         ]
         
-        result = asyncio.run(auto_import_batch(search_configs))
+        result = _run_async(auto_import_batch(search_configs))
         return result
     except Exception as e:
         logger.error("[Scheduler] Auto-import failed: %s", e)
@@ -404,7 +423,45 @@ def manual_run(task_id: int) -> Dict[str, Any]:
     if not func:
         return {"success": False, "error": f"No implementation for task '{task['name']}'"}
 
-    # Run synchronously so the caller gets the result
-    result = _run_task_wrapper(task["name"], func)
-    # _run_task_wrapper returns None (it writes to DB), so fetch updated task
-    return {"success": True, "task": get_task(task_id)}
+    # Run and capture actual result
+    try:
+        result = func()
+        result_json = json.dumps(result, ensure_ascii=False, default=str) if result else "{}"
+        now = datetime.now().isoformat()
+        with get_db_ctx() as conn:
+            conn.execute(
+                "UPDATE scheduler_tasks SET last_run = ?, last_result = ?, updated_at = ? WHERE name = ?",
+                (now, result_json, now, task["name"]),
+            )
+        if result and not result.get("success", True):
+            return {"success": False, "error": result.get("error", "任务执行失败"), "task": get_task(task_id)}
+        return {"success": True, "message": _format_task_result(task["name"], result), "task": get_task(task_id)}
+    except Exception as e:
+        error_msg = str(e)[:300]
+        logger.error("Manual run failed for %s: %s", task["name"], e)
+        now = datetime.now().isoformat()
+        with get_db_ctx() as conn:
+            conn.execute(
+                "UPDATE scheduler_tasks SET last_run = ?, last_result = ?, updated_at = ? WHERE name = ?",
+                (now, json.dumps({"success": False, "error": error_msg}), now, task["name"]),
+            )
+        return {"success": False, "error": error_msg, "task": get_task(task_id)}
+
+
+def _format_task_result(task_name: str, result: Any) -> str:
+    """Format task result into a human-readable message."""
+    if not result:
+        return "执行完成"
+    if isinstance(result, dict):
+        if result.get("error"):
+            return f"失败: {result['error'][:100]}"
+        if task_name == "linkedin_connect":
+            return f"已发送 {result.get('sent', 0)} 个连接请求，失败 {result.get('failed', 0)}"
+        if task_name == "linkedin_message":
+            return f"已发送 {result.get('sent', 0)} 条消息，失败 {result.get('failed', 0)}"
+        if task_name == "cold_email":
+            sent = result.get("sent", result.get("result", {}).get("sent", 0))
+            return f"已发送 {sent} 封邮件"
+        if result.get("message"):
+            return result["message"][:100]
+    return "执行完成"

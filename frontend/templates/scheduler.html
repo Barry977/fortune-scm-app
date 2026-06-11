@@ -592,10 +592,18 @@
 
             try {
                 const data = await apiFetch(`${API_PREFIX}/run/${taskId}`, 'POST');
-                showToast('任务已执行: ' + (data.message || '成功'));
+                showToast('✅ ' + (data.message || '任务已执行'));
             } catch (e) {
-                console.error('runTask error:', e);
-                showToast('执行失败: ' + e.message, 'error');
+                // Extract error detail from HTTP 400 response
+                let msg = e.message;
+                try {
+                    const match = msg.match(/HTTP 4\d\d: (.+)/);
+                    if (match) {
+                        const detail = JSON.parse(match[1]);
+                        msg = detail.detail || msg;
+                    }
+                } catch {}
+                showToast('❌ ' + msg, 'error');
             } finally {
                 btn.textContent = origText;
                 btn.disabled = false;
