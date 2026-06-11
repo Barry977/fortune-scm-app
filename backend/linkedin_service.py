@@ -37,7 +37,15 @@ _BROWSER_DIR = os.path.join(_USER_DATA_DIR, "chromium")
 
 
 def _ensure_chromium():
-    """Set PLAYWRIGHT_BROWSERS_PATH and download Chromium if needed."""
+    """Set PLAYWRIGHT_BROWSERS_PATH. Download Chromium in dev mode only."""
+    IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
+
+    if IS_BUNDLED:
+        # In PyInstaller bundle: tell Playwright to use its bundled Chromium
+        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
+        return
+
+    # Development mode: use custom download path
     import subprocess
     os.environ["PLAYWRIGHT_BROWSERS_PATH"] = _BROWSER_DIR
 
@@ -65,7 +73,14 @@ def _ensure_chromium():
 # ── Config ──────────────────────────────────────────────────────────
 
 # Profile directory: app-local data dir (supports PyInstaller bundle)
-PROFILE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'linkedin-profile')
+if getattr(sys, '_MEIPASS', None) is not None:
+    # Bundled mode: use user-writable directory
+    if sys.platform == "win32":
+        PROFILE_DIR = os.path.join(os.environ.get("APPDATA", ""), ".destiny", "linkedin-profile")
+    else:
+        PROFILE_DIR = os.path.join(os.path.expanduser("~"), ".destiny", "linkedin-profile")
+else:
+    PROFILE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'linkedin-profile')
 
 def _detect_system_proxy() -> str:
     """Auto-detect system proxy. Checks:
