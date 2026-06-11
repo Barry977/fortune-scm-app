@@ -228,6 +228,7 @@ async def linkedin_page(request: Request):
 
 @app.get("/ai_config", response_class=HTMLResponse)
 @app.get("/ai_config.html", response_class=HTMLResponse)
+@app.get("/ai-config", response_class=HTMLResponse)
 async def ai_config_page(request: Request):
     return _render("ai_config.html", request)
 

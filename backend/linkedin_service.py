@@ -186,7 +186,7 @@ def get_config() -> Dict[str, Any]:
     return {
         "profile_dir": PROFILE_DIR,
         "proxy": PROXY,
-        "chrome_path": CHROME_PATH,
+        "has_playwright": HAS_PLAYWRIGHT,
     }
 
 
