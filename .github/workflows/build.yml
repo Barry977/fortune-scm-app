@@ -28,6 +28,24 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Install Playwright Chromium
+        shell: pwsh
+        run: |
+          python -m playwright install chromium
+          # Find and print Chromium path for debugging
+          $browsersPath = "$env:LOCALAPPDATA\ms-playwright"
+          if (Test-Path $browsersPath) {
+            Get-ChildItem $browsersPath | Select-Object Name
+            Write-Host "Chromium installed at: $browsersPath"
+          } else {
+            Write-Host "Default path not found, checking alternatives..."
+            $homePath = "$env:USERPROFILE\.cache\ms-playwright"
+            if (Test-Path $homePath) {
+              Get-ChildItem $homePath | Select-Object Name
+              Write-Host "Chromium installed at: $homePath"
+            }
+          }
+
       - name: Build Windows app
         run: python build.py
 

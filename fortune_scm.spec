@@ -32,6 +32,42 @@ datas += _bd
 binaries_extra = _bi
 hiddenimports_extra = _hi
 
+# Collect playwright (includes Chromium browser binaries)
+_pd, _pi, _ph = _collect_all('playwright')
+datas += _pd
+binaries_extra += _pi
+hiddenimports_extra += _ph
+
+# Include Playwright's downloaded Chromium browser
+import glob as _glob
+_pw_browser_dirs = []
+if sys.platform == 'win32':
+    _candidates = [
+        os.path.join(os.environ.get('LOCALAPPDATA', ''), 'ms-playwright'),
+        os.path.join(os.path.expanduser('~'), '.cache', 'ms-playwright'),
+    ]
+else:
+    _candidates = [
+        os.path.join(os.path.expanduser('~'), 'Library', 'Caches', 'ms-playwright'),
+        os.path.join(os.path.expanduser('~'), '.cache', 'ms-playwright'),
+    ]
+for _cand in _candidates:
+    if os.path.isdir(_cand):
+        _pw_browser_dirs.append(_cand)
+        break
+
+if _pw_browser_dirs:
+    for _pw_dir in _pw_browser_dirs:
+        # Add each subdirectory (chromium-xxx, ffmpeg-xxx, etc.)
+        for _entry in os.listdir(_pw_dir):
+            _entry_path = os.path.join(_pw_dir, _entry)
+            if os.path.isdir(_entry_path):
+                datas.append((_entry_path, os.path.join('playwright-browsers', _entry)))
+                print(f"  Including: {_entry}")
+        break
+else:
+    print("WARNING: Playwright browser directory not found! LinkedIn features may not work.")
+
 # Add hidden imports for backend modules
 hiddenimports = [
     'uvicorn',
@@ -93,6 +129,9 @@ hiddenimports = [
     'backend.crm_schemas',
     'backend.email_schemas',
     'backend.linkedin_schemas',
+    'playwright',
+    'playwright.async_api',
+    'playwright.sync_api',
 ]
 
 a = Analysis(

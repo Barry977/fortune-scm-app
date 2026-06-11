@@ -41,8 +41,15 @@ def _ensure_chromium():
     IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
 
     if IS_BUNDLED:
-        # In PyInstaller bundle: tell Playwright to use its bundled Chromium
-        os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
+        # In PyInstaller bundle: point to bundled Chromium
+        bundled_browsers = os.path.join(sys._MEIPASS, 'playwright-browsers')
+        if os.path.isdir(bundled_browsers):
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = bundled_browsers
+            logger.info("Using bundled Chromium: %s", bundled_browsers)
+        else:
+            # Fallback: try default Playwright browser path
+            os.environ["PLAYWRIGHT_BROWSERS_PATH"] = "0"
+            logger.warning("Bundled Chromium not found at %s, using fallback", bundled_browsers)
         return
 
     # Development mode: use custom download path
