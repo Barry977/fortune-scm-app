@@ -69,19 +69,36 @@ class PostStatsRequest(BaseModel):
 async def get_status(current_user=Depends(get_current_user)):
     """Get LinkedIn automation status: browser state + customer stats."""
     try:
-        from backend.linkedin_service import is_browser_running
+        from backend.linkedin_service import is_browser_running, HAS_PLAYWRIGHT
         browser_alive = is_browser_running()
         from backend.crm import get_customer_stats
         stats = get_customer_stats()
+
+        # Determine detailed status
+        if not HAS_PLAYWRIGHT:
+            status_detail = "playwright_missing"
+            status_text = "Playwright 未安装"
+        elif not browser_alive:
+            status_detail = "disconnected"
+            status_text = "浏览器未启动"
+        else:
+            status_detail = "connected"
+            status_text = "浏览器运行中"
+
         return {
-            "is_logged_in": browser_alive,
+            "is_logged_in": browser_alive and HAS_PLAYWRIGHT,
+            "status_detail": status_detail,
+            "status_text": status_text,
+            "has_playwright": HAS_PLAYWRIGHT,
             "customer_stats": stats,
         }
     except Exception as e:
         return {
             "is_logged_in": False,
+            "status_detail": "error",
+            "status_text": f"状态检查失败: {str(e)[:100]}",
+            "has_playwright": False,
             "customer_stats": {"total_customers": 0, "by_status": {}},
-            "error": str(e),
         }
 
 
