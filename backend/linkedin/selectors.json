@@ -1,0 +1,195 @@
+{
+  "_comment": "LinkedIn选择器配置 - 每个元素多种选择器策略，LinkedIn改版时只需更新此文件",
+  "_updated": "2026-06-10",
+
+  "login": {
+    "email_input": [
+      "input#username",
+      "input[name='session_key']",
+      "input[type='email']",
+      "input[autocomplete='username']"
+    ],
+    "password_input": [
+      "input#password",
+      "input[name='session_password']",
+      "input[type='password']",
+      "input[autocomplete='current-password']"
+    ],
+    "submit_button": [
+      "button[type='submit']",
+      "button:has-text('Sign in')",
+      "button:has-text('登录')",
+      "input[type='submit']"
+    ],
+    "logged_in_indicator": [
+      "div.feed-identity-module",
+      "div.global-nav__me",
+      "img.global-nav__me-photo",
+      "a[href*='/feed/']"
+    ],
+    "captcha": [
+      "div#captcha-challenge",
+      "iframe[src*='checkpoint/challenge']",
+      "div.challenge-dialog"
+    ],
+    "verification": [
+      "input[name='pin']",
+      "div[aria-label*='verification']",
+      "div[aria-label*='verify']"
+    ]
+  },
+
+  "search": {
+    "result_container": [
+      "li.reusable-search__result-container",
+      "li.artdeco-list__item",
+      "div.entity-result",
+      "div.search-results__list li"
+    ],
+    "profile_link": [
+      "a[href*='/in/']",
+      "a.app-aware-link[href*='/in/']",
+      "span.entity-result__title-text a"
+    ],
+    "name": [
+      "span[aria-hidden='true']",
+      "span.entity-result__title-text a span",
+      ".entity-result__title-text span"
+    ],
+    "title": [
+      "div.entity-result__primary-subtitle",
+      "div.t-14.t-black.t-normal",
+      ".entity-result__summary"
+    ],
+    "location": [
+      "div.entity-result__secondary-subtitle",
+      "div.t-14.t-normal.t-black--light"
+    ],
+    "connect_button_in_result": [
+      "button:has-text('Connect')",
+      "button:has-text('连接')",
+      "button[aria-label*='Connect']",
+      "button[aria-label*='邀请']"
+    ],
+    "next_page": [
+      "button:has-text('Next')",
+      "button:has-text('下一页')",
+      "button.artdeco-pagination__button--next",
+      "li.artdeco-pagination__indicator--number.active + li button"
+    ]
+  },
+
+  "connect": {
+    "connect_button": [
+      "button:has-text('Connect')",
+      "button:has-text('连接')",
+      "button[aria-label*='Connect']",
+      "button[aria-label*='Invite']",
+      "button.pvs-profile-actions__action"
+    ],
+    "add_note_button": [
+      "button:has-text('Add a note')",
+      "button:has-text('添加备注')",
+      "button[aria-label*='Add a note']",
+      "button.artdeco-button--muted:has-text('note')"
+    ],
+    "note_textarea": [
+      "textarea",
+      "textarea#custom-message",
+      "textarea[name='message']",
+      "div[contenteditable='true']"
+    ],
+    "send_button": [
+      "button:has-text('Send')",
+      "button:has-text('发送')",
+      "button[aria-label*='Send invitation']",
+      "button[aria-label*='Send now']",
+      "button.artdeco-button--primary"
+    ],
+    "already_connected": [
+      "button:has-text('Pending')",
+      "button:has-text('待处理')",
+      "button:has-text('Message')",
+      "span:has-text('1st')"
+    ],
+    "dismiss_popup": [
+      "button:has-text('Done')",
+      "button:has-text('Close')",
+      "button[aria-label='Dismiss']",
+      "button.artdeco-modal__dismiss"
+    ]
+  },
+
+  "message": {
+    "message_button": [
+      "button:has-text('Message')",
+      "button:has-text('消息')",
+      "button[aria-label*='Message']",
+      "a[href*='/messaging/']"
+    ],
+    "editor": [
+      "div[role='textbox']",
+      "div[contenteditable='true']",
+      "div.msg-form__contenteditable",
+      "div.ql-editor"
+    ],
+    "send_button": [
+      "button[type='submit']:has-text('Send')",
+      "button.msg-form__send-button",
+      "button:has-text('Send')",
+      "button[aria-label*='Send']"
+    ],
+    "conversation_close": [
+      "button:has-text('Close')",
+      "button[aria-label*='Close your conversation']",
+      "button.msg-overlay-bubble-header__control"
+    ]
+  },
+
+  "post": {
+    "start_post_button": [
+      "button:has-text('Start a post')",
+      "button:has-text('开始发帖')",
+      "button.share-box-feed-entry__trigger",
+      "div.share-box-feed-entry__top-bar"
+    ],
+    "editor": [
+      "div[role='textbox'][contenteditable='true']",
+      "div.ql-editor[contenteditable='true']",
+      "div[contenteditable='true']"
+    ],
+    "post_button": [
+      "button:has-text('Post')",
+      "button:has-text('发布')",
+      "button.share-actions__primary-action"
+    ],
+    "add_photo_button": [
+      "button:has-text('Add a photo')",
+      "button:has-text('添加图片')",
+      "button[aria-label*='image']",
+      "button[aria-label*='photo']"
+    ],
+    "file_input": [
+      "input[type='file'][accept*='image']",
+      "input[type='file']"
+    ],
+    "done_button": [
+      "button:has-text('Done')",
+      "button:has-text('完成')"
+    ]
+  },
+
+  "common": {
+    "dismiss_overlay": [
+      "button[aria-label='Dismiss']",
+      "button:has-text('Got it')",
+      "button:has-text('知道了')",
+      "button.artdeco-modal__dismiss"
+    ],
+    "loading_spinner": [
+      ".artdeco-loader",
+      ".loading-spinner",
+      "div[role='progressbar']"
+    ]
+  }
+}

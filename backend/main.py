@@ -91,12 +91,19 @@ async def startup():
     # Start the task scheduler
     from backend.scheduler import init_scheduler
     init_scheduler()
+    # Start LinkedIn task engine
+    from backend.linkedin import get_engine
+    engine = get_engine()
+    await engine.start()
 
 
 @app.on_event("shutdown")
 async def shutdown():
     from backend.scheduler import shutdown_scheduler
     shutdown_scheduler()
+    # Stop LinkedIn task engine and close browser
+    from backend.linkedin import shutdown as linkedin_shutdown
+    await linkedin_shutdown()
 
 
 # ========== 认证接口 ==========
@@ -223,8 +230,9 @@ async def dashboard_page(request: Request):
 
 @app.get("/linkedin", response_class=HTMLResponse)
 @app.get("/linkedin.html", response_class=HTMLResponse)
+@app.get("/acquisition", response_class=HTMLResponse)
 async def linkedin_page(request: Request):
-    return _render("linkedin.html", request)
+    return _render("acquisition.html", request)
 
 @app.get("/ai_config", response_class=HTMLResponse)
 @app.get("/ai_config.html", response_class=HTMLResponse)

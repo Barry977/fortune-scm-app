@@ -69,8 +69,9 @@ def _task_linkedin_connect():
     """Daily LinkedIn batch connection requests."""
     logger.info("[Scheduler] Running LinkedIn batch connect")
     try:
-        from backend.linkedin_service import send_connections
-        result = _run_async(send_connections(count=5))
+        from backend.linkedin import get_ops
+        ops = get_ops()
+        result = _run_async(ops.batch_connect(count=5))
         return {"success": True, "result": result}
     except Exception as e:
         logger.error("[Scheduler] LinkedIn connect failed: %s", e)
@@ -81,8 +82,9 @@ def _task_linkedin_message():
     """Daily LinkedIn batch messaging."""
     logger.info("[Scheduler] Running LinkedIn batch message")
     try:
-        from backend.linkedin_service import send_messages
-        result = _run_async(send_messages(count=5))
+        from backend.linkedin import get_ops
+        ops = get_ops()
+        result = _run_async(ops.batch_message(count=5))
         return {"success": True, "result": result}
     except Exception as e:
         logger.error("[Scheduler] LinkedIn message failed: %s", e)

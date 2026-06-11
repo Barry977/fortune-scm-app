@@ -101,7 +101,6 @@ hiddenimports = [
     'backend.main',
     'backend.auth',
     'backend.database',
-    'backend.linkedin_service',
     'backend.linkedin_routes',
     'backend.ai_content',
     'backend.ai_content_routes',
@@ -128,10 +127,18 @@ hiddenimports = [
     'backend.ai_config_schemas',
     'backend.crm_schemas',
     'backend.email_schemas',
-    'backend.linkedin_schemas',
+    'backend.linkedin',
+    'backend.linkedin.browser_adapter',
+    'backend.linkedin.linkedin_ops',
+    'backend.linkedin.task_engine',
     'playwright',
     'playwright.async_api',
     'playwright.sync_api',
+    'pystray',
+    'pystray._base',
+    'PIL',
+    'PIL.Image',
+    'PIL.ImageDraw',
 ]
 
 a = Analysis(

@@ -112,7 +112,9 @@ class DestinyApp:
         self.server_thread = None
         self.is_logged_in = False
         self.current_user = None
-        self.server_error = None  # Capture server thread errors
+        self.server_error = None
+        self._tray_icon = None
+        self._quit_flag = False
     
     def start_server(self):
         """在后台线程启动 FastAPI 服务器。"""
@@ -213,7 +215,7 @@ class DestinyApp:
                     {"label": "刷新", "command": self.reload_page},
                     {"label": "首页", "command": self.go_home},
                     {"type": "separator"},
-                    {"label": "退出", "command": self.quit_app}
+                    {"label": "退出", "command": self.quit_app_from_menu}
                 ]
             },
             {
@@ -251,10 +253,9 @@ class DestinyApp:
         if self.window:
             self.window.load_url(f"{URL}{path}")
     
-    def quit_app(self):
-        """退出应用"""
-        if self.window:
-            self.window.destroy()
+    def quit_app_from_menu(self):
+        """从菜单退出应用"""
+        self.quit_app()
     
     def show_about(self):
         """显示关于对话框"""
@@ -299,12 +300,73 @@ class DestinyApp:
                 if self._app.window:
                     self._app.window.minimize()
             
+            def minimize_to_tray(self):
+                """最小化到系统托盘"""
+                self._app.hide_to_tray()
+            
             def toggle_fullscreen(self):
                 """切换全屏"""
                 if self._app.window:
                     self._app.window.toggle_fullscreen()
         
         return JSAPI(self)
+    
+    def hide_to_tray(self):
+        """隐藏窗口到系统托盘"""
+        if self.window:
+            self.window.hide()
+            logger.info("Window hidden to tray")
+    
+    def show_from_tray(self):
+        """从托盘恢复窗口"""
+        if self.window:
+            self.window.show()
+            self.window.restore()
+            logger.info("Window restored from tray")
+    
+    def quit_app(self):
+        """真正退出应用"""
+        logger.info("Quit requested")
+        self._quit_flag = True
+        if self._tray_icon:
+            self._tray_icon.stop()
+        if self.window:
+            self.window.destroy()
+    
+    def setup_tray(self):
+        """创建系统托盘图标"""
+        try:
+            import pystray
+            from PIL import Image, ImageDraw
+            
+            # 生成一个简单的图标（金色箭头）
+            size = 64
+            img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+            draw = ImageDraw.Draw(img)
+            # 画一个向上的箭头
+            draw.polygon([(32, 8), (52, 38), (40, 38), (40, 56), (24, 56), (24, 38), (12, 38)], fill=(251, 191, 36, 255))
+            
+            def on_show(icon, item):
+                self.show_from_tray()
+            
+            def on_quit(icon, item):
+                self.quit_app()
+            
+            menu = pystray.Menu(
+                pystray.MenuItem('显示窗口', on_show, default=True),
+                pystray.MenuItem('退出', on_quit),
+            )
+            
+            self._tray_icon = pystray.Icon(
+                'destiny', img, '命运 DESTINY', menu
+            )
+            
+            # 在后台线程运行托盘
+            threading.Thread(target=self._tray_icon.run, daemon=True).start()
+            logger.info("System tray icon created")
+        except Exception as e:
+            logger.warning("Failed to create tray icon: %s", e)
+            self._tray_icon = None
     
     def run(self):
         """运行应用"""
@@ -334,6 +396,9 @@ class DestinyApp:
         
         logger.info("Server ready, opening window...")
         
+        # 创建系统托盘
+        self.setup_tray()
+        
         # 创建原生窗口（必须在主线程）
         try:
             import webview
@@ -350,13 +415,22 @@ class DestinyApp:
                 "height": 900,
                 "min_size": (1000, 700),
                 "resizable": True,
-                "confirm_close": True,
+                "confirm_close": False,
                 "text_select": True,
                 "js_api": js_api,
             }
             
             self.window = webview.create_window(**window_kwargs)
             logger.info("Window created, starting webview...")
+            
+            # 关闭窗口时最小化到托盘
+            def on_closing():
+                if not self._quit_flag:
+                    self.hide_to_tray()
+                    return False  # 阻止关闭
+                return True  # 允许关闭
+            
+            self.window.events.closing += on_closing
             
             # webview.start() 会阻塞直到窗口关闭
             webview.start(debug=not IS_BUNDLED)

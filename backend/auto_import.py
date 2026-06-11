@@ -13,7 +13,7 @@ from datetime import datetime, date
 from typing import Dict, Any, List, Optional
 
 from backend.database import get_db_ctx
-from backend.linkedin_service import search_people, _get_page, is_logged_in, login
+from backend.linkedin import get_ops
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +41,13 @@ async def auto_import_from_linkedin(
     
     try:
         # Search LinkedIn
-        results = await search_people(
+        ops = get_ops()
+        search_result = await ops.search_people(
             keywords=keywords,
             market=market,
             max_results=max_results,
         )
+        results = search_result.get("results", []) if search_result.get("success") else []
         
         if not results:
             return {
@@ -112,8 +114,8 @@ async def auto_import_from_linkedin(
         
         # Optionally send connection requests
         if auto_connect and imported > 0:
-            from backend.linkedin_service import send_connections
-            connect_result = await send_connections(count=min(imported, 10))
+            ops = get_ops()
+            connect_result = await ops.batch_connect(count=min(imported, 10))
             connected = connect_result.get('sent', 0)
         
         return {
@@ -225,7 +227,7 @@ async def sync_linkedin_activity():
     """
     try:
         from backend.linkedin_analytics import get_post_performance
-        from backend.linkedin_service import _get_page, is_logged_in, login
+        from backend.linkedin import get_ops
         
         # Get recent published posts
         with get_db_ctx() as conn:

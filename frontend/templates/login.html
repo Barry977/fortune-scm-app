@@ -5,312 +5,265 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>命运 - 登录</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: #0a0a0a;
+            background: #f5f5f5;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            -webkit-user-select: none;
         }
-        .login-container {
-            display: flex;
-            background: #0a0a0a;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            max-width: none;
-            border-radius: 0;
-            box-shadow: none;
-        }
-        .login-left {
-            flex: 1;
-            background: linear-gradient(135deg, #1a1700 0%, #2a2200 50%, #1a1700 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 60px 40px;
+
+        .login-card {
+            width: 360px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 36px 32px 28px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
             position: relative;
-            overflow: hidden;
         }
-        .login-left::before {
-            content: '';
+
+        /* 窗口控制按钮 */
+        .window-controls {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
-            border-radius: 50%;
-        }
-        .logo-section {
-            text-align: center;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-        }
-        .logo-icon {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-        }
-        .logo-text {
-            font-size: 36px;
-            font-weight: 700;
-            color: #fbbf24;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
-        }
-        .logo-english {
-            font-size: 18px;
-            color: #a1a1a1;
-            letter-spacing: 6px;
-        }
-        .slogan {
-            font-size: 14px;
-            color: #666;
-            margin-top: 30px;
-            text-align: center;
-            line-height: 1.6;
-            position: relative;
-            z-index: 1;
-        }
-        .login-right {
-            flex: 1;
-            padding: 60px 50px;
+            top: 10px;
+            right: 10px;
             display: flex;
-            flex-direction: column;
+            gap: 6px;
+        }
+        .win-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            background: #111111;
-        }
-        .login-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #ededed;
-            margin-bottom: 8px;
-        }
-        .login-subtitle {
             font-size: 14px;
-            color: #666;
-            margin-bottom: 40px;
+            transition: background 0.15s;
+            background: transparent;
+            color: #999;
         }
-        .form-group {
-            margin-bottom: 24px;
+        .win-btn:hover { background: #f0f0f0; color: #333; }
+        .win-btn.close:hover { background: #fee2e2; color: #dc2626; }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 28px;
         }
+        .logo svg { width: 48px; height: 48px; margin-bottom: 10px; }
+        .logo-name {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: 2px;
+        }
+        .logo-en {
+            font-size: 10px;
+            color: #999;
+            letter-spacing: 4px;
+            margin-top: 2px;
+        }
+
+        .form-group { margin-bottom: 16px; }
         .form-label {
             display: block;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
-            color: #a1a1a1;
-            margin-bottom: 8px;
+            color: #666;
+            margin-bottom: 6px;
         }
         .form-input {
             width: 100%;
-            padding: 14px 16px;
-            border: 1px solid #262626;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 14px;
-            background: #0a0a0a;
-            color: #ededed;
-            transition: border-color 0.2s;
+            background: #fff;
+            color: #333;
             outline: none;
+            transition: border-color 0.2s;
         }
         .form-input:focus {
             border-color: #fbbf24;
             box-shadow: 0 0 0 3px rgba(251,191,36,0.1);
         }
-        .form-input::placeholder {
-            color: #444;
-        }
+        .form-input::placeholder { color: #bbb; }
+
         .login-btn {
             width: 100%;
-            padding: 14px;
+            padding: 11px;
             background: #fbbf24;
-            color: #0a0a0a;
+            color: #1a1a1a;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
-            margin-top: 10px;
+            margin-top: 4px;
         }
-        .login-btn:hover {
-            background: #f59e0b;
-        }
+        .login-btn:hover { background: #f59e0b; }
+        .login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
         .form-footer {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 14px;
         }
         .remember-me {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 13px;
-            color: #666;
+            font-size: 12px;
+            color: #999;
             cursor: pointer;
         }
-        .remember-me input {
-            accent-color: #fbbf24;
-        }
+        .remember-me input { accent-color: #fbbf24; }
         .forgot-password {
-            font-size: 13px;
+            font-size: 12px;
             color: #fbbf24;
             text-decoration: none;
         }
-        .forgot-password:hover {
-            text-decoration: underline;
+        .forgot-password:hover { text-decoration: underline; }
+
+        .error-msg, .success-msg {
+            padding: 10px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
         }
-        .register-link {
+        .error-msg { background: #fee2e2; color: #dc2626; }
+        .success-msg { background: #d1fae5; color: #065f46; }
+
+        .version {
             text-align: center;
-            margin-top: 30px;
-            font-size: 14px;
-            color: #666;
-        }
-        .register-link a {
-            color: #fbbf24;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        .error-message {
-            background: rgba(239,68,68,0.15);
-            color: #ef4444;
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
-        }
-        .success-message {
-            background: rgba(34,197,94,0.15);
-            color: #22c55e;
-            padding: 10px 14px;
-            border-radius: 6px;
-            font-size: 13px;
-            margin-bottom: 16px;
-            display: none;
+            margin-top: 18px;
+            font-size: 11px;
+            color: #ccc;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-left">
-            <div class="logo-section">
-                <svg class="logo-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- 方案二：抽象飞机线条 -->
-                    <path d="M20 55 L50 20 L80 55" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M30 48 L50 28 L70 48" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="50" cy="60" r="5" fill="#fbbf24"/>
-                    <path d="M43 68 L50 60 L57 68" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
-                    <!-- 曙光黄光晕 -->
-                    <circle cx="50" cy="60" r="25" fill="#fbbf24" opacity="0.15"/>
-                </svg>
-                <div class="logo-text">命运</div>
-                <div class="logo-english">DESTINY</div>
-            </div>
-            <div class="slogan">
-                智能客户开发系统<br>
-                让每一次连接都充满可能
-            </div>
+    <div class="login-card">
+        <div class="window-controls">
+            <button class="win-btn" onclick="minimizeWindow()" title="最小化">─</button>
+            <button class="win-btn close" onclick="closeWindow()" title="关闭">✕</button>
         </div>
-        <div class="login-right">
-            <div class="login-title">欢迎回来</div>
-            <div class="login-subtitle">请登录您的账户</div>
-            
-            <div id="errorMessage" class="error-message"></div>
-            <div id="successMessage" class="success-message"></div>
-            
-            <form id="loginForm" onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label class="form-label">用户名</label>
-                    <input type="text" class="form-input" id="username" placeholder="请输入用户名" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">密码</label>
-                    <input type="password" class="form-input" id="password" placeholder="请输入密码" required>
-                </div>
-                <button type="submit" class="login-btn">登录</button>
-            </form>
-            
-            <div class="form-footer">
-                <label class="remember-me">
-                    <input type="checkbox"> 记住我
-                </label>
-                <a href="#" class="forgot-password">忘记密码？</a>
-            </div>
-            
-            <div class="register-link">
-                还没有账户？<a href="#" onclick="showRegister()">立即注册</a>
-            </div>
+
+        <div class="logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 55 L50 20 L80 55" stroke="#fbbf24" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M30 48 L50 28 L70 48" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <circle cx="50" cy="60" r="5" fill="#fbbf24"/>
+                <path d="M43 68 L50 60 L57 68" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div class="logo-name">命运</div>
+            <div class="logo-en">DESTINY</div>
         </div>
+
+        <div id="errorMsg" class="error-msg"></div>
+        <div id="successMsg" class="success-msg"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label class="form-label">用户名</label>
+                <input type="text" class="form-input" id="username" placeholder="请输入用户名" required autofocus>
+            </div>
+            <div class="form-group">
+                <label class="form-label">密码</label>
+                <input type="password" class="form-input" id="password" placeholder="请输入密码" required>
+            </div>
+            <button type="submit" class="login-btn" id="loginBtn">登录</button>
+        </form>
+
+        <div class="form-footer">
+            <label class="remember-me">
+                <input type="checkbox" id="rememberMe"> 记住我
+            </label>
+            <a href="#" class="forgot-password">忘记密码？</a>
+        </div>
+
+        <div class="version">v1.0.0</div>
     </div>
 
     <script>
         const API_BASE = window.location.origin;
-        
+
+        // 窗口控制 — 兼容 pywebview 和普通浏览器
+        function minimizeWindow() {
+            if (window.pywebview && window.pywebview.api) {
+                window.pywebview.api.minimize_window();
+            }
+        }
+        function closeWindow() {
+            if (window.pywebview && window.pywebview.api) {
+                // 最小化到托盘，而不是关闭
+                window.pywebview.api.minimize_to_tray();
+            } else {
+                window.close();
+            }
+        }
+
         async function handleLogin(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('errorMessage');
-            const successDiv = document.getElementById('successMessage');
-            
+            const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('errorMsg');
+            const successDiv = document.getElementById('successMsg');
+
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            
+            btn.disabled = true;
+            btn.textContent = '登录中...';
+
             try {
                 const formData = new URLSearchParams();
-                formData.append('username', username);
-                formData.append('password', password);
-                
+                formData.append('username', document.getElementById('username').value);
+                formData.append('password', document.getElementById('password').value);
+
                 const response = await fetch(`${API_BASE}/api/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: formData.toString()
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     localStorage.setItem('token', data.access_token);
                     localStorage.setItem('user', JSON.stringify(data.user));
                     successDiv.textContent = '登录成功，正在跳转...';
                     successDiv.style.display = 'block';
+                    // 保存token到本地文件
+                    if (window.pywebview && window.pywebview.api) {
+                        window.pywebview.api.save_token(data.access_token);
+                    }
                     setTimeout(() => {
                         window.location.href = '/dashboard.html';
-                    }, 1000);
+                    }, 800);
                 } else {
                     errorDiv.textContent = data.detail || '登录失败';
                     errorDiv.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = '登录';
                 }
             } catch (err) {
                 errorDiv.textContent = '网络错误，请稍后重试';
                 errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = '登录';
             }
         }
-        
-        function showRegister() {
-            // 跳转到注册页面或显示注册表单
-            alert('注册功能开发中');
-        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginForm').requestSubmit();
+        });
     </script>
 </body>
 </html>

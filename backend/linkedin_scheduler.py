@@ -51,9 +51,10 @@ async def daily_post_task():
         logger.info("[Scheduler] Generated post: %s...", post_content[:100])
         
         # Publish to LinkedIn
-        from backend.linkedin_service import create_post
+        from backend.linkedin import get_ops
+        ops = get_ops()
         
-        result = await create_post(content=post_content)
+        result = await ops.publish_post(content=post_content)
         
         if result.get("success"):
             logger.info("[Scheduler] Post published successfully")
@@ -81,15 +82,16 @@ async def daily_outreach_task():
     try:
         logger.info("[Scheduler] Starting daily outreach task")
         
-        from backend.linkedin_service import send_connections, send_messages
+        from backend.linkedin import get_ops
+        ops = get_ops()
         
         # Send 5 connection requests with AI-generated notes
-        connect_result = await send_connections(count=5)
+        connect_result = await ops.batch_connect(count=5)
         logger.info("[Scheduler] Connections: sent=%s, failed=%s", 
                     connect_result.get("sent"), connect_result.get("failed"))
         
         # Send 3 messages to connected customers
-        message_result = await send_messages(count=3)
+        message_result = await ops.batch_message(count=3)
         logger.info("[Scheduler] Messages: sent=%s, failed=%s",
                     message_result.get("sent"), message_result.get("failed"))
         
