@@ -718,6 +718,11 @@
                     bar.innerHTML = `<div class="status-indicator status-disconnected"><span class="status-dot"></span>${statusText}</div>`;
                 }
 
+                // 首次启动引导：没有 cookie 且未登录，自动弹登录框
+                if (!data.has_cookie && !data.login?.logged_in) {
+                    setTimeout(() => loginLinkedIn(), 500);
+                }
+
                 // 更新统计
                 const stats = data.customer_stats || {};
                 document.getElementById('statTotal').textContent = stats.total_customers || 0;

@@ -87,6 +87,10 @@ async def get_status(current_user=Depends(get_current_user)):
         from backend.crm import get_customer_stats
         stats = get_customer_stats()
 
+        # 是否有保存的 cookie（首次启动判断）
+        from backend.linkedin.browser_adapter import COOKIE_FILE
+        has_cookie = COOKIE_FILE.exists() and COOKIE_FILE.stat().st_size > 10
+
         return {
             "browser": {
                 "running": browser_running,
@@ -96,6 +100,7 @@ async def get_status(current_user=Depends(get_current_user)):
             "tasks": task_stats,
             "customers": stats,
             "selectors_version": _load_selectors().get("_updated", "unknown"),
+            "has_cookie": has_cookie,
         }
     except Exception as e:
         return {
@@ -103,6 +108,7 @@ async def get_status(current_user=Depends(get_current_user)):
             "login": {"logged_in": False, "status": f"状态检查失败: {str(e)[:100]}"},
             "tasks": {"total_tasks": 0, "by_status": {}},
             "customers": {"total_customers": 0, "by_status": {}},
+            "has_cookie": False,
         }
 
 
