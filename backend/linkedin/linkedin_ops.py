@@ -75,14 +75,29 @@ async def _find_and_click(page, section: str, element: str, timeout: int = 5000)
 
 
 async def _find_and_fill(page, section: str, element: str, text: str, timeout: int = 5000) -> bool:
-    """查找并填写文本"""
+    """查找并填写文本（模拟人类打字）"""
     loc, sel = await _find_element(page, section, element, timeout)
     if loc:
         try:
-            await loc.first.fill(text, timeout=timeout)
+            # 先点击获取焦点
+            await loc.first.click(timeout=timeout)
+            await asyncio.sleep(random.uniform(0.1, 0.3))
+            
+            # 清空现有内容
+            await loc.first.press("Control+a")
+            await asyncio.sleep(random.uniform(0.05, 0.15))
+            
+            # 使用 type 模拟逐字输入（而非 fill 直接设置值）
+            await loc.first.type(text, delay=random.randint(50, 150))
             return True
         except Exception as e:
             logger.debug("[Fill] 填写失败 (%s): %s", sel, e)
+            # fallback: 尝试 fill
+            try:
+                await loc.first.fill(text, timeout=timeout)
+                return True
+            except Exception:
+                pass
     return False
 
 
@@ -167,22 +182,38 @@ class LinkedInOps:
         logger.info("[Login] 开始登录")
 
         try:
+            # 先访问LinkedIn首页（建立session）
+            await page.goto("https://www.linkedin.com/", wait_until="domcontentloaded", timeout=30000)
+            await asyncio.sleep(random.uniform(2, 4))
+            
+            # 然后导航到登录页
             await page.goto("https://www.linkedin.com/login", wait_until="domcontentloaded", timeout=30000)
-            await asyncio.sleep(3)
+            await asyncio.sleep(random.uniform(2, 4))
 
-            # 填写邮箱
+            # 模拟人类行为：先点击页面其他位置
+            await page.mouse.move(random.randint(100, 500), random.randint(100, 300))
+            await asyncio.sleep(random.uniform(0.3, 0.8))
+
+            # 填写邮箱（模拟打字）
             email_filled = await _find_and_fill(page, "login", "email_input", email)
             if not email_filled:
                 return {"success": False, "status": "error", "message": "找不到邮箱输入框"}
 
-            await asyncio.sleep(random.uniform(0.3, 0.8))
+            # 模拟打字间隔
+            await asyncio.sleep(random.uniform(0.5, 1.2))
 
+            # 点击密码框（而不是直接填）
+            pwd_field = await page.query_selector('input[type="password"]')
+            if pwd_field:
+                await pwd_field.click()
+                await asyncio.sleep(random.uniform(0.3, 0.6))
+            
             # 填写密码
             pwd_filled = await _find_and_fill(page, "login", "password_input", password)
             if not pwd_filled:
                 return {"success": False, "status": "error", "message": "找不到密码输入框"}
 
-            await asyncio.sleep(random.uniform(0.5, 1.5))
+            await asyncio.sleep(random.uniform(1.0, 2.0))
 
             # 点击提交
             submitted = await _find_and_click(page, "login", "submit_button")
@@ -190,8 +221,8 @@ class LinkedInOps:
                 # fallback: 按回车
                 await page.keyboard.press("Enter")
 
-            # 等待结果
-            await asyncio.sleep(8)
+            # 等待结果（更长的等待时间）
+            await asyncio.sleep(random.uniform(5, 8))
 
             # 判断结果
             current_url = page.url
@@ -205,7 +236,7 @@ class LinkedInOps:
             if "checkpoint" in current_url or "challenge" in current_url:
                 self._notify("login", "verification", "需要验证码，请在弹出的浏览器中完成验证")
                 logger.warning("[Login] 需要验证码")
-                # 等待用户手动验证（最多60秒）
+                # 等待用户手动验证（最多120秒）
                 for _ in range(60):
                     await asyncio.sleep(2)
                     if "feed" in page.url:
@@ -215,6 +246,12 @@ class LinkedInOps:
                 return {"success": False, "status": "verification_timeout", "message": "验证超时，请重试"}
 
             if "login" in current_url:
+                # 检查是否有错误提示
+                error_el = await page.query_selector('.alert-error, .form__error, [role="alert"]')
+                if error_el:
+                    error_text = await error_el.text_content()
+                    logger.error("[Login] 登录错误: %s", error_text)
+                    return {"success": False, "status": "failed", "message": f"登录失败: {error_text}"}
                 self._notify("login", "failed", "账号或密码错误")
                 return {"success": False, "status": "failed", "message": "账号或密码错误"}
 

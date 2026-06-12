@@ -37,6 +37,41 @@ logging.getLogger("uvicorn").setLevel(logging.WARNING)
 logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
 logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
 
+def create_desktop_shortcut():
+    """在 Windows 桌面创建快捷方式（仅打包模式，且仅创建一次）"""
+    if sys.platform != "win32" or not IS_BUNDLED:
+        return
+    try:
+        desktop = Path(os.environ.get("USERPROFILE", "")) / "Desktop"
+        if not desktop.exists():
+            desktop = Path(os.environ.get("USERPROFILE", "")) / "OneDrive" / "Desktop"
+        if not desktop.exists():
+            return
+        shortcut_path = desktop / "命运 DESTINY.lnk"
+        if shortcut_path.exists():
+            return  # 已存在，不重复创建
+        exe_path = sys.executable
+        icon_path = str(PROJECT_DIR / "frontend" / "assets" / "icon.ico")
+        # Use PowerShell COM to create shortcut (no extra deps needed)
+        ps_script = f'''
+        $ws = New-Object -ComObject WScript.Shell
+        $sc = $ws.CreateShortcut("{shortcut_path}")
+        $sc.TargetPath = "{exe_path}"
+        $sc.WorkingDirectory = "{Path(exe_path).parent}"
+        $sc.Description = "命运 DESTINY - 智能客户开发系统"
+        $sc.IconLocation = "{icon_path},0"
+        $sc.Save()
+        '''
+        import subprocess
+        subprocess.run(
+            ["powershell", "-NoProfile", "-Command", ps_script],
+            capture_output=True, timeout=10
+        )
+        logger.info("Desktop shortcut created: %s", shortcut_path)
+    except Exception as e:
+        logger.warning("Failed to create desktop shortcut: %s", e)
+
+
 IS_BUNDLED = getattr(sys, '_MEIPASS', None) is not None
 
 if IS_BUNDLED:
@@ -120,22 +155,34 @@ class DestinyApp:
         """在后台线程启动 FastAPI 服务器。"""
         try:
             # Fix: PyInstaller console=False sets stdout/stderr to None
-            # uvicorn needs them for logging, so restore them
-            import io
-            if sys.stdout is None:
-                sys.stdout = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
-            if sys.stderr is None:
-                sys.stderr = io.TextIOWrapper(io.BytesIO(), encoding='utf-8')
+            # uvicorn needs valid file descriptors, so redirect to devnull
+            if sys.stdout is None or not hasattr(sys.stdout, 'fileno'):
+                sys.stdout = open(os.devnull, 'w')
+            if sys.stderr is None or not hasattr(sys.stderr, 'fileno'):
+                sys.stderr = open(os.devnull, 'w')
 
             backend_dir = PROJECT_DIR / "backend"
             for p in [str(backend_dir), str(PROJECT_DIR)]:
                 if p not in sys.path:
                     sys.path.insert(0, p)
             os.chdir(PROJECT_DIR)
-            
+
             logger.info("Starting uvicorn server on %s:%s", HOST, PORT)
+
+            # Pre-check port availability
+            import socket
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                sock.bind((HOST, PORT))
+                sock.close()
+            except OSError as e:
+                self.server_error = f"端口 {PORT} 被占用: {e}\n请关闭占用该端口的程序后重试。"
+                logger.error("Port %s busy: %s", PORT, e)
+                return
+
             import uvicorn
             # Import app object directly (reliable in PyInstaller bundles)
+            logger.info("Importing FastAPI app...")
             from backend.main import app as fastapi_app
             logger.info("FastAPI app imported successfully")
             config = uvicorn.Config(fastapi_app, host=HOST, port=PORT, log_level="warning", access_log=False)
@@ -385,17 +432,20 @@ class DestinyApp:
         
         # 等待服务器就绪
         logger.info("Waiting for server...")
-        if not self.wait_for_server(timeout=30):
+        if not self.wait_for_server(timeout=60):
             if self.server_error:
                 error_msg = f"服务器启动失败:\n\n{self.server_error}"
             else:
-                error_msg = "服务启动超时（30秒），请检查端口是否被占用。\n\n" \
-                           f"地址: {URL}\n日志: {LOG_FILE}"
+                error_msg = "服务启动超时（60秒）。\n\n" \
+                           f"请检查日志: {LOG_FILE}"
             show_error_dialog("启动错误", error_msg)
             sys.exit(1)
         
         logger.info("Server ready, opening window...")
-        
+
+        # 创建桌面快捷方式（仅首次）
+        create_desktop_shortcut()
+
         # 创建系统托盘
         self.setup_tray()
         

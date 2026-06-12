@@ -136,6 +136,7 @@ hiddenimports = [
     'playwright.sync_api',
     'pystray',
     'pystray._base',
+    'pystray._win32',
     'PIL',
     'PIL.Image',
     'PIL.ImageDraw',

@@ -1,44 +1,62 @@
 {
   "_comment": "LinkedIn选择器配置 - 每个元素多种选择器策略，LinkedIn改版时只需更新此文件",
   "_updated": "2026-06-10",
-
   "login": {
     "email_input": [
       "input#username",
-      "input[name='session_key']",
-      "input[type='email']",
-      "input[autocomplete='username']"
+      "input[name=\"session_key\"]",
+      "input[type=\"email\"]",
+      "input[autocomplete=\"username\"]",
+      "input[id=\"session_key-login-email\"]",
+      "form input[type=\"text\"]",
+      "input[aria-label*=\"Email\"]",
+      "input[aria-label*=\"email\"]",
+      "input[placeholder*=\"Email\"]",
+      "input[placeholder*=\"email\"]"
     ],
     "password_input": [
       "input#password",
-      "input[name='session_password']",
-      "input[type='password']",
-      "input[autocomplete='current-password']"
+      "input[name=\"session_password\"]",
+      "input[type=\"password\"]",
+      "input[autocomplete=\"current-password\"]",
+      "input[id=\"session_password-login-password\"]",
+      "input[aria-label*=\"Password\"]",
+      "input[aria-label*=\"password\"]",
+      "input[placeholder*=\"Password\"]",
+      "input[placeholder*=\"password\"]"
     ],
     "submit_button": [
-      "button[type='submit']",
-      "button:has-text('Sign in')",
-      "button:has-text('登录')",
-      "input[type='submit']"
+      "button[type=\"submit\"]",
+      "button:has-text(\"Sign in\")",
+      "button:has-text(\"登录\")",
+      "input[type=\"submit\"]",
+      "button[data-tracking-control-name=\"authwall_sign-in-btn\"]",
+      "button[aria-label*=\"Sign in\"]",
+      "form button[type=\"button\"]"
     ],
     "logged_in_indicator": [
       "div.feed-identity-module",
       "div.global-nav__me",
       "img.global-nav__me-photo",
-      "a[href*='/feed/']"
+      "a[href*=\"/feed/\"]",
+      "div#voyager-feed",
+      "div.authentication-outlet"
     ],
     "captcha": [
       "div#captcha-challenge",
-      "iframe[src*='checkpoint/challenge']",
-      "div.challenge-dialog"
+      "iframe[src*=\"checkpoint/challenge\"]",
+      "div.challenge-dialog",
+      "div[id*=\"captcha\"]",
+      "iframe[src*=\"captcha\"]"
     ],
     "verification": [
-      "input[name='pin']",
-      "div[aria-label*='verification']",
-      "div[aria-label*='verify']"
+      "input[name=\"pin\"]",
+      "div[aria-label*=\"verification\"]",
+      "div[aria-label*=\"verify\"]",
+      "input[aria-label*=\"verification\"]",
+      "input[placeholder*=\"code\"]"
     ]
   },
-
   "search": {
     "result_container": [
       "li.reusable-search__result-container",
@@ -78,7 +96,6 @@
       "li.artdeco-pagination__indicator--number.active + li button"
     ]
   },
-
   "connect": {
     "connect_button": [
       "button:has-text('Connect')",
@@ -119,7 +136,6 @@
       "button.artdeco-modal__dismiss"
     ]
   },
-
   "message": {
     "message_button": [
       "button:has-text('Message')",
@@ -145,7 +161,6 @@
       "button.msg-overlay-bubble-header__control"
     ]
   },
-
   "post": {
     "start_post_button": [
       "button:has-text('Start a post')",
@@ -178,7 +193,6 @@
       "button:has-text('完成')"
     ]
   },
-
   "common": {
     "dismiss_overlay": [
       "button[aria-label='Dismiss']",

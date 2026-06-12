@@ -14,6 +14,14 @@ import time
 from pathlib import Path
 from typing import Optional, Dict, Any
 
+try:
+    from playwright_stealth.stealth import Stealth
+    _stealth = Stealth()
+    HAS_STEALTH = True
+except ImportError:
+    HAS_STEALTH = False
+    logging.warning("playwright-stealth not installed, using basic anti-detection")
+
 logger = logging.getLogger(__name__)
 
 # ── 路径配置 ──────────────────────────────────────────────────
@@ -200,12 +208,21 @@ class BrowserAdapter:
                 "--disable-infobars",
                 "--disable-dev-shm-usage",
                 "--no-sandbox",
+                "--disable-web-security",
+                "--disable-features=IsolateOrigins,site-per-process",
+                "--disable-site-isolation-trials",
+                "--disable-setuid-sandbox",
+                "--disable-accelerated-2d-canvas",
+                "--disable-gpu",
+                f"--window-size={self._viewport['width']},{self._viewport['height']}",
             ],
-            "ignore_default_args": ["--enable-automation"],
+            "ignore_default_args": ["--enable-automation", "--enable-logging"],
             "viewport": self._viewport,
             "user_agent": self._ua,
             "locale": "en-US",
             "timezone_id": "America/New_York",
+            "bypass_csp": True,
+            "java_script_enabled": True,
         }
 
         if self._proxy:
@@ -221,11 +238,41 @@ class BrowserAdapter:
 
         # 注入反检测脚本
         page = self._browser_ctx.pages[0] if self._browser_ctx.pages else await self._browser_ctx.new_page()
-        for script in STEALTH_SCRIPTS:
+        
+        # 使用 playwright-stealth（如果可用）
+        if HAS_STEALTH:
             try:
-                await page.add_init_script(script)
-            except Exception:
-                pass
+                await _stealth.apply_stealth_async(page)
+                logger.info("[Browser] playwright-stealth 已应用")
+            except Exception as e:
+                logger.warning("[Browser] stealth 应用失败: %s, 使用基础脚本", e)
+                for script in STEALTH_SCRIPTS:
+                    try:
+                        await page.add_init_script(script)
+                    except Exception:
+                        pass
+        else:
+            # fallback: 手动脚本
+            for script in STEALTH_SCRIPTS:
+                try:
+                    await page.add_init_script(script)
+                except Exception:
+                    pass
+        
+        # 额外的反检测：移除 cdc_ 相关属性
+        await page.add_init_script("""
+            // 移除 Playwright 注入的 cdc_ 属性
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
+            delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
+            
+            // 覆盖 toString 检测
+            const originalToString = Function.prototype.toString;
+            Function.prototype.toString = function() {
+                if (this === Function.prototype.toString) return 'function toString() { [native code] }';
+                return originalToString.call(this);
+            };
+        """)
 
         self._page = page
         self._last_activity = time.time()
