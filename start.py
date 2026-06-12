@@ -6,6 +6,7 @@ Fortune SCM App - 原生窗口桌面应用
 
 import os
 import sys
+import atexit
 import threading
 import time
 import json
@@ -375,6 +376,18 @@ class DestinyApp:
         """真正退出应用"""
         logger.info("Quit requested")
         self._quit_flag = True
+
+        # 清理 Playwright 浏览器（异步→同步）
+        try:
+            import asyncio
+            from backend.linkedin import shutdown as linkedin_shutdown
+            loop = asyncio.new_event_loop()
+            loop.run_until_complete(linkedin_shutdown())
+            loop.close()
+            logger.info("LinkedIn 浏览器已清理")
+        except Exception as e:
+            logger.warning("清理浏览器失败: %s", e)
+
         if self._tray_icon:
             self._tray_icon.stop()
         if self.window:
@@ -517,6 +530,30 @@ def main():
         logger.info("Log file: %s", LOG_FILE)
         
         app = DestinyApp()
+
+        # atexit 兜底：崩溃/异常退出时也清理浏览器
+        def _cleanup_browser():
+            try:
+                import asyncio
+                from backend.linkedin import shutdown as linkedin_shutdown
+                try:
+                    loop = asyncio.get_event_loop()
+                    if loop.is_running():
+                        # 如果事件循环在跑，用新 loop
+                        new_loop = asyncio.new_event_loop()
+                        new_loop.run_until_complete(linkedin_shutdown())
+                        new_loop.close()
+                    else:
+                        loop.run_until_complete(linkedin_shutdown())
+                except RuntimeError:
+                    new_loop = asyncio.new_event_loop()
+                    new_loop.run_until_complete(linkedin_shutdown())
+                    new_loop.close()
+            except Exception:
+                pass
+
+        atexit.register(_cleanup_browser)
+
         app.run()
     except Exception as e:
         error_msg = f"应用启动失败:\n\n{str(e)}\n\n{traceback.format_exc()}"

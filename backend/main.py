@@ -7,7 +7,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from datetime import timedelta
 from pathlib import Path
+from contextlib import asynccontextmanager
 import os
+import logging
 
 from backend.schemas import (
     UserCreate, UserUpdate, UserResponse, UserLogin, Token,
@@ -34,7 +36,24 @@ from backend.import_export_routes import router as import_export_router
 from backend.linkedin_analytics_routes import router as linkedin_analytics_router
 from backend.auto_import_routes import router as auto_import_router
 
-app = FastAPI(title="命运 (DESTINY)", version="1.0.0")
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app):
+    """应用生命周期：启动时初始化，退出时清理"""
+    logger.info("FastAPI 服务启动")
+    yield
+    # 退出时清理 LinkedIn 浏览器
+    try:
+        from backend.linkedin import shutdown
+        await shutdown()
+        logger.info("LinkedIn 浏览器已清理")
+    except Exception as e:
+        logger.warning("清理 LinkedIn 浏览器失败: %s", e)
+
+
+app = FastAPI(title="命运 (DESTINY)", version="1.0.0", lifespan=lifespan)
 
 # 注册路由
 app.include_router(linkedin_router)
