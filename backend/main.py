@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, status, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -39,6 +40,18 @@ from backend.auto_import_routes import router as auto_import_router
 logger = logging.getLogger(__name__)
 
 
+class NoCacheHTMLMiddleware(BaseHTTPMiddleware):
+    """为 HTML 页面添加 no-cache 响应头，防止 pywebview 缓存旧页面"""
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        content_type = response.headers.get("content-type", "")
+        if "text/html" in content_type:
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
+
+
 @asynccontextmanager
 async def lifespan(app):
     """应用生命周期：启动时初始化，退出时清理"""
@@ -76,6 +89,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# No-cache for HTML pages (防止 pywebview 缓存旧页面)
+app.add_middleware(NoCacheHTMLMiddleware)
 
 # 路径配置 - 支持 PyInstaller 打包
 import sys
