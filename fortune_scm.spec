@@ -38,6 +38,12 @@ datas += _pd
 binaries_extra += _pi
 hiddenimports_extra += _ph
 
+# Collect playwright_stealth (JS evasions files for anti-detection)
+_sd, _si, _sh = _collect_all('playwright_stealth')
+datas += _sd
+binaries_extra += _si
+hiddenimports_extra += _sh
+
 # Include Playwright's downloaded Chromium browser
 import glob as _glob
 _pw_browser_dirs = []
@@ -134,6 +140,7 @@ hiddenimports = [
     'playwright',
     'playwright.async_api',
     'playwright.sync_api',
+    'playwright_stealth',
     'pystray',
     'pystray._base',
     'pystray._win32',
