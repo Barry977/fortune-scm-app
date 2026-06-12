@@ -414,20 +414,19 @@
 
         <!-- LinkedIn 登录弹窗 -->
         <div id="credentialDialog" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
-            <div style="background:white;border-radius:12px;padding:32px;width:400px;max-width:90vw">
+            <div style="background:white;border-radius:12px;padding:32px;width:420px;max-width:90vw">
                 <h3 style="margin:0 0 8px;font-size:18px">🔐 LinkedIn 登录</h3>
-                <p style="margin:0 0 20px;font-size:13px;color:#666">输入你的 LinkedIn 账号密码，或留空使用已保存的凭据</p>
-                <div style="margin-bottom:16px">
-                    <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px">邮箱</label>
-                    <input type="email" id="liEmail" placeholder="your@email.com" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box">
+                <p style="margin:0 0 16px;font-size:13px;color:#666">点击下方按钮后，会在弹出的浏览器窗口中打开 LinkedIn 登录页。<br>请在浏览器中自行输入账号密码登录，登录成功后软件会自动保存登录状态。</p>
+                <div id="loginWaiting" style="display:none;margin:16px 0;padding:12px;background:#fffbeb;border-radius:8px;border:1px solid #fde68a">
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <span style="font-size:18px">⏳</span>
+                        <span style="font-size:13px;color:#92400e">请在弹出的浏览器中登录 LinkedIn...</span>
+                    </div>
+                    <div style="margin-top:8px;font-size:12px;color:#b45309">登录成功后此窗口会自动关闭</div>
                 </div>
-                <div style="margin-bottom:24px">
-                    <label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px">密码</label>
-                    <input type="password" id="liPassword" placeholder="••••••••" style="width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box">
-                </div>
-                <div style="display:flex;gap:8px;justify-content:flex-end">
+                <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:20px">
                     <button class="btn btn-secondary" onclick="closeDialog()">取消</button>
-                    <button class="btn btn-primary" onclick="doLogin()">登录</button>
+                    <button class="btn btn-primary" onclick="doLogin()" id="doLoginBtn">🚀 打开 LinkedIn 登录页</button>
                 </div>
             </div>
         </div>
@@ -670,7 +669,13 @@
                 const text = await resp.text();
                 throw new Error(`HTTP ${resp.status}: ${text}`);
             }
-            return resp.json();
+            const data = await resp.json();
+            // 统一拦截：session 过期自动弹登录框
+            if (data.login_required) {
+                showToast('⚠️ LinkedIn 会话已过期，请重新登录', 'error');
+                loginLinkedIn();
+            }
+            return data;
         }
 
         function showToast(msg, type = 'success') {
@@ -791,41 +796,76 @@
         }
 
         // ── 登录 LinkedIn ──
+        let loginPollTimer = null;
+
         async function loginLinkedIn() {
-            // Show credential dialog first
+            // Show credential dialog
             const dialog = document.getElementById('credentialDialog');
             dialog.style.display = 'flex';
+            document.getElementById('loginWaiting').style.display = 'none';
+            document.getElementById('doLoginBtn').disabled = false;
+            document.getElementById('doLoginBtn').textContent = '🚀 打开 LinkedIn 登录页';
         }
 
         async function doLogin() {
-            const email = document.getElementById('liEmail').value.trim();
-            const password = document.getElementById('liPassword').value;
-            const dialog = document.getElementById('credentialDialog');
-            dialog.style.display = 'none';
-
-            const btn = document.getElementById('loginBtn');
+            const btn = document.getElementById('doLoginBtn');
+            const waiting = document.getElementById('loginWaiting');
             btn.disabled = true;
-            btn.textContent = '⏳ 登录中...';
+            btn.textContent = '⏳ 启动中...';
 
             try {
-                const data = await apiFetch(`${API_PREFIX}/login`, 'POST', { email, password });
+                const data = await apiFetch(`${API_PREFIX}/login-manual`, 'POST');
                 if (data.success) {
-                    showToast(data.message || 'LinkedIn 登录成功！');
-                    loadStatus();
+                    waiting.style.display = 'block';
+                    btn.textContent = '✓ 浏览器已打开';
+                    showToast(data.message || '请在弹出的浏览器中登录 LinkedIn');
+                    // 开始轮询登录状态
+                    startLoginPoll();
                 } else {
-                    showToast(data.message || '登录失败', 'error');
+                    showToast(data.message || '启动失败', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '🚀 打开 LinkedIn 登录页';
                 }
             } catch (e) {
-                console.error('loginLinkedIn error:', e);
-                showToast('登录失败: ' + e.message, 'error');
-            } finally {
+                console.error('loginManual error:', e);
+                showToast('启动失败: ' + e.message, 'error');
                 btn.disabled = false;
-                btn.textContent = '▶ 登录LinkedIn';
+                btn.textContent = '🚀 打开 LinkedIn 登录页';
             }
+        }
+
+        function startLoginPoll() {
+            if (loginPollTimer) clearInterval(loginPollTimer);
+            loginPollTimer = setInterval(async () => {
+                try {
+                    const data = await apiFetch(`${API_PREFIX}/login-status`);
+                    if (data.logged_in) {
+                        // 登录成功
+                        clearInterval(loginPollTimer);
+                        loginPollTimer = null;
+                        closeDialog();
+                        showToast('✅ LinkedIn 登录成功！');
+                        loadStatus();
+                    }
+                } catch (e) {
+                    // 忽略轮询错误
+                }
+            }, 3000);
+            // 5分钟后停止轮询
+            setTimeout(() => {
+                if (loginPollTimer) {
+                    clearInterval(loginPollTimer);
+                    loginPollTimer = null;
+                }
+            }, 300000);
         }
 
         function closeDialog() {
             document.getElementById('credentialDialog').style.display = 'none';
+            if (loginPollTimer) {
+                clearInterval(loginPollTimer);
+                loginPollTimer = null;
+            }
         }
 
         // ── 停止自动化 ──

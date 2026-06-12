@@ -148,12 +148,10 @@ class LinkedInOps:
 
     # ── 登录 ────────────────────────────────────────────────
 
-    async def ensure_logged_in(self, email: str = "", password: str = "") -> Dict[str, Any]:
+    async def login_manual(self) -> Dict[str, Any]:
         """
-        确保已登录 LinkedIn
-        1. 检查当前是否已登录
-        2. 如果未登录且有凭据，自动登录
-        3. 如果需要验证码，提示用户
+        手动登录：打开 LinkedIn 登录页，等用户自己登录
+        浏览器是非 headless 的，用户可以直接操作
         """
         page = await self.browser.get_page()
 
@@ -163,18 +161,92 @@ class LinkedInOps:
             await asyncio.sleep(3)
             if "feed" in page.url and "login" not in page.url:
                 self._notify("login", "logged_in", "已登录")
-                # 保存 cookie
+                await self.browser._save_cookies()
+                return {"success": True, "status": "logged_in", "message": "已登录，无需重复登录"}
+        except Exception:
+            pass
+
+        # 导航到登录页
+        try:
+            await page.goto("https://www.linkedin.com/login", wait_until="domcontentloaded", timeout=30000)
+            self._notify("login", "waiting", "请在浏览器中登录 LinkedIn")
+            logger.info("[Login] 已打开登录页，等待用户手动登录")
+        except Exception as e:
+            logger.error("[Login] 打开登录页失败: %s", e)
+            return {"success": False, "status": "error", "message": f"打开登录页失败: {str(e)[:200]}"}
+
+        # 启动后台轮询，检测登录成功
+        asyncio.create_task(self._wait_for_login_loop())
+
+        return {"success": True, "status": "waiting", "message": "请在弹出的浏览器中登录 LinkedIn，登录成功后会自动保存"}
+
+    async def _wait_for_login_loop(self, timeout: int = 300):
+        """后台轮询：检测用户是否登录成功（最多等 timeout 秒）"""
+        page = self.browser.page
+        if not page:
+            return
+
+        start = time.time()
+        while time.time() - start < timeout:
+            try:
+                if page.is_closed():
+                    logger.warning("[Login] 浏览器已关闭，停止等待")
+                    return
+
+                current_url = page.url
+                if "linkedin.com" in current_url and "login" not in current_url and "checkpoint" not in current_url:
+                    # 可能已登录，去 feed 页确认
+                    try:
+                        await page.goto("https://www.linkedin.com/feed/", wait_until="domcontentloaded", timeout=15000)
+                        await asyncio.sleep(2)
+                    except Exception:
+                        pass
+
+                    if "feed" in page.url and "login" not in page.url:
+                        await self.browser._save_cookies()
+                        self._notify("login", "logged_in", "登录成功")
+                        logger.info("[Login] 用户手动登录成功")
+                        return
+
+                # 检查是否有登录错误提示
+                error_el = await page.query_selector('.alert-content, .form-error, #error-for-username, #error-for-password')
+                if error_el:
+                    error_text = await error_el.text_content()
+                    if error_text and error_text.strip():
+                        self._notify("login", "error", f"登录错误: {error_text.strip()}")
+                        logger.warning("[Login] 登录页错误: %s", error_text.strip())
+
+            except Exception as e:
+                logger.debug("[Login] 轮询异常: %s", e)
+
+            await asyncio.sleep(3)
+
+        # 超时
+        self._notify("login", "timeout", "登录等待超时，请重新登录")
+        logger.warning("[Login] 等待登录超时 (%ds)", timeout)
+
+    async def ensure_logged_in(self, email: str = "", password: str = "") -> Dict[str, Any]:
+        """
+        确保已登录 LinkedIn
+        1. 恢复 cookie 检查是否已登录
+        2. 如果未登录，返回 login_required（不自动填密码）
+        """
+        page = await self.browser.get_page()
+
+        # 检查 cookie 是否有效
+        try:
+            await page.goto("https://www.linkedin.com/feed/", wait_until="domcontentloaded", timeout=30000)
+            await asyncio.sleep(3)
+            if "feed" in page.url and "login" not in page.url:
+                self._notify("login", "logged_in", "已登录")
                 await self.browser._save_cookies()
                 return {"success": True, "status": "logged_in", "message": "已登录"}
         except Exception as e:
             logger.debug("[Login] 登录检查失败: %s", e)
 
-        # 未登录，尝试自动登录
-        if not email or not password:
-            self._notify("login", "need_credentials", "需要输入账号密码")
-            return {"success": False, "status": "need_credentials", "message": "请输入LinkedIn账号密码"}
-
-        return await self._do_login(page, email, password)
+        # 未登录，需要用户手动登录
+        self._notify("login", "need_login", "请重新登录 LinkedIn")
+        return {"success": False, "status": "need_login", "message": "LinkedIn 未登录或会话已过期，请重新登录", "login_required": True}
 
     async def _do_login(self, page, email: str, password: str) -> Dict[str, Any]:
         """执行登录流程"""

@@ -110,13 +110,37 @@ async def get_status(current_user=Depends(get_current_user)):
 
 @router.post("/login")
 async def linkedin_login(req: LoginRequest, current_user=Depends(get_current_user)):
-    """登录 LinkedIn（启动浏览器 + 输入凭据）"""
+    """登录 LinkedIn（兼容旧接口，实际走手动登录）"""
     try:
         ops, engine, browser = _get_linkedin()
-        result = await ops.ensure_logged_in(email=req.email, password=req.password)
+        result = await ops.login_manual()
         return result
     except Exception as e:
         return {"success": False, "status": "error", "message": str(e)[:300]}
+
+
+@router.post("/login-manual")
+async def linkedin_login_manual(current_user=Depends(get_current_user)):
+    """手动登录：打开 LinkedIn 登录页，等用户自己登录"""
+    try:
+        ops, engine, browser = _get_linkedin()
+        result = await ops.login_manual()
+        return result
+    except Exception as e:
+        return {"success": False, "status": "error", "message": str(e)[:300]}
+
+
+@router.get("/login-status")
+async def linkedin_login_status(current_user=Depends(get_current_user)):
+    """查询登录状态（前端轮询用）"""
+    try:
+        ops, engine, browser = _get_linkedin()
+        if not browser.is_running:
+            return {"logged_in": False, "status": "browser_closed"}
+        result = await ops.check_login_status()
+        return result
+    except Exception as e:
+        return {"logged_in": False, "status": f"检查失败: {str(e)[:100]}"}
 
 
 # ── 搜索接口 ────────────────────────────────────────────────
