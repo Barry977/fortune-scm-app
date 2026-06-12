@@ -196,6 +196,19 @@
     <script>
         const API_BASE = window.location.origin;
 
+        // ── 记住我：页面加载时恢复 ──
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('remembered_user');
+            const savedPass = localStorage.getItem('remembered_pass');
+            if (savedUser) {
+                document.getElementById('username').value = savedUser;
+                document.getElementById('rememberMe').checked = true;
+            }
+            if (savedPass) {
+                document.getElementById('password').value = savedPass;
+            }
+        });
+
         // 窗口控制 — 兼容 pywebview 和普通浏览器
         function minimizeWindow() {
             if (window.pywebview && window.pywebview.api) {
@@ -238,6 +251,17 @@
                 if (response.ok) {
                     localStorage.setItem('token', data.access_token);
                     localStorage.setItem('user', JSON.stringify(data.user));
+
+                    // 记住我
+                    const rememberMe = document.getElementById('rememberMe').checked;
+                    if (rememberMe) {
+                        localStorage.setItem('remembered_user', document.getElementById('username').value);
+                        localStorage.setItem('remembered_pass', document.getElementById('password').value);
+                    } else {
+                        localStorage.removeItem('remembered_user');
+                        localStorage.removeItem('remembered_pass');
+                    }
+
                     successDiv.textContent = '登录成功，正在跳转...';
                     successDiv.style.display = 'block';
                     // 保存token到本地文件

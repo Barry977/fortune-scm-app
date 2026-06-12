@@ -69,6 +69,29 @@ jobs:
           # Create zip
           Compress-Archive -Path "$installerDir\*" -DestinationPath "dist\Destiny-Installer.zip"
 
+      - name: Build NSIS installer
+        shell: pwsh
+        run: |
+          # Install NSIS
+          choco install nsis -y
+
+          # Prepare NSIS build directory
+          $nsisDir = "installer\nsis\app"
+          New-Item -ItemType Directory -Path $nsisDir -Force
+
+          # Copy PyInstaller output to NSIS app directory
+          if (Test-Path "dist\Destiny") {
+            Copy-Item -Path "dist\Destiny\*" -Destination $nsisDir -Recurse
+          }
+
+          # Build NSIS installer
+          & "C:\Program Files (x86)\NSIS\makensis.exe" "installer\nsis\installer.nsi"
+
+          # Move the installer to dist
+          if (Test-Path "installer\nsis\Destiny-Setup.exe") {
+            Move-Item -Path "installer\nsis\Destiny-Setup.exe" -Destination "dist\Destiny-Setup.exe" -Force
+          }
+
       - name: Create portable zip
         shell: pwsh
         run: |
@@ -84,6 +107,13 @@ jobs:
         with:
           name: Destiny-Installer
           path: dist/Destiny-Installer.zip
+          if-no-files-found: warn
+
+      - name: Upload NSIS installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Destiny-Setup
+          path: dist/Destiny-Setup.exe
           if-no-files-found: warn
 
       - name: Upload Windows portable
@@ -134,6 +164,7 @@ jobs:
         with:
           files: |
             artifacts/Destiny-Installer/Destiny-Installer.zip
+            artifacts/Destiny-Setup/Destiny-Setup.exe
             artifacts/Destiny-Windows/Destiny-Windows.zip
             artifacts/Destiny-macOS/Destiny-Installer.dmg
           generate_release_notes: true
