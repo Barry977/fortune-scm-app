@@ -221,7 +221,7 @@ class LinkedInOps:
 
             await asyncio.sleep(3)
 
-    async def ensure_logged_in(self, email: str = "", password: str = "") -> Dict[str, Any]:
+    async def ensure_logged_in(self) -> Dict[str, Any]:
         """
         确保已登录 LinkedIn
         1. 恢复 cookie 检查是否已登录
