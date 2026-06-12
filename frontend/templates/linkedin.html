@@ -846,18 +846,17 @@
                         closeDialog();
                         showToast('✅ LinkedIn 登录成功！');
                         loadStatus();
+                    } else if (data.status === 'browser_closed') {
+                        // 用户关了浏览器
+                        clearInterval(loginPollTimer);
+                        loginPollTimer = null;
+                        closeDialog();
+                        showToast('浏览器已关闭，请重新登录', 'error');
                     }
                 } catch (e) {
                     // 忽略轮询错误
                 }
             }, 3000);
-            // 5分钟后停止轮询
-            setTimeout(() => {
-                if (loginPollTimer) {
-                    clearInterval(loginPollTimer);
-                    loginPollTimer = null;
-                }
-            }, 300000);
         }
 
         function closeDialog() {

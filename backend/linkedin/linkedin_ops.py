@@ -180,17 +180,17 @@ class LinkedInOps:
 
         return {"success": True, "status": "waiting", "message": "请在弹出的浏览器中登录 LinkedIn，登录成功后会自动保存"}
 
-    async def _wait_for_login_loop(self, timeout: int = 300):
-        """后台轮询：检测用户是否登录成功（最多等 timeout 秒）"""
+    async def _wait_for_login_loop(self):
+        """后台轮询：检测用户是否登录成功（浏览器关闭则停止）"""
         page = self.browser.page
         if not page:
             return
 
-        start = time.time()
-        while time.time() - start < timeout:
+        while True:
             try:
                 if page.is_closed():
                     logger.warning("[Login] 浏览器已关闭，停止等待")
+                    self._notify("login", "cancelled", "浏览器已关闭")
                     return
 
                 current_url = page.url
@@ -220,10 +220,6 @@ class LinkedInOps:
                 logger.debug("[Login] 轮询异常: %s", e)
 
             await asyncio.sleep(3)
-
-        # 超时
-        self._notify("login", "timeout", "登录等待超时，请重新登录")
-        logger.warning("[Login] 等待登录超时 (%ds)", timeout)
 
     async def ensure_logged_in(self, email: str = "", password: str = "") -> Dict[str, Any]:
         """
